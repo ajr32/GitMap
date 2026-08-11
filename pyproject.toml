@@ -8,3 +8,6 @@ requires-python = ">=3.11"
 dev = [
     "pytest",
 ]
+
+[project.scripts]
+gitmap = "gitmap.cli:main"

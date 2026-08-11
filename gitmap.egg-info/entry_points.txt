@@ -1,0 +1,2 @@
+[console_scripts]
+gitmap = gitmap.cli:main
