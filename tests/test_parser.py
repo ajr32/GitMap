@@ -2,6 +2,7 @@
 
 from gitmap.parser import parse_roadmap, parse_roadmap_text
 
+
 def test_parse_roadmap_name():
     """The roadmap project name is read from the main heading."""
 

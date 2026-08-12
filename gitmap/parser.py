@@ -4,6 +4,7 @@ from pathlib import Path
 
 from gitmap.models import Epic, Issue, Milestone, Requirement, Roadmap
 
+
 def parse_roadmap(path: str | Path) -> Roadmap:
     """Read a Markdown roadmap and return a Roadmap object."""
 

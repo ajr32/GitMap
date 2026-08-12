@@ -2,6 +2,7 @@
 
 from gitmap.models import Epic, Milestone, Roadmap
 
+
 def create_roadmap() -> Roadmap:
     """Create a roadmap through an interactive session."""
 
