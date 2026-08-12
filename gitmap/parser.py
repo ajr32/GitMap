@@ -102,3 +102,26 @@ def parse_roadmap_text(text: str) -> Roadmap:
         milestones=milestones,
     )
 
+def read_roadmap(path):
+    roadmap_path = Path(path)
+    return roadmap_path.read_text(encoding="utf-8")
+
+def find_headings(text):
+    """Find Markdown headings in a roadmap."""
+    headings = []
+
+    for line in text.splitlines():
+        if line.startswith("#"):
+            headings.append(line)
+
+    return headings
+
+def find_issues(text):
+    """Find issue headings in a roadmap."""
+    issues = []
+
+    for line in text.splitlines():
+        if line.startswith("#### "):
+            issues.append(line[5:])
+
+    return issues
