@@ -1,7 +1,6 @@
 """Tests for GitMap roadmap parsing."""
 
-from gitmap.parser import parse_roadmap_text
-
+from gitmap.parser import parse_roadmap, parse_roadmap_text
 
 def test_parse_roadmap_name():
     """The roadmap project name is read from the main heading."""
@@ -140,3 +139,65 @@ Create the basic Python project structure for GitMap.
     assert issue.description == (
         "Create the basic Python project structure for GitMap."
     )
+
+def test_parse_requirements():
+    """Requirements become Requirement objects on an issue."""
+
+    text = """# GitMap Roadmap
+
+Project overview.
+
+## 0.1 Foundations
+
+### Project Setup
+
+#### 0.1.1 Create Project
+
+Create the project.
+
+**Requirements:**
+- Create the package.
+- Create the tests.
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    issue = roadmap.milestones[0].epics[0].issues[0]
+
+    assert len(issue.requirements) == 2
+    assert issue.requirements[0].text == "Create the package."
+    assert issue.requirements[1].text == "Create the tests."
+
+from pathlib import Path
+
+
+def test_parse_full_fixture():
+    """The full roadmap fixture parses into the expected hierarchy."""
+
+    path = Path("tests/fixtures/full_project.md")
+
+    roadmap = parse_roadmap(path)
+
+    assert roadmap.name == "Full Project"
+    assert len(roadmap.milestones) == 2
+
+    foundations = roadmap.milestones[0]
+
+    assert foundations.number == "0.1"
+    assert foundations.title == "Foundations"
+    assert len(foundations.epics) == 2
+
+    project_setup = foundations.epics[0]
+
+    assert project_setup.title == "Project Setup"
+    assert len(project_setup.issues) == 2
+
+    issue = project_setup.issues[0]
+
+    assert issue.number == "0.1.1"
+    assert issue.title == "Create Project"
+    assert issue.description == "Create the project structure."
+    assert [item.text for item in issue.requirements] == [
+        "Create the package.",
+        "Create the tests.",
+    ]

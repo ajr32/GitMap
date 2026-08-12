@@ -2,8 +2,7 @@
 
 from pathlib import Path
 
-from gitmap.models import Epic, Issue, Milestone, Roadmap
-
+from gitmap.models import Epic, Issue, Milestone, Requirement, Roadmap
 
 def parse_roadmap(path: str | Path) -> Roadmap:
     """Read a Markdown roadmap and return a Roadmap object."""
@@ -33,6 +32,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
     current_epic: Epic | None = None
 
     current_issue: Issue | None = None
+
+    current_requirements: list[Requirement] = []
 
     found_title = False
 
@@ -84,6 +85,15 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             continue
 
+        if current_issue is not None and stripped.startswith("- "):
+            current_requirements.append(Requirement(text=stripped[2:].strip()))
+            current_issue.requirements = current_requirements
+            continue
+
+        if current_issue is not None and stripped == "**Requirements:**":
+            current_requirements = []
+            continue
+            
         if (
             current_issue is not None
             and stripped

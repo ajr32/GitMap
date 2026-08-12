@@ -13,6 +13,7 @@ def test_create_roadmap(monkeypatch):
             "0.1",
             "Foundations",
             "",
+            "",
         ]
     )
 
@@ -34,6 +35,7 @@ def test_create_roadmap_with_milestone(monkeypatch):
             "0.1",
             "Foundations",
             "",
+            "",
         ]
     )
 
@@ -54,8 +56,11 @@ def test_create_roadmap_with_multiple_milestones(monkeypatch):
             "Turn a roadmap into a structured GitHub project.",
             "0.1",
             "Foundations",
+            "Project Setup",
+            "",
             "0.2",
             "Roadmap Parser",
+            "",
             "",
         ]
     )
