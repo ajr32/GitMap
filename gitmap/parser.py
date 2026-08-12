@@ -85,15 +85,15 @@ def parse_roadmap_text(text: str) -> Roadmap:
             continue
 
         if (
-                current_issue is not None
-                and stripped
-                and not stripped.startswith("#")
-                and not stripped.startswith("**")
+            current_issue is not None
+            and stripped
+            and not stripped.startswith("#")
+            and not stripped.startswith("**")
         ):
-                if current_issue.description:
-                    current_issue.description += "\n"
+            if current_issue.description:
+                current_issue.description += "\n"
 
-                current_issue.description += stripped
+            current_issue.description += stripped
 
         if found_title and stripped:
             overview_lines.append(stripped)
