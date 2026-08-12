@@ -4,6 +4,7 @@ from pathlib import Path
 
 from gitmap.models import Epic, Issue, Milestone, Roadmap
 
+
 def parse_roadmap(path: str | Path) -> Roadmap:
     """Read a Markdown roadmap and return a Roadmap object."""
 
@@ -83,9 +84,12 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             continue
 
-
-        if current_issue is not None and stripped:
-            if not stripped.startswith("#") and not stripped.startswith("**"):
+        if (
+                current_issue is not None
+                and stripped
+                and not stripped.startswith("#")
+                and not stripped.startswith("**")
+        ):
                 if current_issue.description:
                     current_issue.description += "\n"
 
@@ -102,9 +106,11 @@ def parse_roadmap_text(text: str) -> Roadmap:
         milestones=milestones,
     )
 
+
 def read_roadmap(path):
     roadmap_path = Path(path)
     return roadmap_path.read_text(encoding="utf-8")
+
 
 def find_headings(text):
     """Find Markdown headings in a roadmap."""
@@ -115,6 +121,7 @@ def find_headings(text):
             headings.append(line)
 
     return headings
+
 
 def find_issues(text):
     """Find issue headings in a roadmap."""

@@ -16,6 +16,11 @@ class GitHubClient:
 
         return f"{self.username}/{self.repository}"
 
+    def repository_url(self) -> str:
+        """Return the GitHub repository URL."""
+
+        return f"https://github.com/{self.repository_name()}"
+
     def is_authenticated(self) -> bool:
         """Return whether a GitHub token has been provided."""
 

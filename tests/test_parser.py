@@ -33,6 +33,7 @@ GitMap turns a project roadmap into a structured GitHub project.
         == "GitMap turns a project roadmap into a structured GitHub project."
     )
 
+
 def test_parse_milestones():
     """Milestone headings become Milestone objects."""
 
@@ -54,6 +55,7 @@ Project overview.
 
     assert roadmap.milestones[1].number == "0.2"
     assert roadmap.milestones[1].title == "Roadmap Parser"
+
 
 def test_parse_epics():
     """Epic headings become Epic objects within their milestone."""
@@ -80,6 +82,7 @@ Project overview.
     assert len(milestone.epics) == 2
     assert milestone.epics[0].title == "Project Setup"
     assert milestone.epics[1].title == "Roadmap Format"
+
 
 def test_parse_issues():
     """Issue headings become Issue objects within their epic."""
@@ -112,6 +115,7 @@ Set up development dependencies.
     assert issues[0].title == "Create Python Project"
     assert issues[1].number == "0.1.2"
     assert issues[1].title == "Install Dependencies"
+
 
 def test_parse_issue_description():
     """Text beneath an issue heading becomes its description."""

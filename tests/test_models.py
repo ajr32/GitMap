@@ -36,11 +36,7 @@ def test_create_roadmap():
     assert roadmap.milestones[0].epics[0].title == "Project Setup"
     assert roadmap.milestones[0].epics[0].issues[0].number == "0.1.1"
     assert (
-        roadmap.milestones[0]
-        .epics[0]
-        .issues[0]
-        .requirements[0]
-        .text
+        roadmap.milestones[0].epics[0].issues[0].requirements[0].text
         == "Create the GitMap package."
     )
 

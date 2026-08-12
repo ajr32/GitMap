@@ -27,9 +27,7 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
 
         if not milestone.title.strip():
             errors.append(
-                ValidationError(
-                    f"Milestone {milestone.number} title cannot be blank."
-                )
+                ValidationError(f"Milestone {milestone.number} title cannot be blank.")
             )
 
         for epic in milestone.epics:

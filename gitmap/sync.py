@@ -33,18 +33,12 @@ class SyncEngine:
         result = SyncResult()
 
         for milestone in self.roadmap.milestones:
-            result.created.append(
-                f"Milestone: {milestone.number} {milestone.title}"
-            )
+            result.created.append(f"Milestone: {milestone.number} {milestone.title}")
 
             for epic in milestone.epics:
-                result.created.append(
-                    f"Epic: {epic.title}"
-                )
+                result.created.append(f"Epic: {epic.title}")
 
                 for issue in epic.issues:
-                    result.created.append(
-                        f"Issue: {issue.number} {issue.title}"
-                    )
+                    result.created.append(f"Issue: {issue.number} {issue.title}")
 
         return result

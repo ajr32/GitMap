@@ -1,6 +1,5 @@
 """Display GitMap roadmap data."""
 
-
 from gitmap.models import Roadmap
 
 
@@ -39,7 +38,4 @@ def print_roadmap(roadmap: Roadmap) -> None:
 
                 for sub_issue in issue.sub_issues:
                     print()
-                    print(
-                        f"##### {sub_issue.number} "
-                        f"{sub_issue.title}"
-                    )
+                    print(f"##### {sub_issue.number} {sub_issue.title}")

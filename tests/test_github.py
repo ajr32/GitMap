@@ -13,6 +13,7 @@ def test_repository_name():
 
     assert client.repository_name() == "example-user/gitmap"
 
+
 def test_client_is_authenticated_with_token():
     """A client with a token reports authenticated."""
 
@@ -34,3 +35,14 @@ def test_client_is_not_authenticated_without_token():
     )
 
     assert not client.is_authenticated()
+
+
+def test_repository_url():
+    """The client builds the expected GitHub URL."""
+
+    client = GitHubClient(
+        username="example-user",
+        repository="gitmap",
+    )
+
+    assert client.repository_url() == "https://github.com/example-user/gitmap"
