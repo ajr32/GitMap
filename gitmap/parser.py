@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from gitmap.models import Milestone, Roadmap
+from gitmap.models import Epic, Issue, Milestone, Roadmap
 
 def parse_roadmap(path: str | Path) -> Roadmap:
     """Read a Markdown roadmap and return a Roadmap object."""
@@ -27,6 +27,12 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     milestones: list[Milestone] = []
 
+    current_milestone: Milestone | None = None
+
+    current_epic: Epic | None = None
+
+    current_issue: Issue | None = None
+
     found_title = False
 
     for line in lines:
@@ -46,14 +52,44 @@ def parse_roadmap_text(text: str) -> Roadmap:
             parts = milestone_heading.split(maxsplit=1)
 
             if len(parts) == 2:
-                milestones.append(
-                    Milestone(
+                current_milestone = Milestone(
+                    number=parts[0],
+                    title=parts[1],
+                )
+                milestones.append(current_milestone)
+
+            continue
+
+        if found_title and stripped.startswith("### "):
+            if current_milestone is not None:
+                epic_title = stripped[4:].strip()
+
+                current_epic = Epic(title=epic_title)
+                current_milestone.epics.append(current_epic)
+
+            continue
+
+        if found_title and stripped.startswith("#### "):
+            if current_epic is not None:
+                issue_heading = stripped[5:].strip()
+                parts = issue_heading.split(maxsplit=1)
+
+                if len(parts) == 2:
+                    current_issue = Issue(
                         number=parts[0],
                         title=parts[1],
                     )
-                )
+                    current_epic.issues.append(current_issue)
 
             continue
+
+
+        if current_issue is not None and stripped:
+            if not stripped.startswith("#") and not stripped.startswith("**"):
+                if current_issue.description:
+                    current_issue.description += "\n"
+
+                current_issue.description += stripped
 
         if found_title and stripped:
             overview_lines.append(stripped)
