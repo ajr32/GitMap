@@ -36,6 +36,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     current_issue: Issue | None = None
 
+    current_description_target = None
+
     current_requirements: list[Requirement] = []
 
     found_title = False
@@ -46,6 +48,10 @@ def parse_roadmap_text(text: str) -> Roadmap:
         if stripped.startswith("Title:"):
             name = stripped[6:].strip()
             found_title = True
+            continue
+
+        if stripped.startswith("Sub-Title:"):
+            overview_lines.append(stripped[10:].strip())
             continue
 
         if stripped.startswith("# ") and not found_title:
@@ -66,6 +72,11 @@ def parse_roadmap_text(text: str) -> Roadmap:
                     number=parts[0],
                     title=parts[1],
                 )
+                current_section = None
+                current_feature = None
+                current_issue = None
+                current_requirements = []
+                current_description_target = None
                 milestones.append(current_milestone)
 
             continue
@@ -80,6 +91,10 @@ def parse_roadmap_text(text: str) -> Roadmap:
                         number=parts[0],
                         title=parts[1],
                     )
+                    current_description_target = current_section
+                    current_feature = None
+                    current_issue = None
+                    current_requirements = []
                     current_milestone.sections.append(current_section)
 
             continue
@@ -94,26 +109,50 @@ def parse_roadmap_text(text: str) -> Roadmap:
                         number=parts[0],
                         title=parts[1],
                     )
+                    current_description_target = current_feature
+                    current_issue = None
+                    current_requirements = []
                     current_section.features.append(current_feature)
 
             continue
 
         if found_title and stripped.startswith("#### "):
-            if current_section is not None:
-                issue_heading = stripped[5:].strip()
-                parts = issue_heading.split(maxsplit=1)
+            issue_heading = stripped[5:].strip()
+            parts = issue_heading.split(maxsplit=1)
 
-                if len(parts) == 2:
-                    current_issue = Issue(
-                        number=parts[0],
-                        title=parts[1],
-                    )
+            if len(parts) == 2:
+                current_issue = Issue(
+                    number=parts[0],
+                    title=parts[1],
+                )
+                current_description_target = current_issue
 
-                    if current_feature is not None:
-                        current_feature.issues.append(current_issue)
-                    else:
-                        current_section.issues.append(current_issue)
+                if current_feature is not None:
+                    current_feature.issues.append(current_issue)
+                elif current_section is not None:
+                    current_section.issues.append(current_issue)
+                elif current_milestone is not None:
+                    current_milestone.issues.append(current_issue)
 
+                current_requirements = []
+
+            continue
+
+        if current_issue is not None and stripped.startswith("[ ] "):
+            sub_issue_text = stripped[4:].strip()
+            parts = sub_issue_text.split(maxsplit=1)
+
+            if len(parts) == 2:
+                sub_issue = Issue(
+                    number=parts[0],
+                    title=parts[1],
+                )
+                current_issue.sub_issues.append(sub_issue)
+
+            continue
+
+        if current_issue is not None and stripped == "**Requirements:**":
+            current_requirements = []
             continue
 
         if current_issue is not None and stripped.startswith("- "):
@@ -121,23 +160,16 @@ def parse_roadmap_text(text: str) -> Roadmap:
             current_issue.requirements = current_requirements
             continue
 
-        if current_issue is not None and stripped == "**Requirements:**":
-            current_requirements = []
-            continue
-
         if (
-            current_issue is not None
+            current_description_target is not None
             and stripped
             and not stripped.startswith("#")
             and not stripped.startswith("**")
         ):
-            if current_issue.description:
-                current_issue.description += "\n"
+            if current_description_target.description:
+                current_description_target.description += "\n"
 
-            current_issue.description += stripped
-
-        if found_title and stripped:
-            overview_lines.append(stripped)
+            current_description_target.description += stripped
 
     overview = "\n".join(overview_lines)
 
@@ -180,7 +212,7 @@ def find_milestones(text):
     milestones = []
 
     for line in text.splitlines():
-        if line.startswith("## "):
-            milestones.append(line[3:])
+        if line.startswith("# "):
+            milestones.append(line[2:])
 
     return milestones

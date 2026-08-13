@@ -10,6 +10,9 @@ Set up the basic project.
 
 Create the project structure.
 
+[ ] (a) Create the package
+[ ] (b) Create the tests
+
 **Requirements:**
 - Create the package.
 - Create the tests.

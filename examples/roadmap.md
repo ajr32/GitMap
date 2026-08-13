@@ -1,16 +1,14 @@
-# GitMap Roadmap
+Title: GitMap Roadmap
 
-GitMap turns a project roadmap into a structured GitHub project.
+Sub-Title: GitMap turns a project roadmap into a structured GitHub project.
 
-## 0.1 Foundations
+# 0.1 Foundations
 
-### Project Setup
-
-**Type:** Section
+## 0.1.1 Project Setup
 
 Set up the basic GitMap project so it can be installed, run, tested, and developed safely.
 
-#### 0.1.1 Create Python Project
+#### 0.1.1.0.1 Create Python Project
 
 Create the basic Python project structure for GitMap.
 
@@ -19,8 +17,8 @@ Create the basic Python project structure for GitMap.
 - Create `../pyproject.toml`.
 - Create a `tests` directory.
 - Create a `../.gitignore`.
-- 
-#### 0.1.2 Install Dependencies
+-
+#### 0.1.1.0.2 Install Dependencies
 
 Set up the dependencies needed to develop and test GitMap.
 
@@ -28,7 +26,7 @@ Set up the dependencies needed to develop and test GitMap.
 - Support editable installation.
 - Add `pytest` as a development dependency.
 - Confirm the development environment installs successfully.
-#### 0.1.3 Create Command-Line Entry Point
+#### 0.1.1.0.3 Create Command-Line Entry Point
 
 Create the basic command-line entry point for GitMap.
 
@@ -37,7 +35,7 @@ Create the basic command-line entry point for GitMap.
 - Display a simple welcome message.
 - Exit cleanly.
 
-#### 0.1.4 Add Initial Tests
+#### 0.1.1.0.4 Add Initial Tests
 
 Create the first automated tests for GitMap.
 
@@ -46,7 +44,7 @@ Create the first automated tests for GitMap.
 - Confirm the command-line entry point runs.
 - Confirm the test suite can be run with `pytest`.
 
-#### 0.1.5 Add Project Documentation
+#### 0.1.1.0.5 Add Project Documentation
 
 Create the basic documentation needed to understand and develop GitMap.
 
@@ -56,13 +54,11 @@ Create the basic documentation needed to understand and develop GitMap.
 - Explain how to run GitMap.
 - Explain how to run the tests.
 
-### Roadmap Format
-
-**Type:** Section
+## 0.1.2 Roadmap Format
 
 Define the Markdown structure GitMap will use to describe projects before they are synchronized with GitHub.
 
-#### 0.1.6 Define Roadmap Structure
+#### 0.1.2.0.1 Define Roadmap Structure
 
 Define the hierarchy used in a GitMap roadmap.
 
@@ -74,7 +70,7 @@ Define the hierarchy used in a GitMap roadmap.
 - Support descriptions and requirements.
 - Use Markdown headings to represent hierarchy.
 
-#### 0.1.7 Create Example Roadmap
+#### 0.1.2.0.2 Create Example Roadmap
 
 Create a complete example roadmap that can be used for development and testing.
 
@@ -85,7 +81,7 @@ Create a complete example roadmap that can be used for development and testing.
 - Include at least one sub-issue.
 - Include descriptions and requirements.
 
-#### 0.1.8 Document Roadmap Format
+#### 0.1.2.0.3 Document Roadmap Format
 
 Document how users should write a GitMap roadmap.
 
@@ -94,15 +90,13 @@ Document how users should write a GitMap roadmap.
 - Show how milestones, Sections, issues, and sub-issues are represented.
 - Provide a copyable example.
 
-## 0.2 Roadmap Parser
+# 0.2 Roadmap Parser
 
-### Markdown Parsing
-
-**Type:** Section
+## 0.2.1 Markdown Parsing
 
 Teach GitMap to read a roadmap and turn its Markdown structure into project data.
 
-#### 0.2.1 Read Roadmap File
+#### 0.2.1.0.1 Read Roadmap File
 
 Load a roadmap from a Markdown file.
 
@@ -111,7 +105,7 @@ Load a roadmap from a Markdown file.
 - Read the Markdown contents.
 - Report a clear error if the file cannot be read.
 
-#### 0.2.2 Parse Milestones
+#### 0.2.1.0.2 Parse Milestones
 
 Identify milestone headings in the roadmap.
 
@@ -120,7 +114,7 @@ Identify milestone headings in the roadmap.
 - Capture the milestone number and title.
 - Preserve the order of milestones.
 
-#### 0.2.3 Parse Sections
+#### 0.2.1.0.3 Parse Sections
 
 Identify Sections within each milestone.
 
@@ -130,7 +124,7 @@ Identify Sections within each milestone.
 - Capture the Section description.
 - Recognize the Section type marker.
 
-#### 0.2.4 Parse Issues
+#### 0.2.1.0.4 Parse Issues
 
 Identify issues within each Section.
 
@@ -140,7 +134,7 @@ Identify issues within each Section.
 - Capture the issue description.
 - Capture requirements.
 
-#### 0.2.5 Parse Sub-Issues
+#### 0.2.1.0.5 Parse Sub-Issues
 
 Support issues nested beneath other issues.
 
@@ -149,13 +143,11 @@ Support issues nested beneath other issues.
 - Preserve the roadmap hierarchy.
 - Support numbering such as `0.2.4.1`.
 
-### Roadmap Validation
-
-**Type:** Section
+## 0.2.2 Roadmap Validation
 
 Detect roadmap problems before anything is sent to GitHub.
 
-#### 0.2.6 Validate Roadmap Structure
+#### 0.2.2.0.1 Validate Roadmap Structure
 
 Check that the roadmap follows GitMap's expected hierarchy.
 
@@ -165,7 +157,7 @@ Check that the roadmap follows GitMap's expected hierarchy.
 - Detect malformed hierarchy.
 - Provide useful error messages.
 
-#### 0.2.7 Validate Numbering
+#### 0.2.2.0.2 Validate Numbering
 
 Check roadmap numbering for obvious errors.
 
@@ -174,7 +166,7 @@ Check roadmap numbering for obvious errors.
 - Detect invalid parent relationships.
 - Identify the location of the problem.
 
-#### 0.2.8 Preview Parsed Roadmap
+#### 0.2.2.0.3 Preview Parsed Roadmap
 
 Allow users to see what GitMap understood before synchronization.
 
@@ -184,15 +176,13 @@ Allow users to see what GitMap understood before synchronization.
 - Display issues and sub-issues.
 - Preserve hierarchy in the preview.
 
-## 0.3 GitHub Setup
+# 0.3 GitHub Setup
 
-### Repository Connection
-
-**Type:** Section
+## 0.3.1 Repository Connection
 
 Connect a completed GitMap roadmap to a GitHub repository chosen by the user.
 
-#### 0.3.1 Collect Repository Information
+#### 0.3.1.0.1 Collect Repository Information
 
 Ask the user which GitHub repository should receive the roadmap.
 
@@ -202,7 +192,7 @@ Ask the user which GitHub repository should receive the roadmap.
 - Do not create the repository automatically.
 - Allow roadmap creation to be completed before GitHub setup begins.
 
-#### 0.3.2 Configure GitHub Authentication
+#### 0.3.1.0.2 Configure GitHub Authentication
 
 Set up authentication required to work with the selected repository.
 
@@ -212,7 +202,7 @@ Set up authentication required to work with the selected repository.
 - Detect missing authentication.
 - Never store authentication tokens in the roadmap.
 
-#### 0.3.3 Verify Repository
+#### 0.3.1.0.3 Verify Repository
 
 Confirm that GitMap can access the repository before synchronization.
 
@@ -222,13 +212,11 @@ Confirm that GitMap can access the repository before synchronization.
 - Verify that the user has appropriate access.
 - Stop synchronization if verification fails.
 
-### GitHub Project Structure
-
-**Type:** Section
+## 0.3.2 GitHub Project Structure
 
 Translate GitMap's roadmap concepts into the GitHub structures needed for synchronization.
 
-#### 0.3.4 Define Milestone Mapping
+#### 0.3.2.0.1 Define Milestone Mapping
 
 Define how roadmap milestones map to GitHub milestones.
 
@@ -237,7 +225,7 @@ Define how roadmap milestones map to GitHub milestones.
 - Avoid creating duplicate milestones.
 - Allow existing milestones to be recognized.
 
-#### 0.3.5 Define Label Mapping
+#### 0.3.2.0.2 Define Label Mapping
 
 Define the labels GitMap uses when creating GitHub items.
 
@@ -247,7 +235,7 @@ Define the labels GitMap uses when creating GitHub items.
 - Avoid creating duplicate labels.
 - Allow labels to be created before issues are synchronized.
 
-#### 0.3.6 Define Issue Mapping
+#### 0.3.2.0.3 Define Issue Mapping
 
 Define how roadmap items become GitHub issues.
 
@@ -258,7 +246,7 @@ Define how roadmap items become GitHub issues.
 - Associate issues with their milestone.
 - Apply appropriate labels.
 
-#### 0.3.7 Define Sub-Issue Mapping
+#### 0.3.2.0.4 Define Sub-Issue Mapping
 
 Define how roadmap hierarchy is represented in GitHub.
 
@@ -267,15 +255,13 @@ Define how roadmap hierarchy is represented in GitHub.
 - Keep sub-issues associated with their parent.
 - Preserve roadmap numbering.
 
-## 0.4 GitHub Synchronization
+# 0.4 GitHub Synchronization
 
-### Synchronization Engine
-
-**Type:** Section
+## 0.4.1 Synchronization Engine
 
 Synchronize the validated roadmap with the selected GitHub repository.
 
-#### 0.4.1 Create Labels
+#### 0.4.1.0.1 Create Labels
 
 Create the labels required by the roadmap before synchronizing other items.
 
@@ -285,7 +271,7 @@ Create the labels required by the roadmap before synchronizing other items.
 - Create only missing labels.
 - Do not create duplicates.
 
-#### 0.4.2 Create Milestones
+#### 0.4.1.0.2 Create Milestones
 
 Create roadmap milestones in GitHub.
 
@@ -295,7 +281,7 @@ Create roadmap milestones in GitHub.
 - Preserve milestone titles.
 - Do not create duplicates.
 
-#### 0.4.3 Create Sections
+#### 0.4.1.0.3 Create Sections
 
 Create GitHub issues representing roadmap Sections.
 
@@ -306,7 +292,7 @@ Create GitHub issues representing roadmap Sections.
 - Associate the Section with its milestone.
 - Detect an existing matching Section before creating another.
 
-#### 0.4.4 Create Issues
+#### 0.4.1.0.4 Create Issues
 
 Create GitHub issues from roadmap issues.
 
@@ -318,7 +304,7 @@ Create GitHub issues from roadmap issues.
 - Apply defined labels.
 - Detect existing matching issues before creating another.
 
-#### 0.4.5 Create Sub-Issues
+#### 0.4.1.0.5 Create Sub-Issues
 
 Create roadmap sub-issues and associate them with their parent issues.
 
@@ -328,13 +314,11 @@ Create roadmap sub-issues and associate them with their parent issues.
 - Include descriptions and requirements.
 - Associate sub-issues with the correct milestone.
 
-### Safe Synchronization
-
-**Type:** Section
+## 0.4.2 Safe Synchronization
 
 Make synchronization predictable and safe to run more than once.
 
-#### 0.4.6 Add Dry Run
+#### 0.4.2.0.1 Add Dry Run
 
 Allow users to preview what synchronization would change without changing GitHub.
 
@@ -344,7 +328,7 @@ Allow users to preview what synchronization would change without changing GitHub
 - Make no GitHub changes during a dry run.
 - Clearly identify dry-run output.
 
-#### 0.4.7 Prevent Duplicate Items
+#### 0.4.2.0.2 Prevent Duplicate Items
 
 Make repeated synchronization safe.
 
@@ -355,7 +339,7 @@ Make repeated synchronization safe.
 - Prevent duplicate milestones.
 - Prevent duplicate issues.
 
-#### 0.4.8 Add Synchronization Summary
+#### 0.4.2.0.3 Add Synchronization Summary
 
 Display the result of synchronization.
 
@@ -364,15 +348,13 @@ Display the result of synchronization.
 - Report items already present.
 - Report skipped items.
 - Report errors.
-## 0.5 Roadmap Updates
+# 0.5 Roadmap Updates
 
-### Existing Project Import
-
-**Type:** Section
+## 0.5.1 Existing Project Import
 
 Allow GitMap to understand what already exists in a connected GitHub repository.
 
-#### 0.5.1 Read Existing Milestones
+#### 0.5.1.0.1 Read Existing Milestones
 
 Retrieve existing milestones from the repository.
 
@@ -381,7 +363,7 @@ Retrieve existing milestones from the repository.
 - Recognize milestones already represented in the roadmap.
 - Preserve GitHub milestone identifiers for later updates.
 
-#### 0.5.2 Read Existing Labels
+#### 0.5.1.0.2 Read Existing Labels
 
 Retrieve existing repository labels.
 
@@ -390,7 +372,7 @@ Retrieve existing repository labels.
 - Match existing labels to roadmap labels.
 - Avoid recreating labels that already exist.
 
-#### 0.5.3 Read Existing Issues
+#### 0.5.1.0.3 Read Existing Issues
 
 Retrieve existing GitHub issues that correspond to roadmap items.
 
@@ -400,7 +382,7 @@ Retrieve existing GitHub issues that correspond to roadmap items.
 - Preserve GitHub issue numbers.
 - Distinguish GitMap-managed items from unrelated repository issues.
 
-#### 0.5.4 Rebuild Roadmap State
+#### 0.5.1.0.4 Rebuild Roadmap State
 
 Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
@@ -410,13 +392,11 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 - Restore sub-issue relationships when available.
 - Identify roadmap items that cannot be matched safely.
 
-### Roadmap Changes
-
-**Type:** Section
+## 0.5.2 Roadmap Changes
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
-#### 0.5.5 Detect Roadmap Changes
+#### 0.5.2.0.1 Detect Roadmap Changes
 
 Compare the local roadmap with the current GitHub project.
 
@@ -426,7 +406,7 @@ Compare the local roadmap with the current GitHub project.
 - Detect items that already match GitHub.
 - Present differences before synchronization.
 
-#### 0.5.6 Update Existing Items
+#### 0.5.2.0.2 Update Existing Items
 
 Update GitHub items when their corresponding roadmap entries change.
 
@@ -437,7 +417,7 @@ Update GitHub items when their corresponding roadmap entries change.
 - Preserve GitHub issue numbers.
 - Avoid recreating existing items.
 
-#### 0.5.7 Handle Removed Roadmap Items
+#### 0.5.2.0.3 Handle Removed Roadmap Items
 
 Safely identify items that exist in GitHub but have been removed from the roadmap.
 
@@ -447,7 +427,7 @@ Safely identify items that exist in GitHub but have been removed from the roadma
 - Require an explicit user decision before destructive changes.
 - Preserve historical GitHub data by default.
 
-#### 0.5.8 Preview Updates
+#### 0.5.2.0.4 Preview Updates
 
 Show the user exactly what an update synchronization will do.
 
@@ -457,15 +437,13 @@ Show the user exactly what an update synchronization will do.
 - Show unchanged items.
 - Show roadmap items that were removed.
 - Require confirmation before applying changes.
-## 0.6 User Workflow
+# 0.6 User Workflow
 
-### Interactive Roadmap Builder
-
-**Type:** Section
+## 0.6.1 Interactive Roadmap Builder
 
 Guide users through creating a roadmap without requiring them to know GitMap's Markdown format.
 
-#### 0.6.1 Start New Roadmap
+#### 0.6.1.0.1 Start New Roadmap
 
 Begin an interactive roadmap-building session.
 
@@ -475,7 +453,7 @@ Begin an interactive roadmap-building session.
 - Create the initial roadmap structure.
 - Do not require GitHub information yet.
 
-#### 0.6.2 Collect Milestones
+#### 0.6.1.0.2 Collect Milestones
 
 Guide the user through defining project milestones.
 
@@ -485,7 +463,7 @@ Guide the user through defining project milestones.
 - Allow multiple milestones.
 - Allow the user to indicate when they are finished.
 
-#### 0.6.3 Collect Sections
+#### 0.6.1.0.3 Collect Sections
 
 Guide the user through defining Sections within each milestone.
 
@@ -495,7 +473,7 @@ Guide the user through defining Sections within each milestone.
 - Associate the Section with its milestone.
 - Allow multiple Sections.
 
-#### 0.6.4 Collect Issues
+#### 0.6.1.0.4 Collect Issues
 
 Guide the user through defining issues within an Section.
 
@@ -506,7 +484,7 @@ Guide the user through defining issues within an Section.
 - Allow requirements to be entered individually.
 - Treat a blank entry as finished.
 
-#### 0.6.5 Collect Sub-Issues
+#### 0.6.1.0.5 Collect Sub-Issues
 
 Allow an issue to contain smaller sub-issues.
 
@@ -517,7 +495,7 @@ Allow an issue to contain smaller sub-issues.
 - Preserve the parent-child relationship.
 - Support additional nesting when appropriate.
 
-#### 0.6.6 Support Pasted Content
+#### 0.6.1.0.6 Support Pasted Content
 
 Allow users to paste existing project information instead of answering every question individually.
 
@@ -528,13 +506,11 @@ Allow users to paste existing project information instead of answering every que
 - Preserve multiline content.
 - Allow interactive questions and pasted content to be mixed.
 
-### Roadmap Review
-
-**Type:** Section
+## 0.6.2 Roadmap Review
 
 Let the user review and revise the roadmap before connecting it to GitHub.
 
-#### 0.6.7 Display Completed Roadmap
+#### 0.6.2.0.1 Display Completed Roadmap
 
 Show the complete generated roadmap.
 
@@ -543,7 +519,7 @@ Show the complete generated roadmap.
 - Make milestone, Section, issue, and sub-issue relationships clear.
 - Show descriptions and requirements.
 
-#### 0.6.8 Edit Roadmap Before Sync
+#### 0.6.2.0.2 Edit Roadmap Before Sync
 
 Allow changes before GitHub synchronization begins.
 
@@ -554,7 +530,7 @@ Allow changes before GitHub synchronization begins.
 - Allow items to be removed.
 - Revalidate the roadmap after changes.
 
-#### 0.6.9 Save Roadmap
+#### 0.6.2.0.3 Save Roadmap
 
 Save the completed roadmap to `roadmap.md`.
 
@@ -563,15 +539,13 @@ Save the completed roadmap to `roadmap.md`.
 - Preserve the complete hierarchy.
 - Confirm where the roadmap was saved.
 
-## 0.7 Command-Line Experience
+# 0.7 Command-Line Experience
 
-### GitMap Commands
-
-**Type:** Section
+## 0.7.1 GitMap Commands
 
 Provide a simple command-line interface for the complete GitMap workflow.
 
-#### 0.7.1 Create Main GitMap Command
+#### 0.7.1.0.1 Create Main GitMap Command
 
 Create the primary command used to launch GitMap.
 
@@ -581,7 +555,7 @@ Create the primary command used to launch GitMap.
 - Display the installed version.
 - Exit cleanly when requested.
 
-#### 0.7.2 Create Roadmap Command
+#### 0.7.1.0.2 Create Roadmap Command
 
 Provide a command for creating or working with a roadmap.
 
@@ -591,7 +565,7 @@ Provide a command for creating or working with a roadmap.
 - Validate the roadmap before completing.
 - Save changes to `roadmap.md`.
 
-#### 0.7.3 Create Preview Command
+#### 0.7.1.0.3 Create Preview Command
 
 Provide a command for previewing how GitMap interprets a roadmap.
 
@@ -601,7 +575,7 @@ Provide a command for previewing how GitMap interprets a roadmap.
 - Report validation problems.
 - Make no GitHub changes.
 
-#### 0.7.4 Create Setup Command
+#### 0.7.1.0.4 Create Setup Command
 
 Guide the user through connecting a roadmap to a GitHub repository.
 
@@ -612,7 +586,7 @@ Guide the user through connecting a roadmap to a GitHub repository.
 - Verify repository access.
 - Save non-sensitive repository configuration.
 
-#### 0.7.5 Create Sync Command
+#### 0.7.1.0.5 Create Sync Command
 
 Provide a command for synchronizing the roadmap with GitHub.
 
@@ -623,13 +597,11 @@ Provide a command for synchronizing the roadmap with GitHub.
 - Display planned changes.
 - Display a synchronization summary.
 
-### Errors and Guidance
-
-**Type:** Section
+## 0.7.2 Errors and Guidance
 
 Make GitMap understandable when something goes wrong.
 
-#### 0.7.6 Add User-Friendly Errors
+#### 0.7.2.0.1 Add User-Friendly Errors
 
 Replace technical failures with useful messages when possible.
 
@@ -640,7 +612,7 @@ Replace technical failures with useful messages when possible.
 - Explain repository access failures.
 - Avoid unnecessary Python tracebacks during normal use.
 
-#### 0.7.7 Add Next-Step Guidance
+#### 0.7.2.0.2 Add Next-Step Guidance
 
 Tell users what they can do after each major operation.
 
@@ -650,15 +622,13 @@ Tell users what they can do after each major operation.
 - Provide guidance after preview.
 - Provide guidance after synchronization.
 
-## 0.8 Testing and Reliability
+# 0.8 Testing and Reliability
 
-### Automated Testing
-
-**Type:** Section
+## 0.8.1 Automated Testing
 
 Build a test suite that protects GitMap's roadmap and synchronization behavior.
 
-#### 0.8.1 Test Roadmap Parsing
+#### 0.8.1.0.1 Test Roadmap Parsing
 
 Test conversion of Markdown roadmaps into GitMap project data.
 
@@ -669,7 +639,7 @@ Test conversion of Markdown roadmaps into GitMap project data.
 - Test sub-issues.
 - Test descriptions and requirements.
 
-#### 0.8.2 Test Roadmap Validation
+#### 0.8.1.0.2 Test Roadmap Validation
 
 Test detection of invalid roadmap structures.
 
@@ -679,7 +649,7 @@ Test detection of invalid roadmap structures.
 - Test invalid parent relationships.
 - Test useful validation messages.
 
-#### 0.8.3 Test GitHub Mapping
+#### 0.8.1.0.3 Test GitHub Mapping
 
 Test conversion of roadmap data into GitHub structures.
 
@@ -690,7 +660,7 @@ Test conversion of roadmap data into GitHub structures.
 - Test issue mapping.
 - Test sub-issue relationships.
 
-#### 0.8.4 Test Duplicate Prevention
+#### 0.8.1.0.4 Test Duplicate Prevention
 
 Verify that synchronization can safely run more than once.
 
@@ -700,7 +670,7 @@ Verify that synchronization can safely run more than once.
 - Test existing issues.
 - Confirm repeated synchronization does not create duplicates.
 
-#### 0.8.5 Test Roadmap Updates
+#### 0.8.1.0.5 Test Roadmap Updates
 
 Test synchronization after a roadmap has changed.
 
@@ -711,13 +681,11 @@ Test synchronization after a roadmap has changed.
 - Test removed roadmap items.
 - Confirm destructive changes are not automatic.
 
-### Failure Protection
-
-**Type:** Section
+## 0.8.2 Failure Protection
 
 Prevent partial or failed synchronization from leaving a project in an confusing state.
 
-#### 0.8.6 Handle GitHub API Failures
+#### 0.8.2.0.1 Handle GitHub API Failures
 
 Handle failures while communicating with GitHub.
 
@@ -727,7 +695,7 @@ Handle failures while communicating with GitHub.
 - Preserve useful error details.
 - Stop safely when synchronization cannot continue.
 
-#### 0.8.7 Test Dry Run Safety
+#### 0.8.2.0.2 Test Dry Run Safety
 
 Verify that dry-run mode never changes GitHub.
 
@@ -737,7 +705,7 @@ Verify that dry-run mode never changes GitHub.
 - Confirm no update operations occur.
 - Confirm planned changes are still reported.
 
-#### 0.8.8 Add Integration Tests
+#### 0.8.2.0.3 Add Integration Tests
 
 Test complete GitMap workflows using representative roadmap data.
 
@@ -747,15 +715,13 @@ Test complete GitMap workflows using representative roadmap data.
 - Test existing-project update workflows.
 - Keep tests independent of a user's real GitHub repository where possible.
 
-## 0.9 Release Preparation
+# 0.9 Release Preparation
 
-### Documentation
-
-**Type:** Section
+## 0.9.1 Documentation
 
 Prepare GitMap for people other than its developers to install and use.
 
-#### 0.9.1 Complete README
+#### 0.9.1.0.1 Complete README
 
 Create the main user-facing GitMap documentation.
 
@@ -766,7 +732,7 @@ Create the main user-facing GitMap documentation.
 - Explain basic commands.
 - Provide a simple first-use example.
 
-#### 0.9.2 Create Roadmap Format Guide
+#### 0.9.1.0.2 Create Roadmap Format Guide
 
 Create detailed documentation for writing GitMap roadmaps manually.
 
@@ -778,7 +744,7 @@ Create detailed documentation for writing GitMap roadmaps manually.
 - Explain descriptions and requirements.
 - Provide complete examples.
 
-#### 0.9.3 Create GitHub Setup Guide
+#### 0.9.1.0.3 Create GitHub Setup Guide
 
 Document how to prepare a GitHub repository for GitMap.
 
@@ -789,13 +755,11 @@ Document how to prepare a GitHub repository for GitMap.
 - Explain how GitMap connects to the repository.
 - Include troubleshooting guidance.
 
-### Release
-
-**Type:** Section
+## 0.9.2 Release
 
 Prepare the first usable GitMap release.
 
-#### 0.9.4 Add Version Information
+#### 0.9.2.0.1 Add Version Information
 
 Provide consistent GitMap version information.
 
@@ -804,7 +768,7 @@ Provide consistent GitMap version information.
 - Make the version available from the command line.
 - Keep package and application versions consistent.
 
-#### 0.9.5 Run Release Test
+#### 0.9.2.0.2 Run Release Test
 
 Test GitMap from a clean environment before release.
 
@@ -816,7 +780,7 @@ Test GitMap from a clean environment before release.
 - Perform synchronization.
 - Run synchronization again to verify duplicate prevention.
 
-#### 0.9.6 Create Version 1.0 Release
+#### 0.9.2.0.3 Create Version 1.0 Release
 
 Publish the first stable GitMap release.
 
