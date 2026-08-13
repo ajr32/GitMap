@@ -175,7 +175,7 @@ from pathlib import Path
 def test_parse_full_fixture():
     """The full roadmap fixture parses into the expected hierarchy."""
 
-    path = Path("tests/fixtures/full_project.md")
+    path = Path(__file__).parent / "fixtures" / "full_project.md"
 
     roadmap = parse_roadmap(path)
 

@@ -143,3 +143,13 @@ def find_issues(text):
             issues.append(line[5:])
 
     return issues
+
+def find_milestones(text):
+    """Find milestones headings in a roadmap."""
+    milestones = []
+
+    for line in text.splitlines():
+        if line.startswith("## "):
+            milestones.append(line[3:])
+
+    return milestones
