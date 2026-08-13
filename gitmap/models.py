@@ -20,18 +20,22 @@ class Issue:
     requirements: list[Requirement] = field(default_factory=list)
     sub_issues: list["Issue"] = field(default_factory=list)
 
+
 @dataclass
 class Feature:
     """A roadmap feature."""
 
+    number: str
     title: str
     description: str = ""
     issues: list[Issue] = field(default_factory=list)
+
 
 @dataclass
 class Section:
     """A collection of related roadmap items."""
 
+    number: str
     title: str
     description: str = ""
     features: list[Feature] = field(default_factory=list)

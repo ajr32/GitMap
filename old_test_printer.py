@@ -14,7 +14,7 @@ def test_print_roadmap(capsys):
             Milestone(
                 number="0.1",
                 title="Foundations",
-                Sections=[
+                sections=[
                     Section(
                         title="Project Setup",
                         issues=[

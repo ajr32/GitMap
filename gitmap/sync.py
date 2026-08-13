@@ -35,10 +35,10 @@ class SyncEngine:
         for milestone in self.roadmap.milestones:
             result.created.append(f"Milestone: {milestone.number} {milestone.title}")
 
-            for Section in milestone.Sections:
-                result.created.append(f"Section: {Section.title}")
+            for section in milestone.sections:
+                result.created.append(f"Section: {section.title}")
 
-                for issue in Section.issues:
+                for issue in section.issues:
                     result.created.append(f"Issue: {issue.number} {issue.title}")
 
         return result

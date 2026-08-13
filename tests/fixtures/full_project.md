@@ -1,14 +1,12 @@
-# Full Project
+Title: Full Project
 
-A complete example project.
+# 0.1 Foundations
 
-## 0.1 Foundations
-
-### Project Setup
+## 0.1.1 Project Setup
 
 Set up the basic project.
 
-#### 0.1.1 Create Project
+#### 0.1.1.0.1 Create Project
 
 Create the project structure.
 
@@ -16,7 +14,7 @@ Create the project structure.
 - Create the package.
 - Create the tests.
 
-#### 0.1.2 Install Dependencies
+#### 0.1.1.0.2 Install Dependencies
 
 Install the development dependencies.
 
@@ -24,20 +22,28 @@ Install the development dependencies.
 - Install pytest.
 - Install Ruff.
 
-### Documentation
+## 0.1.2 Documentation
 
 Create the project documentation.
 
-#### 0.1.3 Write README
+### 0.1.2.1 Documentation
 
 Write the README.
 
-## 0.2 Release
+#### 0.1.2.1.1 Write README
 
-### Preparation
+Write the README.
+
+# 0.2 Release
+
+## 0.2.1 Preparation
 
 Prepare the first release.
 
-#### 0.2.1 Run Tests
+### 0.2.1.1 Testing
+
+Run the complete test suite.
+
+#### 0.2.1.1.1 Run Tests
 
 Run the complete test suite.

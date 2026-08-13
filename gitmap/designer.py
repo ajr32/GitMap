@@ -36,9 +36,11 @@ def create_roadmap() -> Roadmap:
             if not section_title:
                 break
 
-            roadmap.milestones[-1].Sections.append(Section(
-            title=section_title,
-            description=section_description,
-))
+            roadmap.milestones[-1].sections.append(
+                Section(
+                    title=section_title,
+                    description=section_description,
+                )
+            )
 
     return roadmap

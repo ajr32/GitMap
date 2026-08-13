@@ -24,11 +24,11 @@ def roadmap_answers(path: str | Path) -> list[str]:
             ]
         )
 
-        for Section in milestone.Sections:
+        for section in milestone.sections:
             answers.extend(
                 [
-                    Section.title,
-                    Section.description,
+                    section.title,
+                    section.description,
                 ]
             )
 
@@ -38,10 +38,13 @@ def roadmap_answers(path: str | Path) -> list[str]:
     print(answers)
     return answers
 
+
 def test_create_roadmap(monkeypatch):
     """The designer collects the project name and overview."""
-
-    answers = iter(roadmap_answers("fixtures/simple_project.md"))
+    print(Path(__file__).resolve())
+    answers = iter(
+        roadmap_answers(Path(__file__).parent / "fixtures" / "simple_project.md")
+    )
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 
@@ -50,11 +53,14 @@ def test_create_roadmap(monkeypatch):
     assert len(roadmap.milestones) == 1
     assert roadmap.milestones[0].number == "0.1"
     assert roadmap.milestones[0].title == "Foundations"
+
 
 def test_create_roadmap_with_milestone(monkeypatch):
     """The designer adds a milestone to the roadmap."""
 
-    answers = iter(roadmap_answers("fixtures/simple_project.md"))
+    answers = iter(
+        roadmap_answers(Path(__file__).parent / "fixtures" / "simple_project.md")
+    )
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 
@@ -64,10 +70,13 @@ def test_create_roadmap_with_milestone(monkeypatch):
     assert roadmap.milestones[0].number == "0.1"
     assert roadmap.milestones[0].title == "Foundations"
 
+
 def test_create_roadmap_with_multiple_milestones(monkeypatch):
     """The designer can collect multiple milestones."""
 
-    answers = iter(roadmap_answers("fixtures/full_project.md"))
+    answers = iter(
+        roadmap_answers(Path(__file__).parent / "fixtures" / "full_project.md")
+    )
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 

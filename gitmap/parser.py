@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from gitmap.models import Issue, Milestone, Requirement, Roadmap, Section
+from gitmap.models import Feature, Issue, Milestone, Requirement, Roadmap, Section
 
 
 def parse_roadmap(path: str | Path) -> Roadmap:
@@ -30,7 +30,9 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     current_milestone: Milestone | None = None
 
-    current_Section: Section | None = None
+    current_section: Section | None = None
+
+    current_feature: Feature | None = None
 
     current_issue: Issue | None = None
 
@@ -41,8 +43,13 @@ def parse_roadmap_text(text: str) -> Roadmap:
     for line in lines:
         stripped = line.strip()
 
+        if stripped.startswith("Title:"):
+            name = stripped[6:].strip()
+            found_title = True
+            continue
+
         if stripped.startswith("# ") and not found_title:
-            name = stripped[2:].strip()
+            name = stripped[1:].strip()
 
             if name.lower().endswith(" roadmap"):
                 name = name[:-8].strip()
@@ -50,8 +57,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
             found_title = True
             continue
 
-        if found_title and stripped.startswith("## "):
-            milestone_heading = stripped[3:].strip()
+        if found_title and stripped.startswith("# "):
+            milestone_heading = stripped[2:].strip()
             parts = milestone_heading.split(maxsplit=1)
 
             if len(parts) == 2:
@@ -63,17 +70,36 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             continue
 
-        if found_title and stripped.startswith("### "):
+        if found_title and stripped.startswith("## "):
             if current_milestone is not None:
-                Section_title = stripped[4:].strip()
+                section_heading = stripped[3:].strip()
+                parts = section_heading.split(maxsplit=1)
 
-                current_Section = Section(title=Section_title)
-                current_milestone.Sections.append(current_Section)
+                if len(parts) == 2:
+                    current_section = Section(
+                        number=parts[0],
+                        title=parts[1],
+                    )
+                    current_milestone.sections.append(current_section)
+
+            continue
+
+        if found_title and stripped.startswith("### "):
+            if current_section is not None:
+                feature_heading = stripped[4:].strip()
+                parts = feature_heading.split(maxsplit=1)
+
+                if len(parts) == 2:
+                    current_feature = Feature(
+                        number=parts[0],
+                        title=parts[1],
+                    )
+                    current_section.features.append(current_feature)
 
             continue
 
         if found_title and stripped.startswith("#### "):
-            if current_Section is not None:
+            if current_section is not None:
                 issue_heading = stripped[5:].strip()
                 parts = issue_heading.split(maxsplit=1)
 
@@ -82,7 +108,11 @@ def parse_roadmap_text(text: str) -> Roadmap:
                         number=parts[0],
                         title=parts[1],
                     )
-                    current_Section.issues.append(current_issue)
+
+                    if current_feature is not None:
+                        current_feature.issues.append(current_issue)
+                    else:
+                        current_section.issues.append(current_issue)
 
             continue
 
@@ -94,7 +124,7 @@ def parse_roadmap_text(text: str) -> Roadmap:
         if current_issue is not None and stripped == "**Requirements:**":
             current_requirements = []
             continue
-            
+
         if (
             current_issue is not None
             and stripped
@@ -143,6 +173,7 @@ def find_issues(text):
             issues.append(line[5:])
 
     return issues
+
 
 def find_milestones(text):
     """Find milestones headings in a roadmap."""

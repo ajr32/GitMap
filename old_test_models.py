@@ -9,12 +9,13 @@ def test_create_roadmap():
     requirement = Requirement(text="Create the GitMap package.")
 
     issue = Issue(
-        number="0.1.1",
+        number="0.1.1.0.1",
         title="Create Python Project",
         requirements=[requirement],
     )
 
     section = Section(
+        number="0.1.1",
         title="Project Setup",
         issues=[issue],
     )
@@ -34,7 +35,7 @@ def test_create_roadmap():
     assert roadmap.name == "GitMap"
     assert roadmap.milestones[0].title == "Foundations"
     assert roadmap.milestones[0].sections[0].title == "Project Setup"
-    assert roadmap.milestones[0].sections[0].issues[0].number == "0.1.1"
+    assert roadmap.milestones[0].sections[0].issues[0].number == "0.1.1.0.1"
     assert (
         roadmap.milestones[0].sections[0].issues[0].requirements[0].text
         == "Create the GitMap package."

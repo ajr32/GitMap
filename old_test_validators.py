@@ -13,7 +13,7 @@ def test_valid_roadmap_has_no_errors():
             Milestone(
                 number="0.1",
                 title="Foundations",
-                Sections=[
+                sections=[
                     Section(
                         title="Project Setup",
                         issues=[
@@ -53,7 +53,7 @@ def test_blank_issue_title_fails():
             Milestone(
                 number="0.1",
                 title="Foundations",
-                Sections=[
+                sections=[
                     Section(
                         title="Project Setup",
                         issues=[

@@ -57,7 +57,7 @@ Project overview.
     assert roadmap.milestones[1].title == "Roadmap Parser"
 
 
-def test_parse_Sections():
+def test_parse_sections():
     """Section headings become Section objects within their milestone."""
 
     text = """# GitMap Roadmap
@@ -79,9 +79,9 @@ Project overview.
 
     milestone = roadmap.milestones[0]
 
-    assert len(milestone.Sections) == 2
-    assert milestone.Sections[0].title == "Project Setup"
-    assert milestone.Sections[1].title == "Roadmap Format"
+    assert len(milestone.sections) == 2
+    assert milestone.sections[0].title == "Project Setup"
+    assert milestone.sections[1].title == "Roadmap Format"
 
 
 def test_parse_issues():
@@ -108,7 +108,7 @@ Set up development dependencies.
 
     roadmap = parse_roadmap_text(text)
 
-    issues = roadmap.milestones[0].Sections[0].issues
+    issues = roadmap.milestones[0].sections[0].issues
 
     assert len(issues) == 2
     assert issues[0].number == "0.1.1"
@@ -135,7 +135,7 @@ Create the basic Python project structure for GitMap.
 
     roadmap = parse_roadmap_text(text)
 
-    issue = roadmap.milestones[0].Sections[0].issues[0]
+    issue = roadmap.milestones[0].sections[0].issues[0]
 
     assert issue.description == (
         "Create the basic Python project structure for GitMap."
@@ -163,7 +163,7 @@ Create the project.
 
     roadmap = parse_roadmap_text(text)
 
-    issue = roadmap.milestones[0].Sections[0].issues[0]
+    issue = roadmap.milestones[0].sections[0].issues[0]
 
     assert len(issue.requirements) == 2
     assert issue.requirements[0].text == "Create the package."
@@ -179,26 +179,89 @@ def test_parse_full_fixture():
 
     roadmap = parse_roadmap(path)
 
+    # Root level — Project
     assert roadmap.name == "Full Project"
+
+    # Level 1 — Milestones
     assert len(roadmap.milestones) == 2
 
     foundations = roadmap.milestones[0]
 
+    # Level 1 — Milestone
     assert foundations.number == "0.1"
     assert foundations.title == "Foundations"
-    assert len(foundations.Sections) == 2
 
-    project_setup = foundations.Sections[0]
+    # Level 2 — Sections
+    assert len(foundations.sections) == 2
+
+    # Level 2 — First Section
+    project_setup = foundations.sections[0]
 
     assert project_setup.title == "Project Setup"
+
+    # Level 4 — Issues
+    # Level 3 — Feature is skipped
     assert len(project_setup.issues) == 2
 
     issue = project_setup.issues[0]
 
-    assert issue.number == "0.1.1"
+    # Level 4 — Issue
+    assert issue.number == "0.1.1.0.1"
     assert issue.title == "Create Project"
     assert issue.description == "Create the project structure."
+
+    # Issue requirements
     assert [item.text for item in issue.requirements] == [
         "Create the package.",
         "Create the tests.",
     ]
+
+    # Second Section
+    documentation = foundations.sections[1]
+
+    # Level 2 — Section
+    assert documentation.title == "Documentation"
+
+    # Level 3 — Feature
+    assert len(documentation.features) == 1
+
+    feature = documentation.features[0]
+
+    assert feature.title == "Write README"
+
+    # Level 4 — Issue
+    assert len(feature.issues) == 1
+
+    feature_issue = feature.issues[0]
+
+    assert feature_issue.number == "0.1.2.1.1"
+    assert feature_issue.title == "Write README"
+
+    # Second Milestone
+    release = roadmap.milestones[1]
+
+    # Level 1 — Milestone
+    assert release.number == "0.2"
+    assert release.title == "Release"
+
+    # Level 2 — Section
+    assert len(release.sections) == 1
+
+    preparation = release.sections[0]
+
+    assert preparation.title == "Preparation"
+
+    # Level 3 — Feature
+    assert len(preparation.features) == 1
+
+    feature = preparation.features[0]
+
+    assert feature.title == "Run Tests"
+
+    # Level 4 — Issue
+    assert len(feature.issues) == 1
+
+    issue = feature.issues[0]
+
+    assert issue.number == "0.2.1.1.1"
+    assert issue.title == "Run Tests"
