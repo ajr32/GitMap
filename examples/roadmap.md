@@ -6,7 +6,7 @@ GitMap turns a project roadmap into a structured GitHub project.
 
 ### Project Setup
 
-**Type:** Epic
+**Type:** Section
 
 Set up the basic GitMap project so it can be installed, run, tested, and developed safely.
 
@@ -58,7 +58,7 @@ Create the basic documentation needed to understand and develop GitMap.
 
 ### Roadmap Format
 
-**Type:** Epic
+**Type:** Section
 
 Define the Markdown structure GitMap will use to describe projects before they are synchronized with GitHub.
 
@@ -68,7 +68,7 @@ Define the hierarchy used in a GitMap roadmap.
 
 **Requirements:**
 - Support milestones.
-- Support epics.
+- Support Sections.
 - Support issues.
 - Support sub-issues.
 - Support descriptions and requirements.
@@ -80,7 +80,7 @@ Create a complete example roadmap that can be used for development and testing.
 
 **Requirements:**
 - Include at least one milestone.
-- Include at least one epic.
+- Include at least one Section.
 - Include multiple issues.
 - Include at least one sub-issue.
 - Include descriptions and requirements.
@@ -91,14 +91,14 @@ Document how users should write a GitMap roadmap.
 
 **Requirements:**
 - Explain each heading level.
-- Show how milestones, epics, issues, and sub-issues are represented.
+- Show how milestones, Sections, issues, and sub-issues are represented.
 - Provide a copyable example.
 
 ## 0.2 Roadmap Parser
 
 ### Markdown Parsing
 
-**Type:** Epic
+**Type:** Section
 
 Teach GitMap to read a roadmap and turn its Markdown structure into project data.
 
@@ -120,22 +120,22 @@ Identify milestone headings in the roadmap.
 - Capture the milestone number and title.
 - Preserve the order of milestones.
 
-#### 0.2.3 Parse Epics
+#### 0.2.3 Parse Sections
 
-Identify epics within each milestone.
+Identify Sections within each milestone.
 
 **Requirements:**
-- Associate each epic with its milestone.
-- Capture the epic title.
-- Capture the epic description.
-- Recognize the Epic type marker.
+- Associate each Section with its milestone.
+- Capture the Section title.
+- Capture the Section description.
+- Recognize the Section type marker.
 
 #### 0.2.4 Parse Issues
 
-Identify issues within each epic.
+Identify issues within each Section.
 
 **Requirements:**
-- Associate each issue with its epic.
+- Associate each issue with its Section.
 - Capture the issue number and title.
 - Capture the issue description.
 - Capture requirements.
@@ -151,7 +151,7 @@ Support issues nested beneath other issues.
 
 ### Roadmap Validation
 
-**Type:** Epic
+**Type:** Section
 
 Detect roadmap problems before anything is sent to GitHub.
 
@@ -160,8 +160,8 @@ Detect roadmap problems before anything is sent to GitHub.
 Check that the roadmap follows GitMap's expected hierarchy.
 
 **Requirements:**
-- Detect issues outside an epic.
-- Detect epics outside a milestone.
+- Detect issues outside an Section.
+- Detect Sections outside a milestone.
 - Detect malformed hierarchy.
 - Provide useful error messages.
 
@@ -180,7 +180,7 @@ Allow users to see what GitMap understood before synchronization.
 
 **Requirements:**
 - Display milestones.
-- Display epics.
+- Display Sections.
 - Display issues and sub-issues.
 - Preserve hierarchy in the preview.
 
@@ -188,7 +188,7 @@ Allow users to see what GitMap understood before synchronization.
 
 ### Repository Connection
 
-**Type:** Epic
+**Type:** Section
 
 Connect a completed GitMap roadmap to a GitHub repository chosen by the user.
 
@@ -224,7 +224,7 @@ Confirm that GitMap can access the repository before synchronization.
 
 ### GitHub Project Structure
 
-**Type:** Epic
+**Type:** Section
 
 Translate GitMap's roadmap concepts into the GitHub structures needed for synchronization.
 
@@ -242,7 +242,7 @@ Define how roadmap milestones map to GitHub milestones.
 Define the labels GitMap uses when creating GitHub items.
 
 **Requirements:**
-- Support labels for epics.
+- Support labels for Sections.
 - Support labels for issues when defined by the roadmap.
 - Avoid creating duplicate labels.
 - Allow labels to be created before issues are synchronized.
@@ -271,7 +271,7 @@ Define how roadmap hierarchy is represented in GitHub.
 
 ### Synchronization Engine
 
-**Type:** Epic
+**Type:** Section
 
 Synchronize the validated roadmap with the selected GitHub repository.
 
@@ -295,16 +295,16 @@ Create roadmap milestones in GitHub.
 - Preserve milestone titles.
 - Do not create duplicates.
 
-#### 0.4.3 Create Epics
+#### 0.4.3 Create Sections
 
-Create GitHub issues representing roadmap epics.
+Create GitHub issues representing roadmap Sections.
 
 **Requirements:**
-- Create the epic before its child issues.
-- Include the epic description.
-- Apply the epic label.
-- Associate the epic with its milestone.
-- Detect an existing matching epic before creating another.
+- Create the Section before its child issues.
+- Include the Section description.
+- Apply the Section label.
+- Associate the Section with its milestone.
+- Detect an existing matching Section before creating another.
 
 #### 0.4.4 Create Issues
 
@@ -330,7 +330,7 @@ Create roadmap sub-issues and associate them with their parent issues.
 
 ### Safe Synchronization
 
-**Type:** Epic
+**Type:** Section
 
 Make synchronization predictable and safe to run more than once.
 
@@ -368,7 +368,7 @@ Display the result of synchronization.
 
 ### Existing Project Import
 
-**Type:** Epic
+**Type:** Section
 
 Allow GitMap to understand what already exists in a connected GitHub repository.
 
@@ -406,13 +406,13 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 **Requirements:**
 - Associate existing issues with milestones.
-- Restore epic and issue relationships.
+- Restore Section and issue relationships.
 - Restore sub-issue relationships when available.
 - Identify roadmap items that cannot be matched safely.
 
 ### Roadmap Changes
 
-**Type:** Epic
+**Type:** Section
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
@@ -461,7 +461,7 @@ Show the user exactly what an update synchronization will do.
 
 ### Interactive Roadmap Builder
 
-**Type:** Epic
+**Type:** Section
 
 Guide users through creating a roadmap without requiring them to know GitMap's Markdown format.
 
@@ -485,19 +485,19 @@ Guide the user through defining project milestones.
 - Allow multiple milestones.
 - Allow the user to indicate when they are finished.
 
-#### 0.6.3 Collect Epics
+#### 0.6.3 Collect Sections
 
-Guide the user through defining epics within each milestone.
+Guide the user through defining Sections within each milestone.
 
 **Requirements:**
-- Ask for the epic title.
-- Ask for an epic overview.
-- Associate the epic with its milestone.
-- Allow multiple epics.
+- Ask for the Section title.
+- Ask for an Section overview.
+- Associate the Section with its milestone.
+- Allow multiple Sections.
 
 #### 0.6.4 Collect Issues
 
-Guide the user through defining issues within an epic.
+Guide the user through defining issues within an Section.
 
 **Requirements:**
 - Ask for the issue title.
@@ -530,7 +530,7 @@ Allow users to paste existing project information instead of answering every que
 
 ### Roadmap Review
 
-**Type:** Epic
+**Type:** Section
 
 Let the user review and revise the roadmap before connecting it to GitHub.
 
@@ -540,7 +540,7 @@ Show the complete generated roadmap.
 
 **Requirements:**
 - Preserve Markdown hierarchy.
-- Make milestone, epic, issue, and sub-issue relationships clear.
+- Make milestone, Section, issue, and sub-issue relationships clear.
 - Show descriptions and requirements.
 
 #### 0.6.8 Edit Roadmap Before Sync
@@ -567,7 +567,7 @@ Save the completed roadmap to `roadmap.md`.
 
 ### GitMap Commands
 
-**Type:** Epic
+**Type:** Section
 
 Provide a simple command-line interface for the complete GitMap workflow.
 
@@ -625,7 +625,7 @@ Provide a command for synchronizing the roadmap with GitHub.
 
 ### Errors and Guidance
 
-**Type:** Epic
+**Type:** Section
 
 Make GitMap understandable when something goes wrong.
 
@@ -654,7 +654,7 @@ Tell users what they can do after each major operation.
 
 ### Automated Testing
 
-**Type:** Epic
+**Type:** Section
 
 Build a test suite that protects GitMap's roadmap and synchronization behavior.
 
@@ -664,7 +664,7 @@ Test conversion of Markdown roadmaps into GitMap project data.
 
 **Requirements:**
 - Test milestones.
-- Test epics.
+- Test Sections.
 - Test issues.
 - Test sub-issues.
 - Test descriptions and requirements.
@@ -686,7 +686,7 @@ Test conversion of roadmap data into GitHub structures.
 **Requirements:**
 - Test milestone mapping.
 - Test label mapping.
-- Test epic mapping.
+- Test Section mapping.
 - Test issue mapping.
 - Test sub-issue relationships.
 
@@ -713,7 +713,7 @@ Test synchronization after a roadmap has changed.
 
 ### Failure Protection
 
-**Type:** Epic
+**Type:** Section
 
 Prevent partial or failed synchronization from leaving a project in an confusing state.
 
@@ -751,7 +751,7 @@ Test complete GitMap workflows using representative roadmap data.
 
 ### Documentation
 
-**Type:** Epic
+**Type:** Section
 
 Prepare GitMap for people other than its developers to install and use.
 
@@ -772,7 +772,7 @@ Create detailed documentation for writing GitMap roadmaps manually.
 
 **Requirements:**
 - Explain milestones.
-- Explain epics.
+- Explain Sections.
 - Explain issues.
 - Explain sub-issues.
 - Explain descriptions and requirements.
@@ -791,7 +791,7 @@ Document how to prepare a GitHub repository for GitMap.
 
 ### Release
 
-**Type:** Epic
+**Type:** Section
 
 Prepare the first usable GitMap release.
 

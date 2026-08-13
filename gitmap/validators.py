@@ -30,19 +30,19 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                 ValidationError(f"Milestone {milestone.number} title cannot be blank.")
             )
 
-        for epic in milestone.epics:
-            if not epic.title.strip():
+        for Section in milestone.Sections:
+            if not Section.title.strip():
                 errors.append(
                     ValidationError(
-                        f"Epic in milestone {milestone.number} cannot have a blank title."
+                        f"Section in milestone {milestone.number} cannot have a blank title."
                     )
                 )
 
-            for issue in epic.issues:
+            for issue in Section.issues:
                 if not issue.number.strip():
                     errors.append(
                         ValidationError(
-                            f"Issue in epic '{epic.title}' cannot have a blank number."
+                            f"Issue in Section '{Section.title}' cannot have a blank number."
                         )
                     )
 

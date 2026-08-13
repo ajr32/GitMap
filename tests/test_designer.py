@@ -1,21 +1,47 @@
 """Tests for the GitMap roadmap designer."""
 
-from gitmap.designer import create_roadmap
+from pathlib import Path
 
+from gitmap.designer import create_roadmap
+from gitmap.parser import parse_roadmap
+
+
+def roadmap_answers(path: str | Path) -> list[str]:
+    """Turn a roadmap fixture into designer input."""
+
+    roadmap = parse_roadmap(path)
+
+    answers = [
+        roadmap.name,
+        roadmap.overview,
+    ]
+
+    for milestone in roadmap.milestones:
+        answers.extend(
+            [
+                milestone.number,
+                milestone.title,
+            ]
+        )
+
+        for Section in milestone.Sections:
+            answers.extend(
+                [
+                    Section.title,
+                    Section.description,
+                ]
+            )
+
+        answers.append("")
+
+    answers.append("")
+    print(answers)
+    return answers
 
 def test_create_roadmap(monkeypatch):
     """The designer collects the project name and overview."""
 
-    answers = iter(
-        [
-            "GitMap",
-            "Turn a roadmap into a structured GitHub project.",
-            "0.1",
-            "Foundations",
-            "",
-            "",
-        ]
-    )
+    answers = iter(roadmap_answers("fixtures/simple_project.md"))
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 
@@ -28,16 +54,7 @@ def test_create_roadmap(monkeypatch):
 def test_create_roadmap_with_milestone(monkeypatch):
     """The designer adds a milestone to the roadmap."""
 
-    answers = iter(
-        [
-            "GitMap",
-            "Turn a roadmap into a structured GitHub project.",
-            "0.1",
-            "Foundations",
-            "",
-            "",
-        ]
-    )
+    answers = iter(roadmap_answers("fixtures/simple_project.md"))
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 
@@ -50,20 +67,7 @@ def test_create_roadmap_with_milestone(monkeypatch):
 def test_create_roadmap_with_multiple_milestones(monkeypatch):
     """The designer can collect multiple milestones."""
 
-    answers = iter(
-        [
-            "GitMap",
-            "Turn a roadmap into a structured GitHub project.",
-            "0.1",
-            "Foundations",
-            "Project Setup",
-            "",
-            "0.2",
-            "Roadmap Parser",
-            "",
-            "",
-        ]
-    )
+    answers = iter(roadmap_answers("fixtures/full_project.md"))
 
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
 

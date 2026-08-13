@@ -1,10 +1,10 @@
 """Tests for GitMap data models."""
 
-from gitmap.models import Epic, Issue, Milestone, Requirement, Roadmap
+from gitmap.models import Issue, Milestone, Requirement, Roadmap, Section
 
 
 def test_create_roadmap():
-    """A roadmap can contain milestones, epics, issues, and requirements."""
+    """A roadmap can contain milestones, Sections, issues, and requirements."""
 
     requirement = Requirement(text="Create the GitMap package.")
 
@@ -14,7 +14,7 @@ def test_create_roadmap():
         requirements=[requirement],
     )
 
-    epic = Epic(
+    section = Section(
         title="Project Setup",
         issues=[issue],
     )
@@ -22,7 +22,7 @@ def test_create_roadmap():
     milestone = Milestone(
         number="0.1",
         title="Foundations",
-        epics=[epic],
+        sections=[section],
     )
 
     roadmap = Roadmap(
@@ -33,10 +33,10 @@ def test_create_roadmap():
 
     assert roadmap.name == "GitMap"
     assert roadmap.milestones[0].title == "Foundations"
-    assert roadmap.milestones[0].epics[0].title == "Project Setup"
-    assert roadmap.milestones[0].epics[0].issues[0].number == "0.1.1"
+    assert roadmap.milestones[0].sections[0].title == "Project Setup"
+    assert roadmap.milestones[0].sections[0].issues[0].number == "0.1.1"
     assert (
-        roadmap.milestones[0].epics[0].issues[0].requirements[0].text
+        roadmap.milestones[0].sections[0].issues[0].requirements[0].text
         == "Create the GitMap package."
     )
 

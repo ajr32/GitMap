@@ -57,8 +57,8 @@ Project overview.
     assert roadmap.milestones[1].title == "Roadmap Parser"
 
 
-def test_parse_epics():
-    """Epic headings become Epic objects within their milestone."""
+def test_parse_Sections():
+    """Section headings become Section objects within their milestone."""
 
     text = """# GitMap Roadmap
 
@@ -68,24 +68,24 @@ Project overview.
 
 ### Project Setup
 
-**Type:** Epic
+**Type:** Section
 
 ### Roadmap Format
 
-**Type:** Epic
+**Type:** Section
 """
 
     roadmap = parse_roadmap_text(text)
 
     milestone = roadmap.milestones[0]
 
-    assert len(milestone.epics) == 2
-    assert milestone.epics[0].title == "Project Setup"
-    assert milestone.epics[1].title == "Roadmap Format"
+    assert len(milestone.Sections) == 2
+    assert milestone.Sections[0].title == "Project Setup"
+    assert milestone.Sections[1].title == "Roadmap Format"
 
 
 def test_parse_issues():
-    """Issue headings become Issue objects within their epic."""
+    """Issue headings become Issue objects within their Section."""
 
     text = """# GitMap Roadmap
 
@@ -95,7 +95,7 @@ Project overview.
 
 ### Project Setup
 
-**Type:** Epic
+**Type:** Section
 
 #### 0.1.1 Create Python Project
 
@@ -108,7 +108,7 @@ Set up development dependencies.
 
     roadmap = parse_roadmap_text(text)
 
-    issues = roadmap.milestones[0].epics[0].issues
+    issues = roadmap.milestones[0].Sections[0].issues
 
     assert len(issues) == 2
     assert issues[0].number == "0.1.1"
@@ -126,7 +126,7 @@ def test_parse_issue_description():
 
 ### Project Setup
 
-**Type:** Epic
+**Type:** Section
 
 #### 0.1.1 Create Python Project
 
@@ -135,7 +135,7 @@ Create the basic Python project structure for GitMap.
 
     roadmap = parse_roadmap_text(text)
 
-    issue = roadmap.milestones[0].epics[0].issues[0]
+    issue = roadmap.milestones[0].Sections[0].issues[0]
 
     assert issue.description == (
         "Create the basic Python project structure for GitMap."
@@ -163,7 +163,7 @@ Create the project.
 
     roadmap = parse_roadmap_text(text)
 
-    issue = roadmap.milestones[0].epics[0].issues[0]
+    issue = roadmap.milestones[0].Sections[0].issues[0]
 
     assert len(issue.requirements) == 2
     assert issue.requirements[0].text == "Create the package."
@@ -186,9 +186,9 @@ def test_parse_full_fixture():
 
     assert foundations.number == "0.1"
     assert foundations.title == "Foundations"
-    assert len(foundations.epics) == 2
+    assert len(foundations.Sections) == 2
 
-    project_setup = foundations.epics[0]
+    project_setup = foundations.Sections[0]
 
     assert project_setup.title == "Project Setup"
     assert len(project_setup.issues) == 2

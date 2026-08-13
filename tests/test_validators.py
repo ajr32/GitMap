@@ -1,6 +1,6 @@
 """Tests for GitMap roadmap validation."""
 
-from gitmap.models import Epic, Issue, Milestone, Roadmap
+from gitmap.models import Issue, Milestone, Roadmap, Section
 from gitmap.validators import validate_roadmap
 
 
@@ -13,8 +13,8 @@ def test_valid_roadmap_has_no_errors():
             Milestone(
                 number="0.1",
                 title="Foundations",
-                epics=[
-                    Epic(
+                Sections=[
+                    Section(
                         title="Project Setup",
                         issues=[
                             Issue(
@@ -53,8 +53,8 @@ def test_blank_issue_title_fails():
             Milestone(
                 number="0.1",
                 title="Foundations",
-                epics=[
-                    Epic(
+                Sections=[
+                    Section(
                         title="Project Setup",
                         issues=[
                             Issue(

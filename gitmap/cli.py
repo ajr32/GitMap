@@ -41,10 +41,10 @@ def main():
         for milestone in roadmap.milestones:
             print(f"  {milestone.number} {milestone.title}")
 
-            for epic in milestone.epics:
-                print(f"    Epic: {epic.title}")
+            for Section in milestone.Sections:
+                print(f"    Section: {Section.title}")
 
-                for issue in epic.issues:
+                for issue in Section.issues:
                     print(f"      {issue.number} {issue.title}")
 
 

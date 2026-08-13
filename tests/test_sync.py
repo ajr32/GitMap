@@ -1,11 +1,11 @@
 """Tests for GitMap synchronization planning."""
 
-from gitmap.models import Epic, Issue, Milestone, Roadmap
+from gitmap.models import Issue, Milestone, Roadmap, Section
 from gitmap.sync import SyncEngine
 
 
 def test_sync_plan_lists_roadmap_items():
-    """The sync plan identifies milestones, epics, and issues."""
+    """The sync plan identifies milestones, Sections, and issues."""
 
     roadmap = Roadmap(
         name="GitMap",
@@ -13,8 +13,8 @@ def test_sync_plan_lists_roadmap_items():
             Milestone(
                 number="0.1",
                 title="Foundations",
-                epics=[
-                    Epic(
+                Sections=[
+                    Section(
                         title="Project Setup",
                         issues=[
                             Issue(
@@ -32,7 +32,7 @@ def test_sync_plan_lists_roadmap_items():
 
     assert result.successful
     assert "Milestone: 0.1 Foundations" in result.created
-    assert "Epic: Project Setup" in result.created
+    assert "Section: Project Setup" in result.created
     assert "Issue: 0.1.1 Create Python Project" in result.created
 
 

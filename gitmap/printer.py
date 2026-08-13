@@ -16,15 +16,15 @@ def print_roadmap(roadmap: Roadmap) -> None:
         print()
         print(f"## {milestone.number} {milestone.title}")
 
-        for epic in milestone.epics:
+        for Section in milestone.Sections:
             print()
-            print(f"### {epic.title}")
+            print(f"### {Section.title}")
 
-            if epic.description:
+            if Section.description:
                 print()
-                print(epic.description)
+                print(Section.description)
 
-            for issue in epic.issues:
+            for issue in Section.issues:
                 print()
                 print(f"#### {issue.number} {issue.title}")
 

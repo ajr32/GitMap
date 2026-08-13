@@ -1,6 +1,6 @@
 """Interactive roadmap designer for GitMap."""
 
-from gitmap.models import Epic, Milestone, Roadmap
+from gitmap.models import Milestone, Roadmap, Section
 
 
 def create_roadmap() -> Roadmap:
@@ -30,11 +30,15 @@ def create_roadmap() -> Roadmap:
         )
 
         while True:
-            epic_title = input("Epic title (blank when finished): ").strip()
+            section_title = input("Section title (blank when finished): ").strip()
+            section_description = input("Section description: ").strip()
 
-            if not epic_title:
+            if not section_title:
                 break
 
-            roadmap.milestones[-1].epics.append(Epic(title=epic_title))
+            roadmap.milestones[-1].Sections.append(Section(
+            title=section_title,
+            description=section_description,
+))
 
     return roadmap

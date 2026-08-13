@@ -1,6 +1,6 @@
 """Tests for the GitMap roadmap printer."""
 
-from gitmap.models import Epic, Issue, Milestone, Roadmap
+from gitmap.models import Issue, Milestone, Roadmap, Section
 from gitmap.printer import print_roadmap
 
 
@@ -14,8 +14,8 @@ def test_print_roadmap(capsys):
             Milestone(
                 number="0.1",
                 title="Foundations",
-                epics=[
-                    Epic(
+                Sections=[
+                    Section(
                         title="Project Setup",
                         issues=[
                             Issue(

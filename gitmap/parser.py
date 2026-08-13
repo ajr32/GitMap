@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from gitmap.models import Epic, Issue, Milestone, Requirement, Roadmap
+from gitmap.models import Issue, Milestone, Requirement, Roadmap, Section
 
 
 def parse_roadmap(path: str | Path) -> Roadmap:
@@ -30,7 +30,7 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     current_milestone: Milestone | None = None
 
-    current_epic: Epic | None = None
+    current_Section: Section | None = None
 
     current_issue: Issue | None = None
 
@@ -65,15 +65,15 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
         if found_title and stripped.startswith("### "):
             if current_milestone is not None:
-                epic_title = stripped[4:].strip()
+                Section_title = stripped[4:].strip()
 
-                current_epic = Epic(title=epic_title)
-                current_milestone.epics.append(current_epic)
+                current_Section = Section(title=Section_title)
+                current_milestone.Sections.append(current_Section)
 
             continue
 
         if found_title and stripped.startswith("#### "):
-            if current_epic is not None:
+            if current_Section is not None:
                 issue_heading = stripped[5:].strip()
                 parts = issue_heading.split(maxsplit=1)
 
@@ -82,7 +82,7 @@ def parse_roadmap_text(text: str) -> Roadmap:
                         number=parts[0],
                         title=parts[1],
                     )
-                    current_epic.issues.append(current_issue)
+                    current_Section.issues.append(current_issue)
 
             continue
 

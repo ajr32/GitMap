@@ -20,13 +20,21 @@ class Issue:
     requirements: list[Requirement] = field(default_factory=list)
     sub_issues: list["Issue"] = field(default_factory=list)
 
-
 @dataclass
-class Epic:
-    """A collection of related roadmap issues."""
+class Feature:
+    """A roadmap feature."""
 
     title: str
     description: str = ""
+    issues: list[Issue] = field(default_factory=list)
+
+@dataclass
+class Section:
+    """A collection of related roadmap items."""
+
+    title: str
+    description: str = ""
+    features: list[Feature] = field(default_factory=list)
     issues: list[Issue] = field(default_factory=list)
 
 
@@ -36,7 +44,8 @@ class Milestone:
 
     number: str
     title: str
-    epics: list[Epic] = field(default_factory=list)
+    sections: list[Section] = field(default_factory=list)
+    issues: list[Issue] = field(default_factory=list)
 
 
 @dataclass
