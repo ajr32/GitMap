@@ -1,6 +1,6 @@
 """Validation tools for GitMap roadmaps."""
 
-from gitmap.models import Roadmap
+from gitmap.models import Issue, Roadmap
 
 
 class ValidationError:
@@ -12,11 +12,57 @@ class ValidationError:
     def __str__(self) -> str:
         return self.message
 
+def _validate_issue(
+    issue: Issue,
+    location: str,
+    seen_numbers: set[str],
+) -> list[ValidationError]:
+    """Validate an issue."""
+
+    errors = []
+
+    if not issue.number.strip():
+        errors.append(
+            ValidationError(f"Issue in {location} cannot have a blank number.")
+        )
+
+    if issue.number in seen_numbers:
+        errors.append(ValidationError(f"Duplicate number: {issue.number}"))
+    else:
+        seen_numbers.add(issue.number)
+
+    if not issue.title.strip():
+        errors.append(
+            ValidationError(f"Issue {issue.number} cannot have a blank title.")
+        )
+
+    for sub_issue in issue.sub_issues:
+        if sub_issue.number in seen_numbers:
+            errors.append(ValidationError(f"Duplicate number: {sub_issue.number}"))
+        else:
+            seen_numbers.add(sub_issue.number)
+        
+        if not sub_issue.number.strip():
+            errors.append(
+                ValidationError(
+                    f"Sub-issue of {issue.number} cannot have a blank number."
+                )
+            )
+
+        if not sub_issue.title.strip():
+            errors.append(
+                ValidationError(
+                    f"Sub-issue {sub_issue.number} cannot have a blank title."
+                )
+            )
+
+    return errors
 
 def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
     """Validate the basic structure of a roadmap."""
 
     errors: list[ValidationError] = []
+    seen_numbers: set[str] = set()
 
     if not roadmap.name.strip():
         errors.append(ValidationError("Roadmap name cannot be blank."))
@@ -30,7 +76,26 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                 ValidationError(f"Milestone {milestone.number} title cannot be blank.")
             )
 
+        if milestone.number in seen_numbers:
+            errors.append(ValidationError(f"Duplicate number: {milestone.number}"))
+        else:
+            seen_numbers.add(milestone.number)
+
+        for issue in milestone.issues:
+            errors.extend(
+                _validate_issue(
+                    issue,
+                    f"milestone {milestone.number}",
+                    seen_numbers,
+                )
+            )
+
         for section in milestone.sections:
+            if section.number in seen_numbers:
+                errors.append(ValidationError(f"Duplicate number: {section.number}"))
+            else:
+                seen_numbers.add(section.number)
+                
             if not section.title.strip():
                 errors.append(
                     ValidationError(
@@ -38,19 +103,46 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                     )
                 )
 
-            for issue in section.issues:
-                if not issue.number.strip():
+            for feature in section.features:
+                if feature.number in seen_numbers:
+                    errors.append(
+                        ValidationError(f"Duplicate number: {feature.number}")
+                    )
+                else:
+                    seen_numbers.add(feature.number)
+                
+                if not feature.number.strip():
                     errors.append(
                         ValidationError(
-                            f"Issue in section '{section.title}' cannot have a blank number."
+                            f"Feature in section '{section.title}' "
+                            "cannot have a blank number."
                         )
                     )
 
-                if not issue.title.strip():
+                if not feature.title.strip():
                     errors.append(
                         ValidationError(
-                            f"Issue {issue.number} cannot have a blank title."
+                            f"Feature {feature.number} cannot have a blank title."
                         )
                     )
+
+                for issue in feature.issues:
+                    errors.extend(
+                        _validate_issue(
+                            issue,
+                            f"feature '{feature.title}'",
+                            seen_numbers,
+                        )
+                    )
+
+
+            for issue in section.issues:
+                errors.extend(
+                    _validate_issue(
+                        issue,
+                        f"section '{section.title}'",
+                        seen_numbers,
+                    )
+                )
 
     return errors
