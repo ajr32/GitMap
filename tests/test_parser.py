@@ -390,3 +390,83 @@ def test_section_without_feature_is_valid():
     assert section.number == "0.1.1"
     assert len(section.features) == 0
     assert len(section.issues) == 1
+
+def test_milestone_can_have_direct_issue_and_section():
+    """A milestone can contain a direct issue and a section."""
+
+    text = """Title: Simple Project
+
+# 0.1 Foundations
+
+#### 0.1.0.0.1 Create Project
+
+## 0.1.1 Project Setup
+
+#### 0.1.1.0.1 Configure Project
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    milestone = roadmap.milestones[0]
+
+    assert len(milestone.issues) == 1
+    assert milestone.issues[0].number == "0.1.0.0.1"
+
+    assert len(milestone.sections) == 1
+    assert milestone.sections[0].issues[0].number == "0.1.1.0.1"
+
+def test_multiple_sub_issues_stay_with_parent():
+    """Multiple checkbox sub-issues remain children of the same issue."""
+
+    text = """Title: Simple Project
+
+# 0.1 Foundations
+
+#### 0.1.0.0.1 Create Project
+
+[ ] (a) Create the package
+[ ] (b) Create the tests
+[ ] (c) Add documentation
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    issue = roadmap.milestones[0].issues[0]
+
+    assert issue.title == "Create Project"
+    assert len(issue.sub_issues) == 3
+
+    assert issue.sub_issues[0].number == "(a)"
+    assert issue.sub_issues[1].number == "(b)"
+    assert issue.sub_issues[2].number == "(c)"
+
+def test_issue_can_have_sub_issues_and_requirements():
+    """An issue can have both sub-issues and requirements."""
+
+    text = """Title: Simple Project
+
+# 0.1 Foundations
+
+#### 0.1.0.0.1 Create Project
+
+Create the project.
+
+[ ] (a) Create the package
+[ ] (b) Create the tests
+
+**Requirements:**
+- Use Python.
+- Include tests.
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    issue = roadmap.milestones[0].issues[0]
+
+    assert len(issue.sub_issues) == 2
+    assert issue.sub_issues[0].number == "(a)"
+    assert issue.sub_issues[1].number == "(b)"
+
+    assert len(issue.requirements) == 2
+    assert issue.requirements[0].text == "Use Python."
+    assert issue.requirements[1].text == "Include tests."
