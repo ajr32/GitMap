@@ -353,3 +353,40 @@ def test_parse_full_fixture():
 
     assert issue.number == "0.2.1.1.1"
     assert issue.title == "Run Tests"
+
+def test_feature_without_section_is_ignored():
+    """A feature cannot exist without a section."""
+
+    text = """Title: Simple Project
+
+# 0.1 Foundations
+
+### 0.1.1.1 Authentication
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    milestone = roadmap.milestones[0]
+
+    assert len(milestone.sections) == 0
+    assert len(milestone.issues) == 0
+
+def test_section_without_feature_is_valid():
+    """A section can contain issues without a feature."""
+
+    text = """Title: Simple Project
+
+# 0.1 Foundations
+
+## 0.1.1 Project Setup
+
+#### 0.1.1.0.1 Create Project
+"""
+
+    roadmap = parse_roadmap_text(text)
+
+    section = roadmap.milestones[0].sections[0]
+
+    assert section.number == "0.1.1"
+    assert len(section.features) == 0
+    assert len(section.issues) == 1
