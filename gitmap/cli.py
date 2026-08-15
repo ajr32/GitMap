@@ -3,6 +3,8 @@ from pathlib import Path
 
 from rich.console import Console
 
+from gitmap.github_mapping import sync_issues
+from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
 
@@ -45,16 +47,6 @@ def main():
     )
 
     check_parser.add_argument(
-        "roadmap",
-        help="Path to roadmap file.",
-    )
-
-    preview_parser = subparsers.add_parser(
-        "preview",
-        help="Preview what GitMap will sync.",
-    )
-
-    preview_parser.add_argument(
         "roadmap",
         help="Path to roadmap file.",
     )
@@ -195,6 +187,14 @@ def main():
 
                     for sub_issue in issue.sub_issues:
                         print(f"        {sub_issue.number} {sub_issue.title}")
+
+        info = collect_repository_info()
+        repository = verify_repository(info)
+
+        results = sync_issues(repository, roadmap)
+
+        print()
+        print(f"Synchronized {len(results)} issues.")
 
 if __name__ == "__main__":
     main()

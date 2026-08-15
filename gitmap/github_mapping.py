@@ -25,6 +25,7 @@ class IssueMapping:
     requirements: list
     milestone: str
     labels: list
+    sub_issues: list
 
 @dataclass
 class SubIssueMapping:
@@ -145,6 +146,7 @@ def map_issue(issue, milestone, section):
         requirements=issue.requirements,
         milestone=milestone.title.removesuffix(" (DONE)"),
         labels=[section.title.removesuffix(" (DONE)")],
+        sub_issues=issue.sub_issues,
     )
 
 def map_sub_issue(sub_issue, parent_issue, milestone, section):
@@ -266,10 +268,18 @@ def build_issue_body(mapping):
     body = mapping.description.strip()
 
     if mapping.requirements:
-        body += "\n\nRequirements:\n"
+        body += "\n\nEnd Goal:\n"
 
         for requirement in mapping.requirements:
             body += f"- {requirement.text}\n"
+
+    if mapping.sub_issues:
+        body += "\n\nSub-Issues:\n"
+
+        for sub_issue in mapping.sub_issues:
+            title = sub_issue.title.removesuffix(" (DONE)")
+            checkbox = "[x]" if sub_issue.title.endswith(" (DONE)") else "[ ]"
+            body += f"- {checkbox} {title}\n"
 
     body += f"\nGitMap: {mapping.number}"
 
@@ -286,12 +296,13 @@ def create_issue(repository, mapping, milestone, labels):
     )
 
 def sync_issue(repository, mapping):
-    """Create an issue if it does not already exist."""
+    """Create or update an issue from a roadmap mapping."""
 
     existing_issues = get_existing_issues(repository)
     existing = find_existing_issue(mapping, existing_issues)
 
     if existing:
+        existing.edit(body=build_issue_body(mapping))
         return existing, False
 
     milestone, labels = resolve_issue_targets(
@@ -350,21 +361,25 @@ def resolve_issue_targets(repository, mapping):
 
     return milestone, issue_labels
 
+
+
+
+
 if __name__ == "__main__":
     from pathlib import Path
 
-    from gitmap.github_setup import collect_repository_info, verify_repository
     from gitmap.parser import parse_roadmap
-
-    info = collect_repository_info()
-    repository = verify_repository(info)
 
     roadmap = parse_roadmap(Path("roadmap.md"))
 
-    results = sync_issues(repository, roadmap)
+    milestone = roadmap.milestones[0]
+    section = milestone.sections[0]
+    issue = section.issues[0]
 
-    created = sum(1 for _, was_created in results if was_created)
-    reused = sum(1 for _, was_created in results if not was_created)
+    mapping = map_issue(issue, milestone, section)
 
-    print(f"Created: {created}")
-    print(f"Reused: {reused}")
+    print(f"Number: {mapping.number}")
+    print(f"Title: {mapping.title}")
+    print(f"Sub-issues: {len(mapping.sub_issues)}")
+
+    print(build_issue_body(mapping))
