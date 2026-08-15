@@ -183,6 +183,8 @@ Allow users to see what GitMap understood before synchronization.
 Connect a completed GitMap roadmap to a GitHub repository chosen by the user.
 
 #### 0.3.1.0.1 Collect Repository Information (DONE)
+[ ] (a) First example sub-issue
+[ ] (b) Second example sub-issue
 
 Ask the user which GitHub repository should receive the roadmap.
 

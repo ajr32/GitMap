@@ -108,6 +108,7 @@ def main():
 
         section_count = 0
         issue_count = 0
+        sub_issue_count = 0
 
         for milestone in roadmap.milestones:
             console.print()
@@ -127,18 +128,21 @@ def main():
                     console.print(f"    [white]{issue.number}  {issue.title}[/white]")
 
                     for sub_issue in issue.sub_issues:
-                        issue_count += 1
+                        sub_issue_count += 1
                         console.print(
                             f"      [dim]{sub_issue.number}  {sub_issue.title}[/dim]"
                         )
 
         console.print()
-        console.print("─" * 40)
+        console.print("─" * 45)
         console.print(
+            f" · "
             f"[bold]{len(roadmap.milestones)}[/bold] milestones · "
             f"[bold]{section_count}[/bold] sections · "
-            f"[bold]{issue_count}[/bold] issues"
+            f"[bold]{issue_count}[/bold] issues · "
+            # f"[bold]{sub_issue_count}[/bold] sub-issues"
         )
+        console.print("─" * 45)
         console.print("[dim green]Preview only — no GitHub changes made.[/dim green]")
         console.print()
 

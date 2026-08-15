@@ -2,13 +2,13 @@ Title: GitMap Roadmap
 
 Sub-Title: GitMap turns a project roadmap into a structured GitHub project.
 
-# 0.1 Foundations
+# 0.1 Foundations (DONE)
 
-## 0.1.1 Project Setup
+## 0.1.1 Project Setup (DONE)
 
 Set up the basic GitMap project so it can be installed, run, tested, and developed safely.
 
-#### 0.1.1.0.1 Create Python Project
+#### 0.1.1.0.1 Create Python Project (DONE)
 
 Create the basic Python project structure for GitMap.
 
@@ -18,7 +18,7 @@ Create the basic Python project structure for GitMap.
 - Create a `tests` directory.
 - Create a `../.gitignore`.
 -
-#### 0.1.1.0.2 Install Dependencies
+#### 0.1.1.0.2 Install Dependencies (DONE)
 
 Set up the dependencies needed to develop and test GitMap.
 
@@ -26,7 +26,7 @@ Set up the dependencies needed to develop and test GitMap.
 - Support editable installation.
 - Add `pytest` as a development dependency.
 - Confirm the development environment installs successfully.
-#### 0.1.1.0.3 Create Command-Line Entry Point
+#### 0.1.1.0.3 Create Command-Line Entry Point (DONE)
 
 Create the basic command-line entry point for GitMap.
 
@@ -35,7 +35,7 @@ Create the basic command-line entry point for GitMap.
 - Display a simple welcome message.
 - Exit cleanly.
 
-#### 0.1.1.0.4 Add Initial Tests
+#### 0.1.1.0.4 Add Initial Tests (DONE)
 
 Create the first automated tests for GitMap.
 
@@ -44,7 +44,7 @@ Create the first automated tests for GitMap.
 - Confirm the command-line entry point runs.
 - Confirm the test suite can be run with `pytest`.
 
-#### 0.1.1.0.5 Add Project Documentation
+#### 0.1.1.0.5 Add Project Documentation (DONE)
 
 Create the basic documentation needed to understand and develop GitMap.
 
@@ -54,11 +54,11 @@ Create the basic documentation needed to understand and develop GitMap.
 - Explain how to run GitMap.
 - Explain how to run the tests.
 
-## 0.1.2 Roadmap Format
+## 0.1.2 Roadmap Format (DONE)
 
 Define the Markdown structure GitMap will use to describe projects before they are synchronized with GitHub.
 
-#### 0.1.2.0.1 Define Roadmap Structure
+#### 0.1.2.0.1 Define Roadmap Structure (DONE)
 
 Define the hierarchy used in a GitMap roadmap.
 
@@ -70,7 +70,7 @@ Define the hierarchy used in a GitMap roadmap.
 - Support descriptions and requirements.
 - Use Markdown headings to represent hierarchy.
 
-#### 0.1.2.0.2 Create Example Roadmap
+#### 0.1.2.0.2 Create Example Roadmap (DONE)
 
 Create a complete example roadmap that can be used for development and testing.
 
@@ -81,7 +81,7 @@ Create a complete example roadmap that can be used for development and testing.
 - Include at least one sub-issue.
 - Include descriptions and requirements.
 
-#### 0.1.2.0.3 Document Roadmap Format
+#### 0.1.2.0.3 Document Roadmap Format (DONE)
 
 Document how users should write a GitMap roadmap.
 
@@ -90,13 +90,13 @@ Document how users should write a GitMap roadmap.
 - Show how milestones, Sections, issues, and sub-issues are represented.
 - Provide a copyable example.
 
-# 0.2 Roadmap Parser
+# 0.2 Roadmap Parser (DONE)
 
-## 0.2.1 Markdown Parsing
+## 0.2.1 Markdown Parsing (DONE)
 
 Teach GitMap to read a roadmap and turn its Markdown structure into project data.
 
-#### 0.2.1.0.1 Read Roadmap File
+#### 0.2.1.0.1 Read Roadmap File (DONE)
 
 Load a roadmap from a Markdown file.
 
@@ -105,7 +105,7 @@ Load a roadmap from a Markdown file.
 - Read the Markdown contents.
 - Report a clear error if the file cannot be read.
 
-#### 0.2.1.0.2 Parse Milestones
+#### 0.2.1.0.2 Parse Milestones (DONE)
 
 Identify milestone headings in the roadmap.
 
@@ -114,7 +114,7 @@ Identify milestone headings in the roadmap.
 - Capture the milestone number and title.
 - Preserve the order of milestones.
 
-#### 0.2.1.0.3 Parse Sections
+#### 0.2.1.0.3 Parse Sections (DONE)
 
 Identify Sections within each milestone.
 
@@ -124,7 +124,7 @@ Identify Sections within each milestone.
 - Capture the Section description.
 - Recognize the Section type marker.
 
-#### 0.2.1.0.4 Parse Issues
+#### 0.2.1.0.4 Parse Issues (DONE)
 
 Identify issues within each Section.
 
@@ -134,7 +134,7 @@ Identify issues within each Section.
 - Capture the issue description.
 - Capture requirements.
 
-#### 0.2.1.0.5 Parse Sub-Issues
+#### 0.2.1.0.5 Parse Sub-Issues (DONE)
 
 Support issues nested beneath other issues.
 
@@ -143,11 +143,11 @@ Support issues nested beneath other issues.
 - Preserve the roadmap hierarchy.
 - Support numbering such as `0.2.4.1`.
 
-## 0.2.2 Roadmap Validation
+## 0.2.2 Roadmap Validation (DONE)
 
 Detect roadmap problems before anything is sent to GitHub.
 
-#### 0.2.2.0.1 Validate Roadmap Structure
+#### 0.2.2.0.1 Validate Roadmap Structure (DONE)
 
 Check that the roadmap follows GitMap's expected hierarchy.
 
@@ -157,7 +157,7 @@ Check that the roadmap follows GitMap's expected hierarchy.
 - Detect malformed hierarchy.
 - Provide useful error messages.
 
-#### 0.2.2.0.2 Validate Numbering
+#### 0.2.2.0.2 Validate Numbering (DONE)
 
 Check roadmap numbering for obvious errors.
 
@@ -166,7 +166,7 @@ Check roadmap numbering for obvious errors.
 - Detect invalid parent relationships.
 - Identify the location of the problem.
 
-#### 0.2.2.0.3 Preview Parsed Roadmap
+#### 0.2.2.0.3 Preview Parsed Roadmap (DONE)
 
 Allow users to see what GitMap understood before synchronization.
 
@@ -178,11 +178,11 @@ Allow users to see what GitMap understood before synchronization.
 
 # 0.3 GitHub Setup
 
-## 0.3.1 Repository Connection
+## 0.3.1 Repository Connection (DONE)
 
 Connect a completed GitMap roadmap to a GitHub repository chosen by the user.
 
-#### 0.3.1.0.1 Collect Repository Information
+#### 0.3.1.0.1 Collect Repository Information (DONE)
 
 Ask the user which GitHub repository should receive the roadmap.
 
@@ -192,7 +192,7 @@ Ask the user which GitHub repository should receive the roadmap.
 - Do not create the repository automatically.
 - Allow roadmap creation to be completed before GitHub setup begins.
 
-#### 0.3.1.0.2 Configure GitHub Authentication
+#### 0.3.1.0.2 Configure GitHub Authentication (DONE)
 
 Set up authentication required to work with the selected repository.
 
@@ -202,7 +202,7 @@ Set up authentication required to work with the selected repository.
 - Detect missing authentication.
 - Never store authentication tokens in the roadmap.
 
-#### 0.3.1.0.3 Verify Repository
+#### 0.3.1.0.3 Verify Repository (DONE)
 
 Confirm that GitMap can access the repository before synchronization.
 
@@ -216,7 +216,7 @@ Confirm that GitMap can access the repository before synchronization.
 
 Translate GitMap's roadmap concepts into the GitHub structures needed for synchronization.
 
-#### 0.3.2.0.1 Define Milestone Mapping
+#### 0.3.2.0.1 Define Milestone Mapping (DONE)
 
 Define how roadmap milestones map to GitHub milestones.
 
@@ -225,7 +225,7 @@ Define how roadmap milestones map to GitHub milestones.
 - Avoid creating duplicate milestones.
 - Allow existing milestones to be recognized.
 
-#### 0.3.2.0.2 Define Label Mapping
+#### 0.3.2.0.2 Define Label Mapping (DONE)
 
 Define the labels GitMap uses when creating GitHub items.
 
