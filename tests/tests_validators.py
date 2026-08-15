@@ -4,6 +4,7 @@ from gitmap.parser import parse_roadmap_text
 from gitmap.validators import validate_roadmap
 from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
 
+
 def test_valid_roadmap_has_no_errors():
     """A valid roadmap produces no validation errors."""
 
@@ -33,7 +34,6 @@ Create the login system.
     assert errors == []
 
 
-
 def test_blank_issue_title_is_invalid():
     """An issue with a blank title produces a validation error."""
 
@@ -58,6 +58,7 @@ def test_blank_issue_title_is_invalid():
 
     assert len(errors) == 1
     assert "blank title" in str(errors[0])
+
 
 def test_blank_feature_title_is_invalid():
     """A feature with a blank title produces a validation error."""
@@ -92,6 +93,7 @@ def test_blank_feature_title_is_invalid():
     assert len(errors) == 1
     assert "blank title" in str(errors[0])
 
+
 def test_duplicate_milestone_number_is_invalid():
     """Duplicate milestone numbers produce a validation error."""
 
@@ -115,6 +117,7 @@ def test_duplicate_milestone_number_is_invalid():
 
     assert len(errors) == 1
     assert "Duplicate number: 0.1" in str(errors[0])
+
 
 def test_duplicate_issue_number_is_invalid():
     """Duplicate issue numbers produce a validation error."""

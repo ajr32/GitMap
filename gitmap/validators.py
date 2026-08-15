@@ -12,6 +12,7 @@ class ValidationError:
     def __str__(self) -> str:
         return self.message
 
+
 def _validate_issue(
     issue: Issue,
     location: str,
@@ -41,7 +42,7 @@ def _validate_issue(
             errors.append(ValidationError(f"Duplicate number: {sub_issue.number}"))
         else:
             seen_numbers.add(sub_issue.number)
-        
+
         if not sub_issue.number.strip():
             errors.append(
                 ValidationError(
@@ -57,6 +58,7 @@ def _validate_issue(
             )
 
     return errors
+
 
 def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
     """Validate the basic structure of a roadmap."""
@@ -95,7 +97,7 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                 errors.append(ValidationError(f"Duplicate number: {section.number}"))
             else:
                 seen_numbers.add(section.number)
-                
+
             if not section.title.strip():
                 errors.append(
                     ValidationError(
@@ -110,7 +112,7 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                     )
                 else:
                     seen_numbers.add(feature.number)
-                
+
                 if not feature.number.strip():
                     errors.append(
                         ValidationError(
@@ -134,7 +136,6 @@ def validate_roadmap(roadmap: Roadmap) -> list[ValidationError]:
                             seen_numbers,
                         )
                     )
-
 
             for issue in section.issues:
                 errors.extend(

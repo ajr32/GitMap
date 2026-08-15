@@ -86,6 +86,7 @@ def test_parse_issue():
     assert issue.number == "0.1.1.0.1"
     assert issue.title == "Create Project"
 
+
 def test_parse_feature():
     """A level-three heading becomes a feature within a section."""
 
@@ -104,6 +105,7 @@ def test_parse_feature():
 
     assert feature.number == "0.1.1.1"
     assert feature.title == "Authentication"
+
 
 def test_parse_issue_under_feature():
     """An issue can belong to a feature."""
@@ -127,6 +129,7 @@ def test_parse_issue_under_feature():
     assert issue.number == "0.1.1.1.1"
     assert issue.title == "Create Login"
 
+
 def test_parse_issue_under_milestone():
     """An issue can belong directly to a milestone."""
 
@@ -144,6 +147,7 @@ def test_parse_issue_under_milestone():
 
     assert issue.number == "0.1.0.0.1"
     assert issue.title == "Create Project"
+
 
 def test_parse_sub_issues():
     """Checkbox items become sub-issues of the current issue."""
@@ -172,6 +176,7 @@ def test_parse_sub_issues():
     assert issue.sub_issues[1].number == "(b)"
     assert issue.sub_issues[1].title == "Create the tests"
 
+
 def test_parse_requirements():
     """Requirements become Requirement objects on an issue."""
 
@@ -198,6 +203,7 @@ Create the project.
     assert issue.requirements[0].text == "Create the package."
     assert issue.requirements[1].text == "Create the tests."
 
+
 def test_parse_issue_description():
     """Text beneath an issue heading becomes its description."""
 
@@ -218,6 +224,7 @@ Create the project structure.
 
     assert issue.description == "Create the project structure."
 
+
 def test_parse_section_description():
     """Text beneath a section heading becomes its description."""
 
@@ -235,6 +242,7 @@ Set up the basic project.
     section = roadmap.milestones[0].sections[0]
 
     assert section.description == "Set up the basic project."
+
 
 def test_parse_feature_description():
     """Text beneath a feature heading becomes its description."""
@@ -255,6 +263,7 @@ Handle user authentication.
     feature = roadmap.milestones[0].sections[0].features[0]
 
     assert feature.description == "Handle user authentication."
+
 
 def test_parse_full_fixture():
     """The full roadmap fixture parses into the expected hierarchy."""
@@ -354,6 +363,7 @@ def test_parse_full_fixture():
     assert issue.number == "0.2.1.1.1"
     assert issue.title == "Run Tests"
 
+
 def test_feature_without_section_is_ignored():
     """A feature cannot exist without a section."""
 
@@ -370,6 +380,7 @@ def test_feature_without_section_is_ignored():
 
     assert len(milestone.sections) == 0
     assert len(milestone.issues) == 0
+
 
 def test_section_without_feature_is_valid():
     """A section can contain issues without a feature."""
@@ -390,6 +401,7 @@ def test_section_without_feature_is_valid():
     assert section.number == "0.1.1"
     assert len(section.features) == 0
     assert len(section.issues) == 1
+
 
 def test_milestone_can_have_direct_issue_and_section():
     """A milestone can contain a direct issue and a section."""
@@ -415,6 +427,7 @@ def test_milestone_can_have_direct_issue_and_section():
     assert len(milestone.sections) == 1
     assert milestone.sections[0].issues[0].number == "0.1.1.0.1"
 
+
 def test_multiple_sub_issues_stay_with_parent():
     """Multiple checkbox sub-issues remain children of the same issue."""
 
@@ -439,6 +452,7 @@ def test_multiple_sub_issues_stay_with_parent():
     assert issue.sub_issues[0].number == "(a)"
     assert issue.sub_issues[1].number == "(b)"
     assert issue.sub_issues[2].number == "(c)"
+
 
 def test_issue_can_have_sub_issues_and_requirements():
     """An issue can have both sub-issues and requirements."""

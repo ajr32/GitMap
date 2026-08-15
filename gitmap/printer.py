@@ -2,6 +2,7 @@
 
 from gitmap.models import Roadmap
 
+
 def _print_issue(issue) -> None:
     """Print an issue and its details."""
 
@@ -19,7 +20,8 @@ def _print_issue(issue) -> None:
     for sub_issue in issue.sub_issues:
         print()
         print(f"[ ] {sub_issue.number} {sub_issue.title}")
-        
+
+
 def print_roadmap(roadmap: Roadmap) -> None:
     """Print a roadmap in a readable hierarchy."""
 
@@ -32,10 +34,10 @@ def print_roadmap(roadmap: Roadmap) -> None:
     for milestone in roadmap.milestones:
         print()
         print(f"# {milestone.number} {milestone.title}")
-        
+
         for issue in milestone.issues:
             _print_issue(issue)
-        
+
         for section in milestone.sections:
             print()
             print(f"## {section.number} {section.title}")
@@ -57,4 +59,3 @@ def print_roadmap(roadmap: Roadmap) -> None:
 
             for issue in section.issues:
                 _print_issue(issue)
-
