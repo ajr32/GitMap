@@ -1,9 +1,12 @@
 import argparse
 from pathlib import Path
 
+from rich.console import Console
+
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
-from rich.console import Console
+
+
 
 console = Console()
 
@@ -46,11 +49,36 @@ def main():
         help="Path to roadmap file.",
     )
 
+    preview_parser = subparsers.add_parser(
+        "preview",
+        help="Preview what GitMap will sync.",
+    )
+
+    preview_parser.add_argument(
+        "roadmap",
+        help="Path to roadmap file.",
+    )
+
     args = parser.parse_args()
 
     if args.command is None:
         parser.print_help()
         return
+
+    if args.command == "preview":
+        roadmap_path = Path(args.roadmap)
+
+        if not roadmap_path.exists():
+            print(f"Roadmap not found: {roadmap_path}")
+            return
+
+        roadmap = parse_roadmap(roadmap_path)
+
+        print("GitMap Sync Preview")
+        print("-------------------")
+        print()
+        print(f"Project: {roadmap.name}")
+        print()
 
     if args.command == "check":
         roadmap_path = Path(args.roadmap)
