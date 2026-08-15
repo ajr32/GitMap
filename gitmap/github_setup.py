@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import os
-from github import Github
+from github import Auth, Github, GithubException
 
 @dataclass
 class RepositoryInfo:
@@ -25,9 +25,15 @@ def verify_repository(info):
     """Verify that GitMap can access the selected GitHub repository."""
 
     token = get_github_token()
-    github = Github(token)
+    auth = Auth.Token(token)
+    github = Github(auth=auth)
 
-    repository = github.get_repo(info.full_name)
+    try:
+        repository = github.get_repo(info.full_name)
+    except GithubException as error:
+        raise ValueError(
+            f"Could not access GitHub repository '{info.full_name}'."
+        ) from None
 
     return repository
 

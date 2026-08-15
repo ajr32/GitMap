@@ -3,6 +3,9 @@ name = "gitmap"
 version = "0.1.0"
 description = "Turn a project roadmap into a structured GitHub project."
 requires-python = ">=3.11"
+dependencies= [
+    "PyGithub",
+]
 
 [project.optional-dependencies]
 dev = [
