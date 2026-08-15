@@ -75,17 +75,18 @@ def resolve_label(mapping, existing_labels):
 
 def map_milestone(milestone):
     """Map a roadmap milestone to its GitHub representation."""
+    title = milestone.title.removesuffix(" (DONE)")
 
     return MilestoneMapping(
         number=milestone.number,
-        title=milestone.title,
+        title=f"{milestone.number} {title}",
     )
 
 def find_existing_milestone(mapping, existing_milestones):
     """Find an existing GitHub milestone with the same title."""
 
     for milestone in existing_milestones:
-        if milestone.title == mapping.title:
+        if milestone.title.removesuffix(" (DONE)") == mapping.title:
             return milestone
 
     return None
@@ -100,16 +101,50 @@ def resolve_milestone(mapping, existing_milestones):
 
     return mapping
 
+def get_existing_milestones(repository):
+    """Retrieve existing milestones from a GitHub repository"""
+
+    return list(repository.get_milestones())
+
+def create_missing_milestones(repository, mappings):
+    """Create milestones that do not already exist."""
+
+    existing_milestones = get_existing_milestones(repository)
+    milestones = list(existing_milestones)
+
+    for mapping in mappings:
+        existing = find_existing_milestone(mapping, milestones)
+
+        if existing:
+            continue
+
+        milestone = repository.create_milestone(
+            title=mapping.title,
+        )
+        milestones.append(milestone)
+
+    return milestones
+
+def sync_milestones(repository, roadmap):
+    """Create any missing milestones for a roadmap."""
+
+    mappings = [
+        map_milestone(milestone)
+        for milestone in roadmap.milestones
+    ]
+
+    return create_missing_milestones(repository, mappings)
+
 def map_issue(issue, milestone, section):
     """Map a roadmap issue to its GitHub representation."""
 
     return IssueMapping(
         number=issue.number,
-        title=issue.title,
+        title=issue.title.removesuffix(" (DONE)"),
         description=issue.description,
         requirements=issue.requirements,
-        milestone=milestone.title,
-        labels=[section.title],
+        milestone=milestone.title.removesuffix(" (DONE)"),
+        labels=[section.title.removesuffix(" (DONE)")],
     )
 
 def map_sub_issue(sub_issue, parent_issue, milestone, section):
@@ -209,3 +244,127 @@ def preview_missing_labels(repository, roadmap):
 
     return missing
 
+def get_existing_issues(repository):
+    """Retrieve existing issues from a GitHub repository."""
+
+    return list(repository.get_issues(state="all"))
+
+def find_existing_issue(mapping, existing_issues):
+    """Find an existing GitHub issue by GitMap roadmap number."""
+
+    marker = f"GitMap: {mapping.number}"
+
+    for issue in existing_issues:
+        if marker in issue.body:
+            return issue
+
+    return None
+
+def build_issue_body(mapping):
+    """Build the GitHub issue body from a roadmap issue mapping."""
+
+    body = mapping.description.strip()
+
+    if mapping.requirements:
+        body += "\n\nRequirements:\n"
+
+        for requirement in mapping.requirements:
+            body += f"- {requirement.text}\n"
+
+    body += f"\nGitMap: {mapping.number}"
+
+    return body
+
+def create_issue(repository, mapping, milestone, labels):
+    """Create a GitHub issue from an issue mapping."""
+
+    return repository.create_issue(
+        title=mapping.title,
+        body=build_issue_body(mapping),
+        milestone=milestone,
+        labels=labels,
+    )
+
+def sync_issue(repository, mapping):
+    """Create an issue if it does not already exist."""
+
+    existing_issues = get_existing_issues(repository)
+    existing = find_existing_issue(mapping, existing_issues)
+
+    if existing:
+        return existing, False
+
+    milestone, labels = resolve_issue_targets(
+        repository,
+        mapping,
+    )
+
+    issue = create_issue(
+        repository,
+        mapping,
+        milestone,
+        labels,
+    )
+
+    return issue, True
+
+def sync_issues(repository, roadmap):
+    """Synchronize all roadmap issues with GitHub."""
+
+    results = []
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            for issue in section.issues:
+                mapping = map_issue(issue, milestone, section)
+                result, created = sync_issue(repository, mapping)
+
+                results.append((result, created))
+
+    return results
+
+def resolve_issue_targets(repository, mapping):
+    """Resolve the GitHub milestone and labels for an issue."""
+
+    milestones = get_existing_milestones(repository)
+    labels = get_existing_labels(repository)
+
+    milestone_mapping = MilestoneMapping(
+        number=mapping.number,
+        title=mapping.milestone,
+    )
+
+    milestone = find_existing_milestone(
+        milestone_mapping,
+        milestones,
+    )
+
+    issue_labels = []
+
+    for label_name in mapping.labels:
+        label_mapping = LabelMapping(name=label_name)
+        label = find_existing_label(label_mapping, labels)
+
+        if label:
+            issue_labels.append(label)
+
+    return milestone, issue_labels
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    from gitmap.github_setup import collect_repository_info, verify_repository
+    from gitmap.parser import parse_roadmap
+
+    info = collect_repository_info()
+    repository = verify_repository(info)
+
+    roadmap = parse_roadmap(Path("roadmap.md"))
+
+    results = sync_issues(repository, roadmap)
+
+    created = sum(1 for _, was_created in results if was_created)
+    reused = sum(1 for _, was_created in results if not was_created)
+
+    print(f"Created: {created}")
+    print(f"Reused: {reused}")

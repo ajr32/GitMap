@@ -235,7 +235,7 @@ Define the labels GitMap uses when creating GitHub items.
 - Avoid creating duplicate labels.
 - Allow labels to be created before issues are synchronized.
 
-#### 0.3.2.0.3 Define Issue Mapping
+#### 0.3.2.0.3 Define Issue Mapping (DONE)
 
 Define how roadmap items become GitHub issues.
 
@@ -246,7 +246,7 @@ Define how roadmap items become GitHub issues.
 - Associate issues with their milestone.
 - Apply appropriate labels.
 
-#### 0.3.2.0.4 Define Sub-Issue Mapping
+#### 0.3.2.0.4 Define Sub-Issue Mapping (DONE)
 
 Define how roadmap hierarchy is represented in GitHub.
 
@@ -255,13 +255,13 @@ Define how roadmap hierarchy is represented in GitHub.
 - Keep sub-issues associated with their parent.
 - Preserve roadmap numbering.
 
-# 0.4 GitHub Synchronization
+# 0.4 GitHub Synchronization (DONE)
 
-## 0.4.1 Synchronization Engine
+## 0.4.1 Synchronization Engine (DONE)
 
 Synchronize the validated roadmap with the selected GitHub repository.
 
-#### 0.4.1.0.1 Create Labels
+#### 0.4.1.0.1 Create Labels (DONE)
 
 Create the labels required by the roadmap before synchronizing other items.
 
@@ -271,7 +271,7 @@ Create the labels required by the roadmap before synchronizing other items.
 - Create only missing labels.
 - Do not create duplicates.
 
-#### 0.4.1.0.2 Create Milestones
+#### 0.4.1.0.2 Create Milestones (DONE)
 
 Create roadmap milestones in GitHub.
 
@@ -281,7 +281,7 @@ Create roadmap milestones in GitHub.
 - Preserve milestone titles.
 - Do not create duplicates.
 
-#### 0.4.1.0.3 Create Sections
+#### 0.4.1.0.3 Create Sections (DONE)
 
 Create GitHub issues representing roadmap Sections.
 
@@ -292,7 +292,7 @@ Create GitHub issues representing roadmap Sections.
 - Associate the Section with its milestone.
 - Detect an existing matching Section before creating another.
 
-#### 0.4.1.0.4 Create Issues
+#### 0.4.1.0.4 Create Issues (DONE)
 
 Create GitHub issues from roadmap issues.
 
@@ -304,7 +304,7 @@ Create GitHub issues from roadmap issues.
 - Apply defined labels.
 - Detect existing matching issues before creating another.
 
-#### 0.4.1.0.5 Create Sub-Issues
+#### 0.4.1.0.5 Create Sub-Issues (DONE)
 
 Create roadmap sub-issues and associate them with their parent issues.
 
@@ -314,11 +314,11 @@ Create roadmap sub-issues and associate them with their parent issues.
 - Include descriptions and requirements.
 - Associate sub-issues with the correct milestone.
 
-## 0.4.2 Safe Synchronization
+## 0.4.2 Safe Synchronization (DONE)
 
 Make synchronization predictable and safe to run more than once.
 
-#### 0.4.2.0.1 Add Dry Run
+#### 0.4.2.0.1 Add Dry Run (DONE)
 
 Allow users to preview what synchronization would change without changing GitHub.
 
@@ -328,7 +328,7 @@ Allow users to preview what synchronization would change without changing GitHub
 - Make no GitHub changes during a dry run.
 - Clearly identify dry-run output.
 
-#### 0.4.2.0.2 Prevent Duplicate Items
+#### 0.4.2.0.2 Prevent Duplicate Items (DONE)
 
 Make repeated synchronization safe.
 
@@ -339,7 +339,7 @@ Make repeated synchronization safe.
 - Prevent duplicate milestones.
 - Prevent duplicate issues.
 
-#### 0.4.2.0.3 Add Synchronization Summary
+#### 0.4.2.0.3 Add Synchronization Summary (DONE)
 
 Display the result of synchronization.
 
