@@ -370,7 +370,15 @@ def read_existing_labels(repo):
 
     return labels
 
+def match_existing_labels(existing_labels, roadmap_labels):
+    """Match roadmap label names to existing GitHub labels."""
+    matches = {}
 
+    for label_name in roadmap_labels:
+        if label_name in existing_labels:
+            matches[label_name] = existing_labels[label_name]
+
+    return matches
 
 if __name__ == "__main__":
     from pathlib import Path
