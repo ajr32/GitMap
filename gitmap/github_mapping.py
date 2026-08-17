@@ -380,6 +380,14 @@ def match_existing_labels(existing_labels, roadmap_labels):
 
     return matches
 
+def get_missing_labels(existing_labels, roadmap_labels):
+    """Return roadmap labels that do not already exist on GitHub."""
+    return [
+        label_name
+        for label_name in roadmap_labels
+        if label_name not in existing_labels
+    ]
+
 if __name__ == "__main__":
     from pathlib import Path
 
