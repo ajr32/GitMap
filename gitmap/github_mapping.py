@@ -361,7 +361,14 @@ def resolve_issue_targets(repository, mapping):
 
     return milestone, issue_labels
 
+def read_existing_labels(repo):
+    """Return the existing GitHub labels by name."""
+    labels = {}
 
+    for label in repo.get_labels():
+        labels[label.name] = label
+
+    return labels
 
 
 
