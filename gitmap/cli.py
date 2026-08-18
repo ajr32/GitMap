@@ -180,8 +180,6 @@ def main():
             print(f"  + {issue.number} {issue.title}")
 
         print(f"Changed: {len(differences['changed'])}")
-        for issue in differences["changed"]:
-            print(f"  ~ {issue.number} {issue.title}")
 
         print(f"Unchanged: {len(differences['matching'])}")
 
@@ -194,7 +192,7 @@ def main():
         while True:
             confirm = (
                 input(
-                    "Apply these changes? [(y)es/(n)o/check (c)hanged or (u)nchanged]: "
+                    "Apply these changes? [(y)es/(n)o] or review [(a)dded, (c)hanged, (u)nchanged or (r)emoved]: "
                 )
                 .strip()
                 .lower()
@@ -204,16 +202,28 @@ def main():
                 print("Synchronization cancelled.")
                 return
 
-            elif confirm in ("c", "changed", "check changed", "list changed"):
-                print("Issues changed:")
-                for issue in differences["changed"]:
-                    print(f"  ~ {issue.number} {issue.title}")
+            elif confirm in ("a", "added", "review added", "list added"):
+                print("Issues added:")
+                for issue in differences["new"]:
+                    print(f"  • {issue.number} {issue.title}")
                 print()
 
-            elif confirm in ("u", "unchanged", "check unchanged", "list unchanged"):
+            elif confirm in ("c", "changed", "review changed", "list changed"):
+                print("Issues changed:")
+                for issue in differences["changed"]:
+                    print(f"  • {issue.number} {issue.title}")
+                print()
+
+            elif confirm in ("u", "unchanged", "review unchanged", "list unchanged"):
                 print("Issues unchanged:")
                 for issue in differences["matching"]:
-                    print(f"  = {issue.number} {issue.title}")
+                    print(f"  • {issue.number} {issue.title}")
+                print()
+
+            elif confirm in ("r", "removed", "review removed", "list removed"):
+                print("Issues removed:")
+                for issue in differences["removed"]:
+                    print(f"  • {issue.number} {issue.title}")
                 print()
 
             elif confirm in ("y", "yes"):

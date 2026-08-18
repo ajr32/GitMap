@@ -503,7 +503,7 @@ Display the result of synchronization.
 
 ##### 0.4.2.0.3.4 (d) Report errors (DONE)
 
-# 0.5 Roadmap Updates
+# 0.5 Roadmap Updates (DONE)
 
 ## 0.5.1 Existing Project Import (DONE)
 
@@ -565,11 +565,11 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 ##### 0.5.1.0.4.4 (d) Identify roadmap items that cannot be matched safely (DONE)
 
-## 0.5.2 Roadmap Changes
+## 0.5.2 Roadmap Changes (DONE)
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
-#### 0.5.2.0.1 Detect Roadmap Changes 
+#### 0.5.2.0.1 Detect Roadmap Changes  (DONE)
 
 Compare the local roadmap with the current GitHub project.
 
