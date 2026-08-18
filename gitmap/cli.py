@@ -3,7 +3,11 @@ from pathlib import Path
 
 from rich.console import Console
 
-from gitmap.github_mapping import sync_issues
+from gitmap.github_mapping import (
+    get_existing_issues,
+    summarize_roadmap_differences,
+    sync_issues,
+)
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
@@ -153,13 +157,29 @@ def main():
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)
+
         if not roadmap_path.exists():
             print(f"Roadmap not found: {roadmap_path}")
             return
+
         roadmap = parse_roadmap(roadmap_path)
 
         info = collect_repository_info()
         repository = verify_repository(info)
+
+        existing_issues = get_existing_issues(repository)
+        differences = summarize_roadmap_differences(
+            roadmap,
+            existing_issues,
+        )
+
+        print()
+        print(f"New: {len(differences['new'])}")
+        print(f"Changed: {len(differences['changed'])}")
+        for issue in differences["changed"]:
+            print(f"  - {issue.number} {issue.title}")
+        print(f"Matching: {len(differences['matching'])}")
+        print()
 
         results = sync_issues(repository, roadmap)
 

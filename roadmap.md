@@ -569,20 +569,20 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
-#### 0.5.2.0.1 Detect Roadmap Changes
+#### 0.5.2.0.1 Detect Roadmap Changes (DONE)
 
 Compare the local roadmap with the current GitHub project.
 
 **End Goal:**
 - Compare the local roadmap with the current GitHub project.
 
-##### 0.5.2.0.1.1 (a) Detect new roadmap items
+##### 0.5.2.0.1.1 (a) Detect new roadmap items (DONE)
 
-##### 0.5.2.0.1.2 (b) Detect changed roadmap items
+##### 0.5.2.0.1.2 (b) Detect changed roadmap items (DONE)
 
-##### 0.5.2.0.1.3 (c) Detect items that already match GitHub
+##### 0.5.2.0.1.3 (c) Detect items that already match GitHub (DONE)
 
-##### 0.5.2.0.1.4 (d) Present differences before synchronization
+##### 0.5.2.0.1.4 (d) Present differences before synchronization (DONE)
 
 #### 0.5.2.0.2 Update Existing Items
 

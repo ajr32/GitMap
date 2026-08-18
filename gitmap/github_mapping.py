@@ -499,6 +499,88 @@ def rebuild_roadmap_state(repository, roadmap):
         "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
     }
 
+def detect_new_roadmap_items(roadmap, existing_issues):
+    """Return roadmap issues that do not yet exist on GitHub."""
+
+    existing_numbers = set()
+
+    for issue in existing_issues:
+        body = issue.body or ""
+
+        for line in body.splitlines():
+            if line.startswith("GitMap:"):
+                existing_numbers.add(
+                    line.removeprefix("GitMap:").strip()
+                )
+                break
+
+    new_items = []
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            for issue in section.issues:
+                if issue.number not in existing_numbers:
+                    new_items.append(issue)
+
+    return new_items
+
+def detect_changed_roadmap_items(roadmap, existing_issues):
+    """Return roadmap issues that differ from their GitHub issues."""
+
+    changed = []
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            for issue in section.issues:
+                mapping = map_issue(issue, milestone, section)
+                existing = find_existing_issue(mapping, existing_issues)
+
+                if existing is None:
+                    continue
+
+                expected_body = build_issue_body(mapping)
+
+                if (
+                    existing.title != mapping.title
+                    or (existing.body or "").strip() != expected_body.strip()
+                ):
+                    changed.append(issue)
+
+    return changed
+
+def detect_matching_roadmap_items(roadmap, existing_issues):
+    """Return roadmap issues that already match their GitHub issues."""
+
+    matching = []
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            for issue in section.issues:
+                mapping = map_issue(issue, milestone, section)
+                existing = find_existing_issue(mapping, existing_issues)
+
+                if existing is None:
+                    continue
+
+                expected_body = build_issue_body(mapping)
+
+                if (
+                    existing.title == mapping.title
+                    and (existing.body or "").strip() == expected_body.strip()
+                ):
+                    matching.append(issue)
+
+    return matching
+
+def summarize_roadmap_differences(roadmap, existing_issues):
+    """Summarize roadmap differences before synchronization."""
+
+    return {
+        "new": detect_new_roadmap_items(roadmap, existing_issues),
+        "changed": detect_changed_roadmap_items(roadmap, existing_issues),
+        "matching": detect_matching_roadmap_items(roadmap, existing_issues),
+    }
+
 def is_gitmap_managed_issue(issue):
     """Return True if the GitHub issue is managed by GitMap."""
     return "GitMap:" in (issue.body or "")
