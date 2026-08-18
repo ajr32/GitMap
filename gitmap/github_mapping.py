@@ -579,7 +579,37 @@ def summarize_roadmap_differences(roadmap, existing_issues):
         "new": detect_new_roadmap_items(roadmap, existing_issues),
         "changed": detect_changed_roadmap_items(roadmap, existing_issues),
         "matching": detect_matching_roadmap_items(roadmap, existing_issues),
+        "removed": detect_removed_roadmap_items(roadmap, existing_issues),
     }
+
+def detect_removed_roadmap_items(roadmap, existing_issues):
+    """Return GitMap-managed GitHub issues no longer present in the roadmap."""
+
+    roadmap_numbers = {
+        issue.number
+        for milestone in roadmap.milestones
+        for section in milestone.sections
+        for issue in section.issues
+    }
+
+    removed = []
+
+    for issue in existing_issues:
+        if not is_gitmap_managed_issue(issue):
+            continue
+
+        body = issue.body or ""
+
+        for line in body.splitlines():
+            if line.startswith("GitMap:"):
+                roadmap_number = line.removeprefix("GitMap:").strip()
+
+                if roadmap_number not in roadmap_numbers:
+                    removed.append(issue)
+
+                break
+
+    return removed
 
 def is_gitmap_managed_issue(issue):
     """Return True if the GitHub issue is managed by GitMap."""

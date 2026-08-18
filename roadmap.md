@@ -584,37 +584,37 @@ Compare the local roadmap with the current GitHub project.
 
 ##### 0.5.2.0.1.4 (d) Present differences before synchronization (DONE)
 
-#### 0.5.2.0.2 Update Existing Items
+#### 0.5.2.0.2 Update Existing Items (DONE)
 
 Update GitHub items when their corresponding roadmap entries change.
 
 **End Goal:**
 - Update GitHub items when their corresponding roadmap entries change.
 
-##### 0.5.2.0.2.1 (a) Update titles when changed
+##### 0.5.2.0.2.1 (a) Update titles when changed (DONE)
 
-##### 0.5.2.0.2.2 (b) Update descriptions when changed
+##### 0.5.2.0.2.2 (b) Update descriptions when changed (DONE)
 
-##### 0.5.2.0.2.3 (c) Update requirements when changed
+##### 0.5.2.0.2.3 (c) Update requirements when changed (DONE)
 
-##### 0.5.2.0.2.4 (d) Preserve GitHub issue numbers
+##### 0.5.2.0.2.4 (d) Preserve GitHub issue numbers (DONE)
 
-##### 0.5.2.0.2.5 (e) Avoid recreating existing items
+##### 0.5.2.0.2.5 (e) Avoid recreating existing items (DONE)
 
-#### 0.5.2.0.3 Handle Removed Roadmap Items
+#### 0.5.2.0.3 Handle Removed Roadmap Items (DONE)
 
 Safely identify items that exist in GitHub but have been removed from the roadmap.
 
 **End Goal:**
 - Safely identify items that exist in GitHub but have been removed from the roadmap.
 
-##### 0.5.2.0.3.1 (a) Never delete GitHub items automatically
+##### 0.5.2.0.3.1 (a) Never delete GitHub items automatically (DONE)
 
-##### 0.5.2.0.3.2 (b) Report removed roadmap items
+##### 0.5.2.0.3.2 (b) Report removed roadmap items (DONE)
 
-##### 0.5.2.0.3.3 (c) Require an explicit user decision before destructive changes
+##### 0.5.2.0.3.3 (c) Require an explicit user decision before destructive changes (DONE)
 
-##### 0.5.2.0.3.4 (d) Preserve historical GitHub data by default
+##### 0.5.2.0.3.4 (d) Preserve historical GitHub data by default (DONE)
 
 #### 0.5.2.0.4 Preview Updates
 

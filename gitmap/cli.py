@@ -179,6 +179,10 @@ def main():
         for issue in differences["changed"]:
             print(f"  - {issue.number} {issue.title}")
         print(f"Matching: {len(differences['matching'])}")
+        print(f"Removed: {len(differences['removed'])}")
+
+        for issue in differences["removed"]:
+            print(f"  - #{issue.number} {issue.title}")
         print()
 
         results = sync_issues(repository, roadmap)
