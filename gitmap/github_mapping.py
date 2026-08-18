@@ -397,6 +397,27 @@ def read_existing_issues(repo):
 
     return issues
 
+def match_existing_issues(existing_issues, roadmap_issues):
+    """Match roadmap issues to existing GitHub issues by title."""
+    matches = {}
+
+    for roadmap_issue in roadmap_issues:
+        if roadmap_issue.title in existing_issues:
+            matches[roadmap_issue.number] = existing_issues[roadmap_issue.title]
+
+    return matches
+
+def preserve_issue_numbers(matches):
+    """Return GitMap issue numbers mapped to GitHub issue numbers."""
+    return {
+        roadmap_number: github_issue.number
+        for roadmap_number, github_issue in matches.items()
+    }
+
+def is_gitmap_managed_issue(issue):
+    """Return True if the GitHub issue appears to be managed by GitMap."""
+    return issue.title.startswith("0.")
+
 if __name__ == "__main__":
     from pathlib import Path
 
