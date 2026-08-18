@@ -174,21 +174,60 @@ def main():
         )
 
         print()
+        print("Roadmap Update Preview")
+        print("----------------------")
+
         print(f"New: {len(differences['new'])}")
+        for issue in differences["new"]:
+            print(f"  + {issue.number} {issue.title}")
+
         print(f"Changed: {len(differences['changed'])}")
         for issue in differences["changed"]:
-            print(f"  - {issue.number} {issue.title}")
-        print(f"Matching: {len(differences['matching'])}")
-        print(f"Removed: {len(differences['removed'])}")
+            print(f"  ~ {issue.number} {issue.title}")
 
+        print(f"Unchanged: {len(differences['matching'])}")
+
+        print(f"Removed: {len(differences['removed'])}")
         for issue in differences["removed"]:
             print(f"  - #{issue.number} {issue.title}")
-        print()
-
-        results = sync_issues(repository, roadmap)
 
         print()
-        print(f"Synchronized {len(results)} issues.")
+
+        while True:
+            confirm = (
+                input(
+                    "Apply these changes? [(y)es/(n)o/check (c)hanged or (u)nchanged]: "
+                )
+                .strip()
+                .lower()
+            )
+
+            if confirm in ("n", "no"):
+                print("Synchronization cancelled.")
+                return
+
+            elif confirm in ("c", "changed", "check changed", "list changed"):
+                print("Issues changed:")
+                for issue in differences["changed"]:
+                    print(f"  ~ {issue.number} {issue.title}")
+                print()
+
+            elif confirm in ("u", "unchanged", "check unchanged", "list unchanged"):
+                print("Issues unchanged:")
+                for issue in differences["matching"]:
+                    print(f"  = {issue.number} {issue.title}")
+                print()
+
+            elif confirm in ("y", "yes"):
+                results = sync_issues(repository, roadmap)
+
+                print()
+                print(f"Synchronized {len(results)} issues.")
+                break
+
+            else:
+                print("Invalid choice.")
+                print()
 
 if __name__ == "__main__":
     main()

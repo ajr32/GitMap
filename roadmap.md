@@ -569,7 +569,7 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
-#### 0.5.2.0.1 Detect Roadmap Changes (DONE)
+#### 0.5.2.0.1 Detect Roadmap Changes 
 
 Compare the local roadmap with the current GitHub project.
 
@@ -616,22 +616,22 @@ Safely identify items that exist in GitHub but have been removed from the roadma
 
 ##### 0.5.2.0.3.4 (d) Preserve historical GitHub data by default (DONE)
 
-#### 0.5.2.0.4 Preview Updates
+#### 0.5.2.0.4 Preview Updates (DONE)
 
 Show the user exactly what an update synchronization will do.
 
 **End Goal:**
 - Show the user exactly what an update synchronization will do.
 
-##### 0.5.2.0.4.1 (a) Show new items
+##### 0.5.2.0.4.1 (a) Show new items (DONE)
 
-##### 0.5.2.0.4.2 (b) Show changed items
+##### 0.5.2.0.4.2 (b) Show changed items (DONE)
 
-##### 0.5.2.0.4.3 (c) Show unchanged items
+##### 0.5.2.0.4.3 (c) Show unchanged items (DONE)
 
-##### 0.5.2.0.4.4 (d) Show roadmap items that were removed
+##### 0.5.2.0.4.4 (d) Show roadmap items that were removed (DONE)
 
-##### 0.5.2.0.4.5 (e) Require confirmation before applying changes
+##### 0.5.2.0.4.5 (e) Require confirmation before applying changes (DONE)
 
 # 0.6 User Workflow
 
