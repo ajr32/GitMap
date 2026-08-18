@@ -388,6 +388,15 @@ def get_missing_labels(existing_labels, roadmap_labels):
         if label_name not in existing_labels
     ]
 
+def read_existing_issues(repo):
+    """Return existing GitHub issues by title."""
+    issues = {}
+
+    for issue in repo.get_issues(state="all"):
+        issues[issue.title] = issue
+
+    return issues
+
 if __name__ == "__main__":
     from pathlib import Path
 

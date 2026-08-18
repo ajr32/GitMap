@@ -252,7 +252,7 @@ Allow users to see what GitMap understood before synchronization.
 
 ##### 0.2.2.0.3.4 (d) Preserve hierarchy in the preview (DONE)
 
-# 0.3 GitHub Setup
+# 0.3 GitHub Setup (DONE)
 
 ## 0.3.1 Repository Connection (DONE)
 
@@ -303,7 +303,7 @@ Confirm that GitMap can access the repository before synchronization.
 
 ##### 0.3.1.0.3.4 (d) Stop synchronization if verification fails (DONE)
 
-## 0.3.2 GitHub Project Structure
+## 0.3.2 GitHub Project Structure (DONE)
 
 Translate GitMap's roadmap concepts into the GitHub structures needed for synchronization.
 
