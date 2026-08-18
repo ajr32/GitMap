@@ -639,35 +639,35 @@ Show the user exactly what an update synchronization will do.
 
 Guide users through creating a roadmap without requiring them to know GitMap's Markdown format.
 
-#### 0.6.1.0.1 Start New Roadmap
+#### 0.6.1.0.1 Start New Roadmap (DONE)
 
 Begin an interactive roadmap-building session.
 
 **End Goal:**
 - Begin an interactive roadmap-building session.
 
-##### 0.6.1.0.1.1 (a) Ask for the project name
+##### 0.6.1.0.1.1 (a) Ask for the project name (DONE)
 
-##### 0.6.1.0.1.2 (b) Ask for a project overview
+##### 0.6.1.0.1.2 (b) Ask for a project overview (DONE)
 
-##### 0.6.1.0.1.3 (c) Create the initial roadmap structure
+##### 0.6.1.0.1.3 (c) Create the initial roadmap structure (DONE)
 
-##### 0.6.1.0.1.4 (d) Do not require GitHub information yet
+##### 0.6.1.0.1.4 (d) Do not require GitHub information yet (DONE)
 
-#### 0.6.1.0.2 Collect Milestones
+#### 0.6.1.0.2 Collect Milestones (DONE)
 
 Guide the user through defining project milestones.
 
 **End Goal:**
 - Guide the user through defining project milestones.
 
-##### 0.6.1.0.2.1 (a) Ask for the milestone number
+##### 0.6.1.0.2.1 (a) Ask for the milestone number (DONE)
 
-##### 0.6.1.0.2.2 (b) Ask for the milestone title
+##### 0.6.1.0.2.2 (b) Ask for the milestone title (DONE)
 
-##### 0.6.1.0.2.3 (c) Allow multiple milestones
+##### 0.6.1.0.2.3 (c) Allow multiple milestones (DONE)
 
-##### 0.6.1.0.2.4 (d) Allow the user to indicate when they are finished
+##### 0.6.1.0.2.4 (d) Allow the user to indicate when they are finished (DONE)
 
 #### 0.6.1.0.3 Collect Sections
 
@@ -676,13 +676,13 @@ Guide the user through defining Sections within each milestone.
 **End Goal:**
 - Guide the user through defining Sections within each milestone.
 
-##### 0.6.1.0.3.1 (a) Ask for the Section title
+##### 0.6.1.0.3.1 (a) Ask for the Section title (DONE)
 
-##### 0.6.1.0.3.2 (b) Ask for a Section overview
+##### 0.6.1.0.3.2 (b) Ask for a Section overview (DONE)
 
-##### 0.6.1.0.3.3 (c) Associate the Section with its milestone
+##### 0.6.1.0.3.3 (c) Associate the Section with its milestone (DONE)
 
-##### 0.6.1.0.3.4 (d) Allow multiple Sections
+##### 0.6.1.0.3.4 (d) Allow multiple Sections (DONE)
 
 #### 0.6.1.0.4 Collect Issues
 
@@ -701,20 +701,20 @@ Guide the user through defining issues within a Section.
 
 ##### 0.6.1.0.4.5 (e) Treat a blank entry as finished
 
-#### 0.6.1.0.5 Collect Work Steps
+#### 0.6.1.0.5 Collect Work Steps (DONE)
 
 Allow an issue to contain smaller sub-issues.
 
 **End Goal:**
 - Allow an issue to contain smaller sub-issues.
 
-##### 0.6.1.0.5.1 (a) Ask whether an issue needs sub-issues
+##### 0.6.1.0.5.1 (a) Ask whether an issue needs sub-issues (DONE)
 
-##### 0.6.1.0.5.2 (b) Collect sub-issue titles
+##### 0.6.1.0.5.2 (b) Collect sub-issue titles (DONE)
 
-##### 0.6.1.0.5.3 (c) Collect descriptions and requirements
+##### 0.6.1.0.5.3 (c) Collect descriptions and requirements (DONE)
 
-##### 0.6.1.0.5.4 (d) Preserve the parent-child relationship
+##### 0.6.1.0.5.4 (d) Preserve the parent-child relationship (DONE)
 
 ##### 0.6.1.0.5.5 (e) Support additional nesting when appropriate
 

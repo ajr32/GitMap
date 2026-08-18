@@ -11,6 +11,7 @@ from gitmap.github_mapping import (
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
+from gitmap.builder import start_new_roadmap
 
 console = Console()
 
@@ -51,6 +52,11 @@ def main():
     check_parser.add_argument(
         "roadmap",
         help="Path to roadmap file.",
+    )
+
+    new_parser = subparsers.add_parser(
+        "new-roadmap",
+        help="Start a new interactive roadmap.",
     )
 
     args = parser.parse_args()
@@ -152,6 +158,19 @@ def main():
         console.print("─" * 45)
         console.print("[dim green]Preview only — no GitHub changes made.[/dim green]")
         console.print()
+
+    if args.command == "new-roadmap":
+        roadmap = start_new_roadmap()
+
+        print()
+        print(f"Project: {roadmap['name']}")
+        print(f"Sub-Title: {roadmap['overview']}")
+
+        print()
+        print("Milestones:")
+
+        for milestone in roadmap["milestones"]:
+            print(f"  • {milestone['number']} {milestone['title']}")
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)
