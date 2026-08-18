@@ -4,19 +4,23 @@ from github import Github, GithubException
 
 DEFAULT_LABEL_COLOR = "0366d6"
 
+
 def get_github_client(token):
     """Create an authenticated GitHub client."""
 
     return Github(token)
+
 
 @dataclass
 class MilestoneMapping:
     number: str
     title: str
 
+
 @dataclass
 class LabelMapping:
     name: str
+
 
 @dataclass
 class IssueMapping:
@@ -28,6 +32,7 @@ class IssueMapping:
     labels: list
     work_steps: list
 
+
 @dataclass
 class WorkStepMapping:
     marker: str
@@ -38,15 +43,14 @@ class WorkStepMapping:
     milestone: str
     labels: list
 
+
 def map_issue_labels(issue):
     """Map labels defined on a roadmap issue to GitHub labels."""
 
     labels = getattr(issue, "labels", [])
 
-    return [
-        LabelMapping(name=label)
-        for label in labels
-    ]
+    return [LabelMapping(name=label) for label in labels]
+
 
 def map_section_label(section):
     """Map a roadmap section to its GitHub label."""
@@ -57,13 +61,16 @@ def map_section_label(section):
         name=title,
     )
 
+
 def find_existing_label(mapping, existing_labels):
     """Find an existing GitHub label with the same name."""
 
     for label in existing_labels:
-        if label.name.casefold() == mapping.name.casefold():            return label
+        if label.name.casefold() == mapping.name.casefold():
+            return label
 
     return None
+
 
 def resolve_label(mapping, existing_labels):
     """Determine whether a label already exists or needs to be created."""
@@ -75,6 +82,7 @@ def resolve_label(mapping, existing_labels):
 
     return mapping
 
+
 def map_milestone(milestone):
     """Map a roadmap milestone to its GitHub representation."""
     title = milestone.title.removesuffix(" (DONE)")
@@ -84,6 +92,7 @@ def map_milestone(milestone):
         title=f"{milestone.number} {title}",
     )
 
+
 def find_existing_milestone(mapping, existing_milestones):
     """Find an existing GitHub milestone with the same title."""
 
@@ -92,6 +101,7 @@ def find_existing_milestone(mapping, existing_milestones):
             return milestone
 
     return None
+
 
 def resolve_milestone(mapping, existing_milestones):
     """Determine whether a milestone already exists or needs to be created."""
@@ -103,10 +113,12 @@ def resolve_milestone(mapping, existing_milestones):
 
     return mapping
 
+
 def get_existing_milestones(repository):
     """Retrieve existing milestones from a GitHub repository"""
 
     return list(repository.get_milestones())
+
 
 def create_missing_milestones(repository, mappings):
     """Create milestones that do not already exist."""
@@ -127,15 +139,14 @@ def create_missing_milestones(repository, mappings):
 
     return milestones
 
+
 def sync_milestones(repository, roadmap):
     """Create any missing milestones for a roadmap."""
 
-    mappings = [
-        map_milestone(milestone)
-        for milestone in roadmap.milestones
-    ]
+    mappings = [map_milestone(milestone) for milestone in roadmap.milestones]
 
     return create_missing_milestones(repository, mappings)
+
 
 def map_issue(issue, milestone, section):
     """Map a roadmap issue to its GitHub representation."""
@@ -150,6 +161,7 @@ def map_issue(issue, milestone, section):
         work_steps=issue.work_steps,
     )
 
+
 def map_work_step(work_step, parent_issue, milestone, section):
     """Map a roadmap work step to its GitHub representation."""
 
@@ -163,10 +175,12 @@ def map_work_step(work_step, parent_issue, milestone, section):
         labels=[section.title],
     )
 
+
 def get_existing_labels(repository):
     """Retrieve existing labels from a GitHub repository."""
 
     return list(repository.get_labels())
+
 
 def create_missing_labels(repository, mappings):
     """Create missing labels and return all available labels."""
@@ -199,11 +213,13 @@ def create_missing_labels(repository, mappings):
 
     return labels
 
+
 def sync_labels(repository, roadmap):
     """Create any missing structural labels for a roadmap."""
 
     mappings = collect_label_mappings(roadmap)
     return create_missing_labels(repository, mappings)
+
 
 def collect_label_mappings(roadmap):
     """Collect the labels required by a roadmap."""
@@ -219,16 +235,15 @@ def collect_label_mappings(roadmap):
 
     return mappings
 
+
 def prepare_labels(repository, roadmap):
     """Prepare roadmap labels for GitHub synchronization."""
 
     mappings = collect_label_mappings(roadmap)
     existing_labels = get_existing_labels(repository)
 
-    return [
-        resolve_label(mapping, existing_labels)
-        for mapping in mappings
-    ]
+    return [resolve_label(mapping, existing_labels) for mapping in mappings]
+
 
 def preview_missing_labels(repository, roadmap):
     """Preview labels that would be created without changing GitHub."""
@@ -247,6 +262,7 @@ def preview_missing_labels(repository, roadmap):
 
     return missing
 
+
 def get_existing_issues(repository):
     """Retrieve GitMap-managed issues from a GitHub repository."""
 
@@ -255,6 +271,7 @@ def get_existing_issues(repository):
         for issue in repository.get_issues(state="all")
         if is_gitmap_managed_issue(issue)
     ]
+
 
 def find_existing_issue(mapping, existing_issues):
     """Find an existing GitHub issue by GitMap roadmap number."""
@@ -266,6 +283,7 @@ def find_existing_issue(mapping, existing_issues):
             return issue
 
     return None
+
 
 def build_issue_body(mapping):
     """Build the GitHub issue body from a roadmap issue mapping."""
@@ -290,6 +308,7 @@ def build_issue_body(mapping):
 
     return body
 
+
 def create_issue(repository, mapping, milestone, labels):
     """Create a GitHub issue from an issue mapping."""
 
@@ -299,6 +318,7 @@ def create_issue(repository, mapping, milestone, labels):
         milestone=milestone,
         labels=labels,
     )
+
 
 def sync_issue(repository, mapping):
     """Create or update an issue from a roadmap mapping."""
@@ -329,6 +349,7 @@ def sync_issue(repository, mapping):
 
     return issue, True
 
+
 def sync_issues(repository, roadmap):
     """Synchronize all roadmap issues with GitHub."""
 
@@ -346,6 +367,7 @@ def sync_issues(repository, roadmap):
                 results.append((result, created))
 
     return results
+
 
 def resolve_issue_targets(repository, mapping):
     """Resolve the GitHub milestone and labels for an issue."""
@@ -382,6 +404,7 @@ def preserve_issue_numbers(matches):
         for roadmap_number, github_issue in matches.items()
     }
 
+
 def associate_issues_with_milestones(existing_issues):
     """Associate GitMap-managed issues with their GitHub milestones."""
 
@@ -405,6 +428,7 @@ def associate_issues_with_milestones(existing_issues):
 
     return associations
 
+
 def associate_issues_with_sections(existing_issues, roadmap):
     """Associate GitMap-managed issues with their roadmap sections."""
 
@@ -426,6 +450,7 @@ def associate_issues_with_sections(existing_issues, roadmap):
                 break
 
     return associations
+
 
 def restore_work_step_relationships(existing_issues):
     """Restore work steps from GitMap-managed GitHub issue bodies."""
@@ -460,6 +485,7 @@ def restore_work_step_relationships(existing_issues):
 
     return relationships
 
+
 def find_unmatched_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that cannot be safely matched to GitHub issues."""
 
@@ -487,6 +513,7 @@ def find_unmatched_roadmap_items(roadmap, existing_issues):
 
     return unmatched
 
+
 def rebuild_roadmap_state(repository, roadmap):
     """Rebuild GitMap project state from existing GitHub data."""
 
@@ -499,6 +526,7 @@ def rebuild_roadmap_state(repository, roadmap):
         "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
     }
 
+
 def detect_new_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that do not yet exist on GitHub."""
 
@@ -509,9 +537,7 @@ def detect_new_roadmap_items(roadmap, existing_issues):
 
         for line in body.splitlines():
             if line.startswith("GitMap:"):
-                existing_numbers.add(
-                    line.removeprefix("GitMap:").strip()
-                )
+                existing_numbers.add(line.removeprefix("GitMap:").strip())
                 break
 
     new_items = []
@@ -523,6 +549,7 @@ def detect_new_roadmap_items(roadmap, existing_issues):
                     new_items.append(issue)
 
     return new_items
+
 
 def detect_changed_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that differ from their GitHub issues."""
@@ -548,6 +575,7 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
 
     return changed
 
+
 def detect_matching_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that already match their GitHub issues."""
 
@@ -572,6 +600,7 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
 
     return matching
 
+
 def summarize_roadmap_differences(roadmap, existing_issues):
     """Summarize roadmap differences before synchronization."""
 
@@ -581,6 +610,7 @@ def summarize_roadmap_differences(roadmap, existing_issues):
         "matching": detect_matching_roadmap_items(roadmap, existing_issues),
         "removed": detect_removed_roadmap_items(roadmap, existing_issues),
     }
+
 
 def detect_removed_roadmap_items(roadmap, existing_issues):
     """Return GitMap-managed GitHub issues no longer present in the roadmap."""
@@ -611,9 +641,11 @@ def detect_removed_roadmap_items(roadmap, existing_issues):
 
     return removed
 
+
 def is_gitmap_managed_issue(issue):
     """Return True if the GitHub issue is managed by GitMap."""
     return "GitMap:" in (issue.body or "")
+
 
 if __name__ == "__main__":
     from pathlib import Path

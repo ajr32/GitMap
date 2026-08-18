@@ -1,6 +1,10 @@
 from types import SimpleNamespace
 
-from gitmap.github_mapping import summarize_roadmap_differences, sync_issue, detect_removed_roadmap_items
+from gitmap.github_mapping import (
+    detect_removed_roadmap_items,
+    summarize_roadmap_differences,
+    sync_issue,
+)
 
 
 def test_summarize_roadmap_differences():
@@ -63,6 +67,7 @@ def test_summarize_roadmap_differences():
     assert [issue.number for issue in differences["changed"]] == ["0.1.3"]
     assert [issue.number for issue in differences["matching"]] == ["0.1.2"]
 
+
 def test_sync_issue_updates_existing_issue_without_recreating(monkeypatch):
     class FakeIssue:
         def __init__(self):
@@ -110,6 +115,7 @@ def test_sync_issue_updates_existing_issue_without_recreating(monkeypatch):
     assert result.edited is True
     assert result.title == "Updated Title"
     assert "Updated description" in result.body
+
 
 def test_detect_removed_roadmap_items():
     roadmap_issue = SimpleNamespace(

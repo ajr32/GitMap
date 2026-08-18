@@ -12,8 +12,6 @@ from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
 
-
-
 console = Console()
 
 
@@ -228,6 +226,7 @@ def main():
             else:
                 print("Invalid choice.")
                 print()
+
 
 if __name__ == "__main__":
     main()

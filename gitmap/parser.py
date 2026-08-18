@@ -165,8 +165,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
             continue
 
         if current_issue is not None and stripped in (
-                "**Requirements:**",
-                "**End Goal:**",
+            "**Requirements:**",
+            "**End Goal:**",
         ):
             current_requirements = []
             continue

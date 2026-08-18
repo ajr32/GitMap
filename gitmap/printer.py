@@ -26,7 +26,8 @@ def _print_issue(issue) -> None:
 
             for requirement in work_step.requirements:
                 print(f"    - {requirement.text}")
-        
+
+
 def print_roadmap(roadmap: Roadmap) -> None:
     """Print a roadmap in a readable hierarchy."""
 
@@ -39,10 +40,10 @@ def print_roadmap(roadmap: Roadmap) -> None:
     for milestone in roadmap.milestones:
         print()
         print(f"# {milestone.number} {milestone.title}")
-        
+
         for issue in milestone.issues:
             _print_issue(issue)
-        
+
         for section in milestone.sections:
             print()
             print(f"## {section.number} {section.title}")
@@ -64,6 +65,8 @@ def print_roadmap(roadmap: Roadmap) -> None:
 
             for issue in section.issues:
                 _print_issue(issue)
+
+
 def _print_preview_issue(issue, indent: str) -> None:
     """Print an issue in the sync preview."""
 

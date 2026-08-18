@@ -1,8 +1,8 @@
 """Tests for GitMap roadmap validation."""
 
+from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
 from gitmap.parser import parse_roadmap_text
 from gitmap.validators import validate_roadmap
-from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
 
 
 def test_valid_roadmap_has_no_errors():
@@ -62,8 +62,6 @@ def test_blank_issue_title_is_invalid():
 
 def test_blank_feature_title_is_invalid():
     """A feature with a blank title produces a validation error."""
-
-    from gitmap.models import Feature, Section
 
     feature = Feature(
         number="0.1.1.1",

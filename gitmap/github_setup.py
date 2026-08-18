@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
+
 from github import Auth, Github, GithubException
 
 
@@ -33,7 +34,7 @@ def verify_repository(info):
 
     try:
         repository = github.get_repo(info.full_name)
-    except GithubException as error:
+    except GithubException:
         raise ValueError(
             f"Could not access GitHub repository '{info.full_name}'."
         ) from None
