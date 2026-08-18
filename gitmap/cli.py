@@ -57,21 +57,6 @@ def main():
         parser.print_help()
         return
 
-    if args.command == "preview":
-        roadmap_path = Path(args.roadmap)
-
-        if not roadmap_path.exists():
-            print(f"Roadmap not found: {roadmap_path}")
-            return
-
-        roadmap = parse_roadmap(roadmap_path)
-
-        print("GitMap Sync Preview")
-        print("-------------------")
-        print()
-        print(f"Project: {roadmap.name}")
-        print()
-
     if args.command == "check":
         roadmap_path = Path(args.roadmap)
 
@@ -172,21 +157,6 @@ def main():
             print(f"Roadmap not found: {roadmap_path}")
             return
         roadmap = parse_roadmap(roadmap_path)
-
-        print(f"Roadmap: {roadmap.name}")
-        print(f"Milestones: {len(roadmap.milestones)}")
-
-        for milestone in roadmap.milestones:
-            print(f"  {milestone.number} {milestone.title}")
-
-            for section in milestone.sections:
-                print(f"    Section: {section.title}")
-
-                for issue in section.issues:
-                    print(f"      {issue.number} {issue.title}")
-
-                    for work_step in issue.work_steps:
-                        print(f"        {work_step.number} {work_step.title}")
 
         info = collect_repository_info()
         repository = verify_repository(info)
