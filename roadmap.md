@@ -505,65 +505,65 @@ Display the result of synchronization.
 
 # 0.5 Roadmap Updates
 
-## 0.5.1 Existing Project Import
+## 0.5.1 Existing Project Import (DONE)
 
 Allow GitMap to understand what already exists in a connected GitHub repository.
 
-#### 0.5.1.0.1 Read Existing Milestones
+#### 0.5.1.0.1 Read Existing Milestones (DONE)
 
 Retrieve existing milestones from the repository.
 
 **End Goal:**
 - Retrieve existing milestones from the repository.
 
-##### 0.5.1.0.1.1 (a) Read open milestones
+##### 0.5.1.0.1.1 (a) Read open milestones (DONE)
 
-##### 0.5.1.0.1.2 (b) Recognize milestones already represented in the roadmap
+##### 0.5.1.0.1.2 (b) Recognize milestones already represented in the roadmap (DONE)
 
-##### 0.5.1.0.1.3 (c) Preserve GitHub milestone identifiers for later updates
+##### 0.5.1.0.1.3 (c) Preserve GitHub milestone identifiers for later updates (DONE)
 
-#### 0.5.1.0.2 Read Existing Labels
+#### 0.5.1.0.2 Read Existing Labels (DONE)
 
 Retrieve existing repository labels.
 
 **End Goal:**
 - Retrieve existing repository labels.
 
-##### 0.5.1.0.2.1 (a) Read current labels
+##### 0.5.1.0.2.1 (a) Read current labels (DONE)
 
-##### 0.5.1.0.2.2 (b) Match existing labels to roadmap labels
+##### 0.5.1.0.2.2 (b) Match existing labels to roadmap labels (DONE)
 
-##### 0.5.1.0.2.3 (c) Avoid recreating labels that already exist
+##### 0.5.1.0.2.3 (c) Avoid recreating labels that already exist (DONE)
 
-#### 0.5.1.0.3 Read Existing Issues
+#### 0.5.1.0.3 Read Existing Issues (DONE)
 
 Retrieve existing GitHub issues that correspond to roadmap items.
 
 **End Goal:**
 - Retrieve existing GitHub issues that correspond to roadmap items.
 
-##### 0.5.1.0.3.1 (a) Read existing issues
+##### 0.5.1.0.3.1 (a) Read existing issues (DONE)
 
-##### 0.5.1.0.3.2 (b) Match issues to roadmap items
+##### 0.5.1.0.3.2 (b) Match issues to roadmap items (DONE)
 
-##### 0.5.1.0.3.3 (c) Preserve GitHub issue numbers
+##### 0.5.1.0.3.3 (c) Preserve GitHub issue numbers (DONE)
 
-##### 0.5.1.0.3.4 (d) Distinguish GitMap-managed items from unrelated repository issues
+##### 0.5.1.0.3.4 (d) Distinguish GitMap-managed items from unrelated repository issues (DONE)
 
-#### 0.5.1.0.4 Rebuild Roadmap State
+#### 0.5.1.0.4 Rebuild Roadmap State (DONE)
 
 Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 **End Goal:**
 - Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
-##### 0.5.1.0.4.1 (a) Associate existing issues with milestones
+##### 0.5.1.0.4.1 (a) Associate existing issues with milestones (DONE)
 
-##### 0.5.1.0.4.2 (b) Restore Section and issue relationships
+##### 0.5.1.0.4.2 (b) Restore Section and issue relationships (DONE)
 
-##### 0.5.1.0.4.3 (c) Restore sub-issue relationships when available
+##### 0.5.1.0.4.3 (c) Restore sub-issue relationships when available (DONE)
 
-##### 0.5.1.0.4.4 (d) Identify roadmap items that cannot be matched safely
+##### 0.5.1.0.4.4 (d) Identify roadmap items that cannot be matched safely (DONE)
 
 ## 0.5.2 Roadmap Changes
 
