@@ -134,7 +134,7 @@ Identify issues within each Section.
 - Capture the issue description.
 - Capture requirements.
 
-#### 0.2.1.0.5 Parse Sub-Issues (DONE)
+#### 0.2.1.0.5 Parse Work Steps (DONE)
 
 Support issues nested beneath other issues.
 
@@ -248,7 +248,7 @@ Define how roadmap items become GitHub issues.
 - Associate issues with their milestone.
 - Apply appropriate labels.
 
-#### 0.3.2.0.4 Define Sub-Issue Mapping
+#### 0.3.2.0.4 Define Work Step Mapping
 
 Define how roadmap hierarchy is represented in GitHub.
 
@@ -306,7 +306,7 @@ Create GitHub issues from roadmap issues.
 - Apply defined labels.
 - Detect existing matching issues before creating another.
 
-#### 0.4.1.0.5 Create Sub-Issues
+#### 0.4.1.0.5 Create Work Steps
 
 Create roadmap sub-issues and associate them with their parent issues.
 
@@ -486,7 +486,7 @@ Guide the user through defining issues within a Section.
 - Allow requirements to be entered individually.
 - Treat a blank entry as finished.
 
-#### 0.6.1.0.5 Collect Sub-Issues
+#### 0.6.1.0.5 Collect Work Steps
 
 Allow an issue to contain smaller sub-issues.
 

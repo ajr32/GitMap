@@ -149,7 +149,7 @@ def test_parse_issue_under_milestone():
     assert issue.title == "Create Project"
 
 
-def test_parse_sub_issues():
+def test_parse_work_steps():
     """Checkbox items become sub-issues of the current issue."""
 
     text = """Title: Simple Project
@@ -168,13 +168,13 @@ def test_parse_sub_issues():
 
     issue = roadmap.milestones[0].sections[0].issues[0]
 
-    assert len(issue.sub_issues) == 2
+    assert len(issue.work_steps) == 2
 
-    assert issue.sub_issues[0].number == "(a)"
-    assert issue.sub_issues[0].title == "Create the package"
+    assert issue.work_steps[0].number == "(a)"
+    assert issue.work_steps[0].title == "Create the package"
 
-    assert issue.sub_issues[1].number == "(b)"
-    assert issue.sub_issues[1].title == "Create the tests"
+    assert issue.work_steps[1].number == "(b)"
+    assert issue.work_steps[1].title == "Create the tests"
 
 
 def test_parse_requirements():
@@ -301,12 +301,12 @@ def test_parse_full_fixture():
     assert issue.title == "Create Project"
     assert issue.description == "Create the project structure."
 
-    # Sub-issues
-    assert len(issue.sub_issues) == 2
-    assert issue.sub_issues[0].number == "(a)"
-    assert issue.sub_issues[0].title == "Create the package"
-    assert issue.sub_issues[1].number == "(b)"
-    assert issue.sub_issues[1].title == "Create the tests"
+    # Work steps
+    assert len(issue.work_steps) == 2
+    assert issue.work_steps[0].number == "(a)"
+    assert issue.work_steps[0].title == "Create the package"
+    assert issue.work_steps[1].number == "(b)"
+    assert issue.work_steps[1].title == "Create the tests"
 
     # Requirements
     assert [item.text for item in issue.requirements] == [
@@ -428,7 +428,7 @@ def test_milestone_can_have_direct_issue_and_section():
     assert milestone.sections[0].issues[0].number == "0.1.1.0.1"
 
 
-def test_multiple_sub_issues_stay_with_parent():
+def test_multiple_work_steps_stay_with_parent():
     """Multiple checkbox sub-issues remain children of the same issue."""
 
     text = """Title: Simple Project
@@ -447,14 +447,14 @@ def test_multiple_sub_issues_stay_with_parent():
     issue = roadmap.milestones[0].issues[0]
 
     assert issue.title == "Create Project"
-    assert len(issue.sub_issues) == 3
+    assert len(issue.work_steps) == 3
 
-    assert issue.sub_issues[0].number == "(a)"
-    assert issue.sub_issues[1].number == "(b)"
-    assert issue.sub_issues[2].number == "(c)"
+    assert issue.work_steps[0].number == "(a)"
+    assert issue.work_steps[1].number == "(b)"
+    assert issue.work_steps[2].number == "(c)"
 
 
-def test_issue_can_have_sub_issues_and_requirements():
+def test_issue_can_have_work_steps_and_requirements():
     """An issue can have both sub-issues and requirements."""
 
     text = """Title: Simple Project
@@ -477,9 +477,9 @@ Create the project.
 
     issue = roadmap.milestones[0].issues[0]
 
-    assert len(issue.sub_issues) == 2
-    assert issue.sub_issues[0].number == "(a)"
-    assert issue.sub_issues[1].number == "(b)"
+    assert len(issue.work_steps) == 2
+    assert issue.work_steps[0].number == "(a)"
+    assert issue.work_steps[1].number == "(b)"
 
     assert len(issue.requirements) == 2
     assert issue.requirements[0].text == "Use Python."

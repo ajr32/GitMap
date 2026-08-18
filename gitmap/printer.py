@@ -17,14 +17,14 @@ def _print_issue(issue) -> None:
         print()
         print(f"- {requirement.text}")
 
-    for sub_issue in issue.sub_issues:
+    for work_step in issue.work_steps:
         print()
-        print(f"[ ] {sub_issue.number} {sub_issue.title}")
+        print(f"[ ] {work_step.number} {work_step.title}")
 
-        if sub_issue.description:
-            print(f"    {sub_issue.description}")
+        if work_step.description:
+            print(f"    {work_step.description}")
 
-            for requirement in sub_issue.requirements:
+            for requirement in work_step.requirements:
                 print(f"    - {requirement.text}")
         
 def print_roadmap(roadmap: Roadmap) -> None:
@@ -69,8 +69,8 @@ def _print_preview_issue(issue, indent: str) -> None:
 
     print(f"{indent}Issue: {issue.number} {issue.title}")
 
-    for sub_issue in issue.sub_issues:
-        print(f"{indent}  Sub-issue: {sub_issue.number} {sub_issue.title}")
+    for work_step in issue.work_steps:
+        print(f"{indent}  Work step: {work_step.number} {work_step.title}")
 
 
 def print_sync_preview(roadmap: Roadmap) -> None:

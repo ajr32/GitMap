@@ -128,7 +128,7 @@ def main():
 
         section_count = 0
         issue_count = 0
-        sub_issue_count = 0
+        work_step_count = 0
 
         for milestone in roadmap.milestones:
             console.print()
@@ -147,10 +147,10 @@ def main():
                     issue_count += 1
                     console.print(f"    [white]{issue.number}  {issue.title}[/white]")
 
-                    for sub_issue in issue.sub_issues:
-                        sub_issue_count += 1
+                    for work_step in issue.work_steps:
+                        work_step_count += 1
                         console.print(
-                            f"      [dim]{sub_issue.number}  {sub_issue.title}[/dim]"
+                            f"      [dim]{work_step.number}  {work_step.title}[/dim]"
                         )
 
         console.print()
@@ -160,7 +160,7 @@ def main():
             f"[bold]{len(roadmap.milestones)}[/bold] milestones · "
             f"[bold]{section_count}[/bold] sections · "
             f"[bold]{issue_count}[/bold] issues · "
-            # f"[bold]{sub_issue_count}[/bold] sub-issues"
+            # f"[bold]{work_step_count}[/bold] sub-issues"
         )
         console.print("─" * 45)
         console.print("[dim green]Preview only — no GitHub changes made.[/dim green]")
@@ -185,8 +185,8 @@ def main():
                 for issue in section.issues:
                     print(f"      {issue.number} {issue.title}")
 
-                    for sub_issue in issue.sub_issues:
-                        print(f"        {sub_issue.number} {sub_issue.title}")
+                    for work_step in issue.work_steps:
+                        print(f"        {work_step.number} {work_step.title}")
 
         info = collect_repository_info()
         repository = verify_repository(info)

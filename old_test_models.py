@@ -42,7 +42,7 @@ def test_create_roadmap():
     )
 
 
-def test_issue_can_have_sub_issues():
+def test_issue_can_have_work_steps():
     """An issue can contain another issue as a sub-issue."""
 
     child = Issue(
@@ -52,9 +52,9 @@ def test_issue_can_have_sub_issues():
 
     parent = Issue(
         number="0.2.5",
-        title="Parse Sub-Issues",
-        sub_issues=[child],
+        title="Parse Work Steps",
+        work_steps=[child],
     )
 
-    assert parent.sub_issues[0].number == "0.2.5.1"
-    assert parent.sub_issues[0].title == "Parse Nested Issue"
+    assert parent.work_steps[0].number == "0.2.5.1"
+    assert parent.work_steps[0].title == "Parse Nested Issue"

@@ -18,7 +18,7 @@ class Issue:
     title: str
     description: str = ""
     requirements: list[Requirement] = field(default_factory=list)
-    sub_issues: list["Issue"] = field(default_factory=list)
+    work_steps: list["Issue"] = field(default_factory=list)
 
 
 @dataclass

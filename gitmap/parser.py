@@ -139,28 +139,28 @@ def parse_roadmap_text(text: str) -> Roadmap:
             continue
 
         if current_issue is not None and stripped.startswith("##### "):
-            sub_issue_heading = stripped[6:].strip()
-            parts = sub_issue_heading.split(maxsplit=1)
+            work_step_heading = stripped[6:].strip()
+            parts = work_step_heading.split(maxsplit=1)
 
             if len(parts) == 2:
-                sub_issue = Issue(
+                work_step = Issue(
                     number=parts[0],
                     title=parts[1],
                 )
-                current_issue.sub_issues.append(sub_issue)
+                current_issue.work_steps.append(work_step)
 
             continue
 
         if current_issue is not None and stripped.startswith("[ ] "):
-            sub_issue_text = stripped[4:].strip()
-            parts = sub_issue_text.split(maxsplit=1)
+            work_step_text = stripped[4:].strip()
+            parts = work_step_text.split(maxsplit=1)
 
             if len(parts) == 2:
-                sub_issue = Issue(
+                work_step = Issue(
                     number=parts[0],
                     title=parts[1],
                 )
-                current_issue.sub_issues.append(sub_issue)
+                current_issue.work_steps.append(work_step)
 
             continue
 

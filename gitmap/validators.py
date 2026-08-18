@@ -37,23 +37,23 @@ def _validate_issue(
             ValidationError(f"Issue {issue.number} cannot have a blank title.")
         )
 
-    for sub_issue in issue.sub_issues:
-        if sub_issue.number in seen_numbers:
-            errors.append(ValidationError(f"Duplicate number: {sub_issue.number}"))
+    for work_step in issue.work_steps:
+        if work_step.number in seen_numbers:
+            errors.append(ValidationError(f"Duplicate number: {work_step.number}"))
         else:
-            seen_numbers.add(sub_issue.number)
+            seen_numbers.add(work_step.number)
 
-        if not sub_issue.number.strip():
+        if not work_step.number.strip():
             errors.append(
                 ValidationError(
-                    f"Sub-issue of {issue.number} cannot have a blank number."
+                    f"Work step of {issue.number} cannot have a blank number."
                 )
             )
 
-        if not sub_issue.title.strip():
+        if not work_step.title.strip():
             errors.append(
                 ValidationError(
-                    f"Sub-issue {sub_issue.number} cannot have a blank title."
+                    f"Work step {work_step.number} cannot have a blank title."
                 )
             )
 

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from github import Github, GithubException
 
 DEFAULT_LABEL_COLOR = "0366d6"
@@ -25,10 +26,10 @@ class IssueMapping:
     requirements: list
     milestone: str
     labels: list
-    sub_issues: list
+    work_steps: list
 
 @dataclass
-class SubIssueMapping:
+class WorkStepMapping:
     marker: str
     title: str
     description: str
@@ -146,17 +147,17 @@ def map_issue(issue, milestone, section):
         requirements=issue.requirements,
         milestone=milestone.title.removesuffix(" (DONE)"),
         labels=[section.title.removesuffix(" (DONE)")],
-        sub_issues=issue.sub_issues,
+        work_steps=issue.work_steps,
     )
 
-def map_sub_issue(sub_issue, parent_issue, milestone, section):
+def map_work_step(work_step, parent_issue, milestone, section):
     """Map a roadmap sub-issue to its GitHub representation."""
 
-    return SubIssueMapping(
-        marker=sub_issue.number,
-        title=sub_issue.title,
-        description=sub_issue.description,
-        requirements=sub_issue.requirements,
+    return WorkStepMapping(
+        marker=work_step.number,
+        title=work_step.title,
+        description=work_step.description,
+        requirements=work_step.requirements,
         parent_number=parent_issue.number,
         milestone=milestone.title,
         labels=[section.title],
@@ -273,12 +274,12 @@ def build_issue_body(mapping):
         for requirement in mapping.requirements:
             body += f"- {requirement.text}\n"
 
-    if mapping.sub_issues:
-        body += "\n\nSub-Issues:\n"
+    if mapping.work_steps:
+        body += "\n\nWork Steps:\n"
 
-        for sub_issue in mapping.sub_issues:
-            title = sub_issue.title.removesuffix(" (DONE)")
-            checkbox = "[x]" if sub_issue.title.endswith(" (DONE)") else "[ ]"
+        for work_step in mapping.work_steps:
+            title = work_step.title.removesuffix(" (DONE)")
+            checkbox = "[x]" if work_step.title.endswith(" (DONE)") else "[ ]"
             body += f"- {checkbox} {title}\n"
 
     body += f"\nGitMap: {mapping.number}"
@@ -433,6 +434,6 @@ if __name__ == "__main__":
 
     print(f"Number: {mapping.number}")
     print(f"Title: {mapping.title}")
-    print(f"Sub-issues: {len(mapping.sub_issues)}")
+    print(f"Work steps: {len(mapping.work_steps)}")
 
     print(build_issue_body(mapping))
