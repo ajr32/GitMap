@@ -108,48 +108,67 @@ def collect_issues(section):
             break
 
         description = collect_multiline("Issue description:")
-        requirements = collect_requirements()
-
         issue = {
             "title": title,
             "description": description,
-            "requirements": requirements,
+            "requirements": [],
             "section": section["title"],
+            "work_steps": [],
         }
 
-        issue["work_steps"] = collect_work_steps(issue)
+        print()
+        print("Issue options:")
+        print()
+        print(
+            "  (r)equirement — something that must be true or completed for this issue"
+        )
+        print("  (w)ork step   — a smaller piece of work inside this issue")
+        print("  (d)one        — finish this issue and move on to the next issue")
+        print()
+
+        while True:
+            choice = input("[(r)equirement / (w)ork step / (d)one]: ").strip().lower()
+
+            if choice in ("r", "requirement"):
+                requirement = input("Requirement: ").strip()
+
+                if requirement:
+                    issue["requirements"].append(requirement)
+
+            elif choice in ("w", "work", "work step"):
+                work_step = collect_work_step(issue)
+
+                if work_step:
+                    issue["work_steps"].append(work_step)
+
+            elif choice in ("d", "done"):
+                break
+
+            else:
+                print("Invalid choice.")
+
 
         issues.append(issue)
 
-        return issues
+    return issues
 
-def collect_work_steps(issue):
-    """Collect work steps for an issue."""
+def collect_work_step(issue):
+    """Collect one work step for an issue."""
 
-    work_steps = []
+    title = input("Work step title: ").strip()
 
-    while True:
-        title = input(
-            f"Work step for {issue['title']} "
-            "(or press Enter when finished): "
-        ).strip()
+    if not title:
+        return None
 
-        if not title:
-            break
+    description = collect_multiline("Work step description:")
+    requirements = collect_requirements()
 
-        description = input("Work step description: ").strip()
-        requirements = collect_requirements()
-
-        work_steps.append(
-            {
-                "title": title,
-                "description": description,
-                "requirements": requirements,
-                "parent": issue["title"],
-            }
-        )
-
-    return work_steps
+    return {
+        "title": title,
+        "description": description,
+        "requirements": requirements,
+        "parent": issue["title"],
+    }
 
 def collect_multiline(prompt):
     """Collect multiline text until the user enters a blank line."""
@@ -179,3 +198,55 @@ def collect_pasted_requirements():
         for line in text.splitlines()
         if line.strip()
     ]
+
+def render_roadmap_markdown(roadmap):
+    """Render a completed roadmap as Markdown."""
+
+    lines = []
+
+    lines.append(f"Title: {roadmap['name']}")
+
+    if roadmap["overview"]:
+        lines.append(f"Sub-Title: {roadmap['overview']}")
+
+    for milestone in roadmap["milestones"]:
+        lines.append("")
+        lines.append(f"# {milestone['number']} {milestone['title']}")
+
+        for section in milestone["sections"]:
+            lines.append("")
+            lines.append(f"## {section['title']}")
+
+            if section["overview"]:
+                lines.append("")
+                lines.append(section["overview"])
+
+            for issue in section["issues"]:
+                lines.append("")
+                lines.append(f"#### {issue['title']}")
+
+                if issue["description"]:
+                    lines.append("")
+                    lines.append(issue["description"])
+
+                if issue["requirements"]:
+                    lines.append("")
+                    lines.append("**Requirements:**")
+
+                    for requirement in issue["requirements"]:
+                        lines.append(f"- {requirement}")
+
+                if issue["work_steps"]:
+                    lines.append("")
+                    lines.append("**Work Steps:**")
+
+                    for work_step in issue["work_steps"]:
+                        lines.append(f"- [ ] {work_step['title']}")
+
+                        if work_step["description"]:
+                            lines.append(f"  {work_step['description']}")
+
+                        for requirement in work_step["requirements"]:
+                            lines.append(f"  - {requirement}")
+
+    return "\n".join(lines)

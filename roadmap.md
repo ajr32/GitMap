@@ -725,15 +725,15 @@ Allow users to paste existing project information instead of answering every que
 **End Goal:**
 - Allow users to paste existing project information instead of answering every question individually.
 
-##### 0.6.1.0.6.1 (a) Accept pasted overview text
+##### 0.6.1.0.6.1 (a) Accept pasted overview text (DONE)
 
-##### 0.6.1.0.6.2 (b) Accept pasted descriptions
+##### 0.6.1.0.6.2 (b) Accept pasted descriptions (DONE)
 
-##### 0.6.1.0.6.3 (c) Accept pasted requirements
+##### 0.6.1.0.6.3 (c) Accept pasted requirements (DONE)
 
-##### 0.6.1.0.6.4 (d) Preserve multiline content
+##### 0.6.1.0.6.4 (d) Preserve multiline content (DONE)
 
-##### 0.6.1.0.6.5 (e) Allow interactive questions and pasted content to be mixed
+##### 0.6.1.0.6.5 (e) Allow interactive questions and pasted content to be mixed (DONE)
 
 ## 0.6.2 Roadmap Review
 

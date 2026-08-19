@@ -14,13 +14,19 @@ def test_start_new_roadmap(monkeypatch):
             "Create Python Project",
             "Create the initial Python project structure.",
             "",  # finished issue description
+
+            "r",
             "Python 3.14",
-            "",  # finished issue requirements
+
+            "w",
             "Set up package structure",
             "Create the package folders.",
+            "",  # finished work-step description
             "Use src layout",
             "",  # finished work-step requirements
-            "",  # finished work steps
+
+            "d",
+
             "",  # finished issues
             "",  # finished sections
             "",  # finished milestones

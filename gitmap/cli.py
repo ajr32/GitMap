@@ -3,6 +3,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from gitmap.builder import render_roadmap_markdown, start_new_roadmap
 from gitmap.github_mapping import (
     get_existing_issues,
     summarize_roadmap_differences,
@@ -11,7 +12,6 @@ from gitmap.github_mapping import (
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap
 from gitmap.validators import validate_roadmap
-from gitmap.builder import start_new_roadmap
 
 console = Console()
 
@@ -54,9 +54,9 @@ def main():
         help="Path to roadmap file.",
     )
 
-    new_parser = subparsers.add_parser(
-        "new-roadmap",
-        help="Start a new interactive roadmap.",
+    subparsers.add_parser(
+    "new-roadmap",
+    help="Start a new interactive roadmap.",
     )
 
     args = parser.parse_args()
@@ -163,14 +163,7 @@ def main():
         roadmap = start_new_roadmap()
 
         print()
-        print(f"Project: {roadmap['name']}")
-        print(f"Sub-Title: {roadmap['overview']}")
-
-        print()
-        print("Milestones:")
-
-        for milestone in roadmap["milestones"]:
-            print(f"  • {milestone['number']} {milestone['title']}")
+        print(render_roadmap_markdown(roadmap))
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)
