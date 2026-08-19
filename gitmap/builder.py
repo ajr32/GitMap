@@ -250,3 +250,88 @@ def render_roadmap_markdown(roadmap):
                             lines.append(f"  - {requirement}")
 
     return "\n".join(lines)
+def review_roadmap(roadmap):
+    """Allow the user to review and revise the roadmap before saving."""
+
+    while True:
+        print()
+        print(render_roadmap_markdown(roadmap))
+        print()
+        print("Roadmap options:")
+        print("  (r)ename an item")
+        print("  (e)dit description or requirements")
+        print("  (a)dd an item")
+        print("  (d)elete an item")
+        print("  (f)inished reviewing")
+        print()
+
+        choice = input("Choose an option: ").strip().lower()
+
+        if choice in ("f", "finished", "done"):
+            return roadmap
+
+        elif choice in ("r", "rename"):
+            rename_item(roadmap)
+
+        elif choice in ("e", "edit"):
+            print("Edit is not implemented yet.")
+
+        elif choice in ("a", "add"):
+            print("Add is not implemented yet.")
+
+        elif choice in ("d", "delete", "remove"):
+            print("Delete is not implemented yet.")
+
+        else:
+            print("Invalid choice.")
+
+def rename_item(roadmap):
+    """Choose which type of roadmap item to rename."""
+
+    print()
+    print("Rename:")
+    print("  (m)ilestone")
+    print("  (s)ection")
+    print("  (i)ssue")
+    print("  (b)ack")
+    print()
+
+    choice = input("Choose an item type: ").strip().lower()
+
+    if choice in ("m", "milestone"):
+        rename_milestone(roadmap)
+
+    elif choice in ("s", "section"):
+        print("Section rename is not implemented yet.")
+
+    elif choice in ("i", "issue"):
+        print("Issue rename is not implemented yet.")
+
+    elif choice in ("b", "back"):
+        return
+
+    else:
+        print("Invalid choice.")
+
+def rename_milestone(roadmap):
+    """Rename a milestone."""
+
+    print()
+    print("Milestones:")
+
+    for milestone in roadmap["milestones"]:
+        print(f"  • {milestone['number']} {milestone['title']}")
+
+    number = input("Milestone number to rename: ").strip()
+
+    for milestone in roadmap["milestones"]:
+        if milestone["number"] == number:
+            new_title = input("New milestone title: ").strip()
+
+            if new_title:
+                milestone["title"] = new_title
+
+            return
+
+    print("Milestone not found.")
+

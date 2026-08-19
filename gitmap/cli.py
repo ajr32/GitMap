@@ -3,7 +3,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from gitmap.builder import render_roadmap_markdown, start_new_roadmap
+from gitmap.builder import review_roadmap, start_new_roadmap
 from gitmap.github_mapping import (
     get_existing_issues,
     summarize_roadmap_differences,
@@ -161,9 +161,8 @@ def main():
 
     if args.command == "new-roadmap":
         roadmap = start_new_roadmap()
+        roadmap = review_roadmap(roadmap)
 
-        print()
-        print(render_roadmap_markdown(roadmap))
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)
