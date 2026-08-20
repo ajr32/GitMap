@@ -61,6 +61,14 @@ def map_section_label(section):
         name=title,
     )
 
+def map_feature_label(feature):
+    """Map a roadmap feature to its GitHub label."""
+
+    title = feature.title.removesuffix(" (DONE)")
+
+    return LabelMapping(
+        name=title,
+    )
 
 def find_existing_label(mapping, existing_labels):
     """Find an existing GitHub label with the same name."""
@@ -148,8 +156,16 @@ def sync_milestones(repository, roadmap):
     return create_missing_milestones(repository, mappings)
 
 
-def map_issue(issue, milestone, section):
+def map_issue(issue, milestone, section=None, feature=None):
     """Map a roadmap issue to its GitHub representation."""
+
+    labels = []
+
+    if section is not None:
+        labels.append(section.title.removesuffix(" (DONE)"))
+
+    if feature is not None:
+        labels.append(feature.title.removesuffix(" (DONE)"))
 
     return IssueMapping(
         number=issue.number,
@@ -227,11 +243,20 @@ def collect_label_mappings(roadmap):
     mappings = []
 
     for milestone in roadmap.milestones:
+        for issue in milestone.issues:
+            mappings.extend(map_issue_labels(issue))
+
         for section in milestone.sections:
             mappings.append(map_section_label(section))
 
             for issue in section.issues:
                 mappings.extend(map_issue_labels(issue))
+
+            for feature in section.features:
+                mappings.append(map_feature_label(feature))
+
+                for issue in feature.issues:
+                    mappings.extend(map_issue_labels(issue))
 
     return mappings
 
@@ -359,12 +384,27 @@ def sync_issues(repository, roadmap):
     results = []
 
     for milestone in roadmap.milestones:
+        for issue in milestone.issues:
+            mapping = map_issue(issue, milestone)
+            result, created = sync_issue(repository, mapping)
+            results.append((result, created))
+
         for section in milestone.sections:
             for issue in section.issues:
                 mapping = map_issue(issue, milestone, section)
                 result, created = sync_issue(repository, mapping)
-
                 results.append((result, created))
+
+            for feature in section.features:
+                for issue in feature.issues:
+                    mapping = map_issue(
+                        issue,
+                        milestone,
+                        section,
+                        feature,
+                    )
+                    result, created = sync_issue(repository, mapping)
+                    results.append((result, created))
 
     return results
 
@@ -451,6 +491,28 @@ def associate_issues_with_sections(existing_issues, roadmap):
 
     return associations
 
+def associate_issues_with_features(existing_issues, roadmap):
+    """Associate GitMap-managed issues with their roadmap features."""
+
+    associations = {}
+
+    feature_names = {
+        feature.title.removesuffix(" (DONE)"): feature
+        for milestone in roadmap.milestones
+        for section in milestone.sections
+        for feature in section.features
+    }
+
+    for issue in existing_issues:
+        if not is_gitmap_managed_issue(issue):
+            continue
+
+        for label in issue.labels:
+            if label.name in feature_names:
+                associations[issue.number] = feature_names[label.name]
+                break
+
+    return associations
 
 def restore_work_step_relationships(existing_issues):
     """Restore work steps from GitMap-managed GitHub issue bodies."""
@@ -505,11 +567,9 @@ def find_unmatched_roadmap_items(roadmap, existing_issues):
 
     unmatched = []
 
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            for issue in section.issues:
-                if issue.number not in matched_numbers:
-                    unmatched.append(issue)
+    for issue, _, _, _ in iter_roadmap_issues(roadmap):
+        if issue.number not in matched_numbers:
+            unmatched.append(issue)
 
     return unmatched
 
@@ -522,10 +582,25 @@ def rebuild_roadmap_state(repository, roadmap):
     return {
         "milestones": associate_issues_with_milestones(existing_issues),
         "sections": associate_issues_with_sections(existing_issues, roadmap),
+        "features": associate_issues_with_features(existing_issues, roadmap),
         "work_steps": restore_work_step_relationships(existing_issues),
         "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
     }
 
+def iter_roadmap_issues(roadmap):
+    """Yield every roadmap issue with its structural context."""
+
+    for milestone in roadmap.milestones:
+        for issue in getattr(milestone, "issues", []):
+            yield issue, milestone, None, None
+
+        for section in getattr(milestone, "sections", []):
+            for issue in getattr(section, "issues", []):
+                yield issue, milestone, section, None
+
+            for feature in getattr(section, "features", []):
+                for issue in getattr(feature, "issues", []):
+                    yield issue, milestone, section, feature
 
 def detect_new_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that do not yet exist on GitHub."""
@@ -542,11 +617,9 @@ def detect_new_roadmap_items(roadmap, existing_issues):
 
     new_items = []
 
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            for issue in section.issues:
-                if issue.number not in existing_numbers:
-                    new_items.append(issue)
+    for issue, _, _, _ in iter_roadmap_issues(roadmap):
+        if issue.number not in existing_numbers:
+            new_items.append(issue)
 
     return new_items
 
@@ -556,22 +629,25 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
 
     changed = []
 
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            for issue in section.issues:
-                mapping = map_issue(issue, milestone, section)
-                existing = find_existing_issue(mapping, existing_issues)
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+        )
+        existing = find_existing_issue(mapping, existing_issues)
 
-                if existing is None:
-                    continue
+        if existing is None:
+            continue
 
-                expected_body = build_issue_body(mapping)
+        expected_body = build_issue_body(mapping)
 
-                if (
-                    existing.title != mapping.title
-                    or (existing.body or "").strip() != expected_body.strip()
-                ):
-                    changed.append(issue)
+        if (
+                existing.title != mapping.title
+                or (existing.body or "").strip() != expected_body.strip()
+        ):
+            changed.append(issue)
 
     return changed
 
@@ -581,22 +657,25 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
 
     matching = []
 
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            for issue in section.issues:
-                mapping = map_issue(issue, milestone, section)
-                existing = find_existing_issue(mapping, existing_issues)
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+        )
+        existing = find_existing_issue(mapping, existing_issues)
 
-                if existing is None:
-                    continue
+        if existing is None:
+            continue
 
-                expected_body = build_issue_body(mapping)
+        expected_body = build_issue_body(mapping)
 
-                if (
-                    existing.title == mapping.title
-                    and (existing.body or "").strip() == expected_body.strip()
-                ):
-                    matching.append(issue)
+        if (
+                existing.title == mapping.title
+                and (existing.body or "").strip() == expected_body.strip()
+        ):
+            matching.append(issue)
 
     return matching
 
@@ -617,9 +696,7 @@ def detect_removed_roadmap_items(roadmap, existing_issues):
 
     roadmap_numbers = {
         issue.number
-        for milestone in roadmap.milestones
-        for section in milestone.sections
-        for issue in section.issues
+        for issue, _, _, _ in iter_roadmap_issues(roadmap)
     }
 
     removed = []
