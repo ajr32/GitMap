@@ -635,7 +635,7 @@ Show the user exactly what an update synchronization will do.
 
 # 0.6 User Workflow
 
-## 0.6.1 Interactive Roadmap Builder
+## 0.6.1 Interactive Roadmap Builder (DONE)
 
 Guide users through creating a roadmap without requiring them to know GitMap's Markdown format.
 
@@ -669,7 +669,7 @@ Guide the user through defining project milestones.
 
 ##### 0.6.1.0.2.4 (d) Allow the user to indicate when they are finished (DONE)
 
-#### 0.6.1.0.3 Collect Sections
+#### 0.6.1.0.3 Collect Sections (DONE)
 
 Guide the user through defining Sections within each milestone.
 
@@ -684,22 +684,22 @@ Guide the user through defining Sections within each milestone.
 
 ##### 0.6.1.0.3.4 (d) Allow multiple Sections (DONE)
 
-#### 0.6.1.0.4 Collect Issues
+#### 0.6.1.0.4 Collect Issues (DONE)
 
 Guide the user through defining issues within a Section.
 
 **End Goal:**
 - Guide the user through defining issues within a Section.
 
-##### 0.6.1.0.4.1 (a) Ask for the issue title
+##### 0.6.1.0.4.1 (a) Ask for the issue title (DONE)
 
-##### 0.6.1.0.4.2 (b) Ask for the issue description
+##### 0.6.1.0.4.2 (b) Ask for the issue description (DONE)
 
-##### 0.6.1.0.4.3 (c) Ask for requirements
+##### 0.6.1.0.4.3 (c) Ask for requirements (DONE)
 
-##### 0.6.1.0.4.4 (d) Allow requirements to be entered individually
+##### 0.6.1.0.4.4 (d) Allow requirements to be entered individually (DONE)
 
-##### 0.6.1.0.4.5 (e) Treat a blank entry as finished
+##### 0.6.1.0.4.5 (e) Treat a blank entry as finished (DONE)
 
 #### 0.6.1.0.5 Collect Work Steps (DONE)
 
@@ -716,9 +716,9 @@ Allow an issue to contain smaller sub-issues.
 
 ##### 0.6.1.0.5.4 (d) Preserve the parent-child relationship (DONE)
 
-##### 0.6.1.0.5.5 (e) Support additional nesting when appropriate
+##### 0.6.1.0.5.5 (e) Support additional nesting when appropriate (DONE)
 
-#### 0.6.1.0.6 Support Pasted Content
+#### 0.6.1.0.6 Support Pasted Content (DONE)
 
 Allow users to paste existing project information instead of answering every question individually.
 
@@ -739,18 +739,18 @@ Allow users to paste existing project information instead of answering every que
 
 Let the user review and revise the roadmap before connecting it to GitHub.
 
-#### 0.6.2.0.1 Display Completed Roadmap
+#### 0.6.2.0.1 Display Completed Roadmap (DONE)
 
 Show the complete generated roadmap.
 
 **End Goal:**
 - Show the complete generated roadmap.
 
-##### 0.6.2.0.1.1 (a) Preserve Markdown hierarchy
+##### 0.6.2.0.1.1 (a) Preserve Markdown hierarchy (DONE)
 
-##### 0.6.2.0.1.2 (b) Make milestone, Section, issue, and sub-issue relationships clear
+##### 0.6.2.0.1.2 (b) Make milestone, Section, issue, and sub-issue relationships clear (DONE)
 
-##### 0.6.2.0.1.3 (c) Show descriptions and requirements
+##### 0.6.2.0.1.3 (c) Show descriptions and requirements (DONE)
 
 #### 0.6.2.0.2 Edit Roadmap Before Sync
 

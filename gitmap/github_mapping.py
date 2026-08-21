@@ -61,6 +61,7 @@ def map_section_label(section):
         name=title,
     )
 
+
 def map_feature_label(feature):
     """Map a roadmap feature to its GitHub label."""
 
@@ -69,6 +70,7 @@ def map_feature_label(feature):
     return LabelMapping(
         name=title,
     )
+
 
 def find_existing_label(mapping, existing_labels):
     """Find an existing GitHub label with the same name."""
@@ -491,6 +493,7 @@ def associate_issues_with_sections(existing_issues, roadmap):
 
     return associations
 
+
 def associate_issues_with_features(existing_issues, roadmap):
     """Associate GitMap-managed issues with their roadmap features."""
 
@@ -513,6 +516,7 @@ def associate_issues_with_features(existing_issues, roadmap):
                 break
 
     return associations
+
 
 def restore_work_step_relationships(existing_issues):
     """Restore work steps from GitMap-managed GitHub issue bodies."""
@@ -587,6 +591,7 @@ def rebuild_roadmap_state(repository, roadmap):
         "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
     }
 
+
 def iter_roadmap_issues(roadmap):
     """Yield every roadmap issue with its structural context."""
 
@@ -601,6 +606,7 @@ def iter_roadmap_issues(roadmap):
             for feature in getattr(section, "features", []):
                 for issue in getattr(feature, "issues", []):
                     yield issue, milestone, section, feature
+
 
 def detect_new_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that do not yet exist on GitHub."""
@@ -644,8 +650,8 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
         expected_body = build_issue_body(mapping)
 
         if (
-                existing.title != mapping.title
-                or (existing.body or "").strip() != expected_body.strip()
+            existing.title != mapping.title
+            or (existing.body or "").strip() != expected_body.strip()
         ):
             changed.append(issue)
 
@@ -672,8 +678,8 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
         expected_body = build_issue_body(mapping)
 
         if (
-                existing.title == mapping.title
-                and (existing.body or "").strip() == expected_body.strip()
+            existing.title == mapping.title
+            and (existing.body or "").strip() == expected_body.strip()
         ):
             matching.append(issue)
 
@@ -694,10 +700,7 @@ def summarize_roadmap_differences(roadmap, existing_issues):
 def detect_removed_roadmap_items(roadmap, existing_issues):
     """Return GitMap-managed GitHub issues no longer present in the roadmap."""
 
-    roadmap_numbers = {
-        issue.number
-        for issue, _, _, _ in iter_roadmap_issues(roadmap)
-    }
+    roadmap_numbers = {issue.number for issue, _, _, _ in iter_roadmap_issues(roadmap)}
 
     removed = []
 

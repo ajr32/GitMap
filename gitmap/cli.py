@@ -55,8 +55,8 @@ def main():
     )
 
     subparsers.add_parser(
-    "new-roadmap",
-    help="Start a new interactive roadmap.",
+        "new-roadmap",
+        help="Start a new interactive roadmap.",
     )
 
     args = parser.parse_args()
@@ -162,7 +162,6 @@ def main():
     if args.command == "new-roadmap":
         roadmap = start_new_roadmap()
         roadmap = review_roadmap(roadmap)
-
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)

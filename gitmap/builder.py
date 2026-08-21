@@ -2,9 +2,11 @@ def ask_project_name():
     """Ask the user to enter a project name"""
     return input("Project name: ").strip()
 
+
 def ask_project_overview():
     """Ask the user to enter a project overview"""
     return collect_multiline("Project sub-title/overview:")
+
 
 def start_new_roadmap():
     """Start an interactive roadmap-building session"""
@@ -18,15 +20,14 @@ def start_new_roadmap():
         "milestones": collect_milestones(),
     }
 
+
 def collect_milestones():
     """Guide the user through defining the project milestones."""
 
     milestones = []
 
     while True:
-        number = input(
-            "Milestone number (or press Enter when finished): "
-        ).strip()
+        number = input("Milestone number (or press Enter when finished): ").strip()
 
         if not number:
             break
@@ -57,9 +58,7 @@ def collect_milestone_items(milestone):
     print()
 
     while True:
-        choice = input(
-            "[(i)ssue / (s)ection / (d)one]: "
-        ).strip().lower()
+        choice = input("[(i)ssue / (s)ection / (d)one]: ").strip().lower()
 
         if choice in ("i", "issue"):
             milestone["issues"].extend(collect_issues(milestone))
@@ -72,6 +71,7 @@ def collect_milestone_items(milestone):
 
         else:
             print("Invalid choice.")
+
 
 def collect_sections(milestone):
     """Guide the user through defining sections for a milestone."""
@@ -106,6 +106,7 @@ def collect_sections(milestone):
 
     return sections
 
+
 def collect_section_items(section):
     """Collect issues and features for a section."""
 
@@ -131,6 +132,7 @@ def collect_section_items(section):
         else:
             print("Invalid choice.")
 
+
 def collect_features(section):
     """Collect features for a section."""
 
@@ -138,8 +140,7 @@ def collect_features(section):
 
     while True:
         number = input(
-            f"Feature number for {section['title']} "
-            "(or press Enter when finished): "
+            f"Feature number for {section['title']} (or press Enter when finished): "
         ).strip()
 
         if not number:
@@ -162,6 +163,7 @@ def collect_features(section):
         features.append(feature)
 
     return features
+
 
 def collect_requirements():
     """Collect issue requirements one at a time or from pasted text."""
@@ -225,10 +227,7 @@ def collect_issues(parent):
             choice = input("[(r)equirement / (w)ork step / (d)one]: ").strip().lower()
 
             if choice in ("r", "requirement"):
-                requirement = input("Requirement: ").strip()
-
-                if requirement:
-                    issue["requirements"].append(requirement)
+                issue["requirements"].extend(collect_requirements())
 
             elif choice in ("w", "work", "work step"):
                 work_step = collect_work_step(issue)
@@ -242,10 +241,10 @@ def collect_issues(parent):
             else:
                 print("Invalid choice.")
 
-
         issues.append(issue)
 
     return issues
+
 
 def collect_work_step(issue):
     """Collect one work step for an issue."""
@@ -258,6 +257,26 @@ def collect_work_step(issue):
     title = input("Work step title: ").strip()
     description = collect_multiline("Work step description:")
     requirements = collect_requirements()
+    work_steps = []
+
+    while True:
+        choice = input("Add a nested work step? [(y)es or (n)o: ").strip().lower()
+
+        if choice in ("y", "yes"):
+            nested_work_step = collect_work_step(
+                {
+                    "title": title,
+                }
+            )
+
+            if nested_work_step:
+                work_steps.append(nested_work_step)
+
+        elif choice in ("n", "no"):
+            break
+
+        else:
+            print("Invalid choice.")
 
     return {
         "number": number,
@@ -265,7 +284,9 @@ def collect_work_step(issue):
         "description": description,
         "requirements": requirements,
         "parent": issue["title"],
+        "work_steps": work_steps,
     }
+
 
 def collect_multiline(prompt):
     """Collect multiline text until the user enters a blank line."""
@@ -285,16 +306,35 @@ def collect_multiline(prompt):
 
     return "\n".join(lines)
 
+
 def collect_pasted_requirements():
     """Collect multiple requirements from pasted multiline text."""
 
     text = collect_multiline("Paste requirements:")
 
-    return [
-        line.strip()
-        for line in text.splitlines()
-        if line.strip()
-    ]
+    return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def render_work_steps(lines, work_steps, depth=0):
+    """Render work steps and any nested work steps."""
+
+    indent = "  " * depth
+
+    for work_step in work_steps:
+        lines.append(f"{indent}- [ ] {work_step['number']} {work_step['title']}")
+
+        if work_step["description"]:
+            lines.append(f"{indent}  {work_step['description']}")
+
+        for requirement in work_step["requirements"]:
+            lines.append(f"{indent}  - {requirement}")
+
+        render_work_steps(
+            lines,
+            work_step.get("work_steps", []),
+            depth + 1,
+        )
+
 
 def render_roadmap_markdown(roadmap):
     """Render a completed roadmap as Markdown."""
@@ -329,14 +369,7 @@ def render_roadmap_markdown(roadmap):
                 lines.append("")
                 lines.append("**Work Steps:**")
 
-                for work_step in issue["work_steps"]:
-                    lines.append(f"- [ ] {work_step['number']} {work_step['title']}")
-
-                    if work_step["description"]:
-                        lines.append(f"  {work_step['description']}")
-
-                    for requirement in work_step["requirements"]:
-                        lines.append(f"  - {requirement}")
+                render_work_steps(lines, issue["work_steps"])
 
         for section in milestone["sections"]:
             lines.append("")
@@ -373,16 +406,7 @@ def render_roadmap_markdown(roadmap):
                         lines.append("")
                         lines.append("**Work Steps:**")
 
-                        for work_step in issue["work_steps"]:
-                            lines.append(
-                                f"- [ ] {work_step['number']} {work_step['title']}"
-                            )
-
-                            if work_step["description"]:
-                                lines.append(f"  {work_step['description']}")
-
-                            for requirement in work_step["requirements"]:
-                                lines.append(f"  - {requirement}")
+                        render_work_steps(lines, issue["work_steps"])
 
                 for issue in section["issues"]:
                     lines.append("")
@@ -403,18 +427,10 @@ def render_roadmap_markdown(roadmap):
                         lines.append("")
                         lines.append("**Work Steps:**")
 
-                        for work_step in issue["work_steps"]:
-                            lines.append(
-                                f"- [ ] {work_step['number']} {work_step['title']}"
-                            )
+                        render_work_steps(lines, issue["work_steps"])
 
-                            if work_step["description"]:
-                                lines.append(f"  {work_step['description']}")
+    return "\n".join(lines)
 
-                            for requirement in work_step["requirements"]:
-                                lines.append(f"  - {requirement}")
-
-                            return "\n".join(lines)
 
 def review_roadmap(roadmap):
     """Allow the user to review and revise the roadmap before saving."""
@@ -440,10 +456,10 @@ def review_roadmap(roadmap):
             rename_item(roadmap)
 
         elif choice in ("e", "edit"):
-            print("Edit is not implemented yet.")
+            edit_item(roadmap)
 
         elif choice in ("a", "add"):
-            print("Add is not implemented yet.")
+            add_item(roadmap)
 
         elif choice in ("d", "delete", "remove"):
             print("Delete is not implemented yet.")
@@ -451,14 +467,17 @@ def review_roadmap(roadmap):
         else:
             print("Invalid choice.")
 
+
 def rename_item(roadmap):
     """Choose which type of roadmap item to rename."""
 
     print()
     print("Rename:")
     print("  (m)ilestone")
+    print("  (f)eature")
     print("  (s)ection")
     print("  (i)ssue")
+    print("  (w)ork step")
     print("  (b)ack")
     print()
 
@@ -467,17 +486,24 @@ def rename_item(roadmap):
     if choice in ("m", "milestone"):
         rename_milestone(roadmap)
 
+    elif choice in ("f", "feature"):
+        rename_feature(roadmap)
+
     elif choice in ("s", "section"):
-        print("Section rename is not implemented yet.")
+        rename_section(roadmap)
 
     elif choice in ("i", "issue"):
-        print("Issue rename is not implemented yet.")
+        rename_issue(roadmap)
+
+    elif choice in ("w", "work", "work step"):
+        rename_work_step(roadmap)
 
     elif choice in ("b", "back"):
         return
 
     else:
         print("Invalid choice.")
+
 
 def rename_milestone(roadmap):
     """Rename a milestone."""
@@ -501,3 +527,536 @@ def rename_milestone(roadmap):
 
     print("Milestone not found.")
 
+
+def rename_section(roadmap):
+    """Rename a section."""
+
+    print()
+    print("Sections:")
+
+    sections = []
+
+    for milestone in roadmap["milestones"]:
+        for section in milestone["sections"]:
+            sections.append(section)
+            print(f"  • {section['number']} {section['title']}")
+
+    number = input("Section number to rename: ").strip()
+
+    for section in sections:
+        if section["number"] == number:
+            new_title = input("New section title: ").strip()
+
+            if new_title:
+                section["title"] = new_title
+
+            return
+
+    print("Section not found.")
+
+
+def rename_feature(roadmap):
+    """Rename a feature."""
+
+    print()
+    print("Features:")
+
+    features = []
+
+    for milestone in roadmap["milestones"]:
+        for section in milestone["sections"]:
+            for feature in section["features"]:
+                features.append(feature)
+                print(f"  • {feature['number']} {feature['title']}")
+
+    number = input("Feature number to rename: ").strip()
+
+    for feature in features:
+        if feature["number"] == number:
+            new_title = input("New feature title: ").strip()
+
+            if new_title:
+                feature["title"] = new_title
+
+            return
+
+    print("Feature not found.")
+
+
+def rename_issue(roadmap):
+    """Rename an issue."""
+
+    print()
+    print("Issues:")
+
+    issues = []
+
+    for milestone in roadmap["milestones"]:
+        issues.extend(milestone["issues"])
+
+        for section in milestone["sections"]:
+            issues.extend(section["issues"])
+
+            for feature in section["features"]:
+                issues.extend(feature["issues"])
+
+    for issue in issues:
+        print(f"  • {issue['number']} {issue['title']}")
+
+    number = input("Issue number to rename: ").strip()
+
+    for issue in issues:
+        if issue["number"] == number:
+            new_title = input("New issue title: ").strip()
+
+            if new_title:
+                issue["title"] = new_title
+
+            return
+
+    print("Issue not found.")
+
+
+def rename_work_step(roadmap):
+    """Rename a work step, including nested work steps."""
+
+    print()
+    print("Work Steps:")
+
+    work_steps = []
+
+    def collect_nested(steps):
+        for step in steps:
+            work_steps.append(step)
+            collect_nested(step.get("work_steps", []))
+
+    for milestone in roadmap["milestones"]:
+        for issue in milestone["issues"]:
+            collect_nested(issue["work_steps"])
+
+        for section in milestone["sections"]:
+            for issue in section["issues"]:
+                collect_nested(issue["work_steps"])
+
+            for feature in section["features"]:
+                for issue in feature["issues"]:
+                    collect_nested(issue["work_steps"])
+
+    for work_step in work_steps:
+        print(f"  • {work_step['number']} {work_step['title']}")
+
+    number = input("Work step number to rename: ").strip()
+
+    for work_step in work_steps:
+        if work_step["number"] == number:
+            new_title = input("New work step title: ").strip()
+
+            if new_title:
+                work_step["title"] = new_title
+
+            return
+
+    print("Work step not found.")
+
+
+def edit_item(roadmap):
+    """Choose which type of roadmap item to edit."""
+
+    print()
+    print("Edit:")
+    print("  (m)ilestone")
+    print("  (s)ection")
+    print("  (f)eature")
+    print("  (i)ssue")
+    print("  (w)ork step")
+    print("  (b)ack")
+    print()
+
+    choice = input("Choose an item type: ").strip().lower()
+
+    if choice in ("m", "milestone"):
+        edit_milestone(roadmap)
+
+    elif choice in ("s", "section"):
+        edit_section(roadmap)
+
+    elif choice in ("f", "feature"):
+        edit_feature(roadmap)
+
+    elif choice in ("i", "issue"):
+        edit_issue(roadmap)
+
+    elif choice in ("w", "work", "work step"):
+        edit_work_step(roadmap)
+
+    elif choice in ("b", "back"):
+        return
+
+    else:
+        print("Invalid choice.")
+
+
+def edit_milestone(roadmap):
+    """Edit a milestone description or requirements."""
+
+    print("Milestones can only be renamed.")
+
+
+def edit_section(roadmap):
+    """Edit a section overview."""
+
+    sections = []
+
+    for milestone in roadmap["milestones"]:
+        sections.extend(milestone["sections"])
+
+    for section in sections:
+        print(f"  • {section['number']} {section['title']}")
+
+    number = input("Section number to edit: ").strip()
+
+    for section in sections:
+        if section["number"] == number:
+            section["overview"] = collect_multiline("New section overview:")
+            return
+
+    print("Section not found.")
+
+
+def edit_feature(roadmap):
+    """Edit a feature description."""
+
+    features = []
+
+    for milestone in roadmap["milestones"]:
+        for section in milestone["sections"]:
+            features.extend(section["features"])
+
+    for feature in features:
+        print(f"  • {feature['number']} {feature['title']}")
+
+    number = input("Feature number to edit: ").strip()
+
+    for feature in features:
+        if feature["number"] == number:
+            feature["description"] = collect_multiline("New feature description:")
+            return
+
+    print("Feature not found.")
+
+
+def edit_issue(roadmap):
+    """Edit an issue description or requirements."""
+
+    issues = []
+
+    for milestone in roadmap["milestones"]:
+        issues.extend(milestone["issues"])
+
+        for section in milestone["sections"]:
+            issues.extend(section["issues"])
+
+            for feature in section["features"]:
+                issues.extend(feature["issues"])
+
+    for issue in issues:
+        print(f"  • {issue['number']} {issue['title']}")
+
+    number = input("Issue number to edit: ").strip()
+
+    for issue in issues:
+        if issue["number"] == number:
+            print()
+            print("Edit:")
+            print("  (d)escription")
+            print("  (r)equirements")
+            print("  (b)ack")
+
+            choice = input("Choose what to edit: ").strip().lower()
+
+            if choice in ("d", "description"):
+                issue["description"] = collect_multiline("New issue description:")
+
+            elif choice in ("r", "requirements"):
+                issue["requirements"] = collect_requirements()
+
+            return
+
+    print("Issue not found.")
+
+
+def edit_work_step(roadmap):
+    """Edit a work step description or requirements."""
+
+    work_steps = []
+
+    def collect_nested(steps):
+        for step in steps:
+            work_steps.append(step)
+            collect_nested(step.get("work_steps", []))
+
+    for milestone in roadmap["milestones"]:
+        for issue in milestone["issues"]:
+            collect_nested(issue["work_steps"])
+
+        for section in milestone["sections"]:
+            for issue in section["issues"]:
+                collect_nested(issue["work_steps"])
+
+            for feature in section["features"]:
+                for issue in feature["issues"]:
+                    collect_nested(issue["work_steps"])
+
+    for work_step in work_steps:
+        print(f"  • {work_step['number']} {work_step['title']}")
+
+    number = input("Work step number to edit: ").strip()
+
+    for work_step in work_steps:
+        if work_step["number"] == number:
+            print()
+            print("Edit:")
+            print("  (d)escription")
+            print("  (r)equirements")
+            print("  (b)ack")
+
+            choice = input("Choose what to edit: ").strip().lower()
+
+            if choice in ("d", "description"):
+                work_step["description"] = collect_multiline(
+                    "New work step description:"
+                )
+
+            elif choice in ("r", "requirements"):
+                work_step["requirements"] = collect_requirements()
+
+            return
+
+    print("Work step not found.")
+
+
+def add_item(roadmap):
+    """Choose which type of roadmap item to add."""
+
+    print()
+    print("Add:")
+    print("  (m)ilestone")
+    print("  (s)ection")
+    print("  (f)eature")
+    print("  (i)ssue")
+    print("  (w)ork step")
+    print("  (b)ack")
+    print()
+
+    choice = input("Choose an item type: ").strip().lower()
+
+    if choice in ("m", "milestone"):
+        add_milestone(roadmap)
+
+    elif choice in ("s", "section"):
+        add_section(roadmap)
+
+    elif choice in ("f", "feature"):
+        add_feature(roadmap)
+
+    elif choice in ("i", "issue"):
+        add_issue(roadmap)
+
+    elif choice in ("w", "work", "work step"):
+        add_work_step(roadmap)
+
+    elif choice in ("b", "back"):
+        return
+
+    else:
+        print("Invalid choice.")
+
+
+def add_milestone(roadmap):
+    """Add a milestone to the roadmap."""
+
+    number = input("Milestone number: ").strip()
+
+    if not number:
+        return
+
+    title = input("Milestone title: ").strip()
+
+    milestone = {
+        "number": number,
+        "title": title,
+        "issues": [],
+        "sections": [],
+    }
+
+    roadmap["milestones"].append(milestone)
+
+
+def add_section(roadmap):
+    """Add a section to a milestone."""
+
+    print()
+    print("Milestones:")
+
+    for milestone in roadmap["milestones"]:
+        print(f"  • {milestone['number']} {milestone['title']}")
+
+    milestone_number = input("Milestone number: ").strip()
+
+    for milestone in roadmap["milestones"]:
+        if milestone["number"] == milestone_number:
+            number = input("Section number: ").strip()
+
+            if not number:
+                return
+
+            title = input("Section title: ").strip()
+            overview = collect_multiline("Section overview:")
+
+            milestone["sections"].append(
+                {
+                    "number": number,
+                    "title": title,
+                    "overview": overview,
+                    "milestone": milestone["number"],
+                    "issues": [],
+                    "features": [],
+                }
+            )
+
+            return
+
+    print("Milestone not found.")
+
+
+def add_feature(roadmap):
+    """Add a feature to a section."""
+
+    sections = []
+
+    print()
+    print("Sections:")
+
+    for milestone in roadmap["milestones"]:
+        for section in milestone["sections"]:
+            sections.append(section)
+            print(f"  • {section['number']} {section['title']}")
+
+    section_number = input("Section number: ").strip()
+
+    for section in sections:
+        if section["number"] == section_number:
+            number = input("Feature number: ").strip()
+
+            if not number:
+                return
+
+            title = input("Feature title: ").strip()
+            description = collect_multiline("Feature description:")
+
+            section["features"].append(
+                {
+                    "number": number,
+                    "title": title,
+                    "description": description,
+                    "section": section["title"],
+                    "issues": [],
+                }
+            )
+
+            return
+
+    print("Section not found.")
+
+
+def add_issue(roadmap):
+    """Add an issue to a milestone, section, or feature."""
+
+    parents = []
+
+    print()
+    print("Possible parents:")
+
+    for milestone in roadmap["milestones"]:
+        parents.append(milestone)
+        print(f"  • {milestone['number']} {milestone['title']}")
+
+        for section in milestone["sections"]:
+            parents.append(section)
+            print(f"  • {section['number']} {section['title']}")
+
+            for feature in section["features"]:
+                parents.append(feature)
+                print(f"  • {feature['number']} {feature['title']}")
+
+    parent_number = input("Parent number: ").strip()
+
+    for parent in parents:
+        if parent["number"] == parent_number:
+            number = input("Issue number: ").strip()
+
+            if not number:
+                return
+
+            title = input("Issue title: ").strip()
+            description = collect_multiline("Issue description:")
+
+            parent["issues"].append(
+                {
+                    "number": number,
+                    "title": title,
+                    "description": description,
+                    "requirements": collect_requirements(),
+                    "parent": parent["title"],
+                    "work_steps": [],
+                }
+            )
+
+            return
+
+    print("Parent not found.")
+
+
+def add_work_step(roadmap):
+    """Add a work step to an issue or another work step."""
+
+    parents = []
+
+    def collect_work_step_parents(work_steps):
+        for work_step in work_steps:
+            parents.append(work_step)
+            collect_work_step_parents(work_step.get("work_steps", []))
+
+    print()
+    print("Possible parents:")
+
+    for milestone in roadmap["milestones"]:
+        for issue in milestone["issues"]:
+            parents.append(issue)
+            collect_work_step_parents(issue["work_steps"])
+
+        for section in milestone["sections"]:
+            for issue in section["issues"]:
+                parents.append(issue)
+                collect_work_step_parents(issue["work_steps"])
+
+            for feature in section["features"]:
+                for issue in feature["issues"]:
+                    parents.append(issue)
+                    collect_work_step_parents(issue["work_steps"])
+
+    for parent in parents:
+        print(f"  • {parent['number']} {parent['title']}")
+
+    parent_number = input("Parent number: ").strip()
+
+    for parent in parents:
+        if parent["number"] == parent_number:
+            work_step = collect_work_step(parent)
+
+            if work_step:
+                parent["work_steps"].append(work_step)
+
+            return
+
+    print("Parent not found.")
