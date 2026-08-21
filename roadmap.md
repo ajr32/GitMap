@@ -782,136 +782,6 @@ Save the completed roadmap to `roadmap.md`.
 
 ##### 0.6.2.0.3.3 (c) Confirm where the roadmap was saved
 
-## 0.6.3 Roadmap Numbering
-
-Allow users to choose how roadmap item numbers are assigned while building and editing a roadmap.
-
-#### 0.6.3.0.1 Choose Numbering Mode
-
-Allow the user to choose between automatic and manual numbering.
-
-**End Goal:**
-- Let users control whether GitMap assigns roadmap numbers or they enter them manually.
-
-##### 0.6.3.0.1.1 (a) Offer automatic numbering
-
-##### 0.6.3.0.1.2 (b) Offer manual numbering
-
-##### 0.6.3.0.1.3 (c) Allow manual numbering when automatic numbering cannot be used
-
-#### 0.6.3.0.2 Choose Starting Series
-
-Allow automatic numbering to reflect the project's development stage.
-
-**End Goal:**
-- Start roadmap numbering in the appropriate version series.
-
-##### 0.6.3.0.2.1 (a) Offer pre-production numbering beginning with 0.x
-
-##### 0.6.3.0.2.2 (b) Offer production numbering beginning with 1.x
-
-#### 0.6.3.0.3 Generate Hierarchical Numbers
-
-Generate roadmap numbers based on the hierarchy the user actually creates.
-
-**End Goal:**
-- Automatically assign valid numbers without requiring every hierarchy level to be present.
-
-##### 0.6.3.0.3.1 (a) Number milestones automatically
-
-##### 0.6.3.0.3.2 (b) Number Sections automatically
-
-##### 0.6.3.0.3.3 (c) Number features automatically
-
-##### 0.6.3.0.3.4 (d) Number issues automatically
-
-##### 0.6.3.0.3.5 (e) Number Work Steps automatically
-
-##### 0.6.3.0.3.6 (f) Increment sibling numbers automatically
-
-##### 0.6.3.0.3.7 (g) Support letter sequences such as (a), (b), and (c) where used
-
-#### 0.6.3.0.4 Handle Numbering Conflicts
-
-Prevent duplicate or conflicting roadmap numbers.
-
-**End Goal:**
-- Detect numbering conflicts and let the user decide how they should be resolved.
-
-##### 0.6.3.0.4.1 (a) Detect duplicate roadmap numbers
-
-##### 0.6.3.0.4.2 (b) Warn before changing existing numbers
-
-##### 0.6.3.0.4.3 (c) Offer to renumber following items
-
-##### 0.6.3.0.4.4 (d) Preview affected numbers before renumbering
-
-##### 0.6.3.0.4.5 (e) Require confirmation before renumbering
-
-##### 0.6.3.0.4.6 (f) Allow the user to switch to manual numbering
-
-##### 0.6.3.0.4.7 (g) Allow the operation to be cancelled
-
-## 0.6.4 GitHub Repository Setup
-
-Allow a completed roadmap to be connected to a new or existing GitHub repository.
-
-#### 0.6.4.0.1 Choose Repository
-
-Allow the user to choose where the roadmap will be synchronized.
-
-**End Goal:**
-- Connect the completed roadmap to the appropriate GitHub repository.
-
-##### 0.6.4.0.1.1 (a) Use an existing repository
-
-##### 0.6.4.0.1.2 (b) Create a new repository
-
-#### 0.6.4.0.2 Create Repository
-
-Create a GitHub repository directly from GitMap.
-
-**End Goal:**
-- Create the repository without requiring the user to leave GitMap.
-
-##### 0.6.4.0.2.1 (a) Ask for the repository name
-
-##### 0.6.4.0.2.2 (b) Ask for a repository description
-
-##### 0.6.4.0.2.3 (c) Allow public or private visibility
-
-##### 0.6.4.0.2.4 (d) Create the repository through GitHub
-
-##### 0.6.4.0.2.5 (e) Confirm successful repository creation
-
-#### 0.6.4.0.3 Connect Repository
-
-Connect the roadmap to the selected repository.
-
-**End Goal:**
-- Make the selected repository the synchronization target for the roadmap.
-
-##### 0.6.4.0.3.1 (a) Verify repository access
-
-##### 0.6.4.0.3.2 (b) Store the repository association
-
-##### 0.6.4.0.3.3 (c) Prepare the repository for synchronization
-
-#### 0.6.4.0.4 Initial Synchronization
-
-Allow the completed roadmap to proceed directly into GitMap's existing synchronization workflow.
-
-**End Goal:**
-- Move from roadmap creation to GitHub synchronization without restarting GitMap.
-
-##### 0.6.4.0.4.1 (a) Preview the initial synchronization
-
-##### 0.6.4.0.4.2 (b) Require confirmation before synchronization
-
-##### 0.6.4.0.4.3 (c) Synchronize the roadmap to the repository
-
-##### 0.6.4.0.4.4 (d) Report synchronization results
-
 # 0.7 Changes to make
 
 ## 0.7.1 Synchronization Workflow Improvements
@@ -1117,6 +987,136 @@ Use the already-reviewed synchronization plan when applying changes.
 ##### 0.7.3.0.2.4 (d) Avoid recalculating unchanged items unnecessarily
 
 ##### 0.7.3.0.2.5 (e) Ensure the applied plan matches the plan the user approved
+
+## 0.7.4 GitHub Repository Setup
+
+Allow a completed roadmap to be connected to a new or existing GitHub repository.
+
+#### 0.7.4.0.1 Choose Repository
+
+Allow the user to choose where the roadmap will be synchronized.
+
+**End Goal:**
+- Connect the completed roadmap to the appropriate GitHub repository.
+
+##### 0.7.4.0.1.1 (a) Use an existing repository
+
+##### 0.7.4.0.1.2 (b) Create a new repository
+
+#### 0.7.4.0.2 Create Repository
+
+Create a GitHub repository directly from GitMap.
+
+**End Goal:**
+- Create the repository without requiring the user to leave GitMap.
+
+##### 0.7.4.0.2.1 (a) Ask for the repository name
+
+##### 0.7.4.0.2.2 (b) Ask for a repository description
+
+##### 0.7.4.0.2.3 (c) Allow public or private visibility
+
+##### 0.7.4.0.2.4 (d) Create the repository through GitHub
+
+##### 0.7.4.0.2.5 (e) Confirm successful repository creation
+
+#### 0.7.4.0.3 Connect Repository
+
+Connect the roadmap to the selected repository.
+
+**End Goal:**
+- Make the selected repository the synchronization target for the roadmap.
+
+##### 0.7.4.0.3.1 (a) Verify repository access
+
+##### 0.7.4.0.3.2 (b) Store the repository association
+
+##### 0.7.4.0.3.3 (c) Prepare the repository for synchronization
+
+#### 0.7.4.0.4 Initial Synchronization
+
+Allow the completed roadmap to proceed directly into GitMap's existing synchronization workflow.
+
+**End Goal:**
+- Move from roadmap creation to GitHub synchronization without restarting GitMap.
+
+##### 0.7.4.0.4.1 (a) Preview the initial synchronization
+
+##### 0.7.4.0.4.2 (b) Require confirmation before synchronization
+
+##### 0.7.4.0.4.3 (c) Synchronize the roadmap to the repository
+
+##### 0.7.4.0.4.4 (d) Report synchronization results
+
+## 0.7.5 Roadmap Numbering
+
+Allow users to choose how roadmap item numbers are assigned while building and editing a roadmap.
+
+#### 0.7.5.0.1 Choose Numbering Mode
+
+Allow the user to choose between automatic and manual numbering.
+
+**End Goal:**
+- Let users control whether GitMap assigns roadmap numbers or they enter them manually.
+
+##### 0.7.5.0.1.1 (a) Offer automatic numbering
+
+##### 0.7.5.0.1.2 (b) Offer manual numbering
+
+##### 0.7.5.0.1.3 (c) Allow manual numbering when automatic numbering cannot be used
+
+#### 0.7.5.0.2 Choose Starting Series
+
+Allow automatic numbering to reflect the project's development stage.
+
+**End Goal:**
+- Start roadmap numbering in the appropriate version series.
+
+##### 0.7.5.0.2.1 (a) Offer pre-production numbering beginning with 0.x
+
+##### 0.7.5.0.2.2 (b) Offer production numbering beginning with 1.x
+
+#### 0.7.5.0.3 Generate Hierarchical Numbers
+
+Generate roadmap numbers based on the hierarchy the user actually creates.
+
+**End Goal:**
+- Automatically assign valid numbers without requiring every hierarchy level to be present.
+
+##### 0.7.5.0.3.1 (a) Number milestones automatically
+
+##### 0.7.5.0.3.2 (b) Number Sections automatically
+
+##### 0.7.5.0.3.3 (c) Number features automatically
+
+##### 0.7.5.0.3.4 (d) Number issues automatically
+
+##### 0.7.5.0.3.5 (e) Number Work Steps automatically
+
+##### 0.7.5.0.3.6 (f) Increment sibling numbers automatically
+
+##### 0.7.5.0.3.7 (g) Support letter sequences such as (a), (b), and (c) where used
+
+#### 0.7.5.0.4 Handle Numbering Conflicts
+
+Prevent duplicate or conflicting roadmap numbers.
+
+**End Goal:**
+- Detect numbering conflicts and let the user decide how they should be resolved.
+
+##### 0.7.5.0.4.1 (a) Detect duplicate roadmap numbers
+
+##### 0.7.5.0.4.2 (b) Warn before changing existing numbers
+
+##### 0.7.5.0.4.3 (c) Offer to renumber following items
+
+##### 0.7.5.0.4.4 (d) Preview affected numbers before renumbering
+
+##### 0.7.5.0.4.5 (e) Require confirmation before renumbering
+
+##### 0.7.5.0.4.6 (f) Allow the user to switch to manual numbering
+
+##### 0.7.5.0.4.7 (g) Allow the operation to be cancelled
 
 # 0.8 Command-Line Experience
 
