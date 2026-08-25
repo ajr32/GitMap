@@ -759,11 +759,11 @@ Allow changes before GitHub synchronization begins.
 **End Goal:**
 - Allow changes before GitHub synchronization begins.
 
-##### 0.6.2.0.2.1 (a) Allow items to be renamed
+##### 0.6.2.0.2.1 (a) Allow items to be renamed (DONE)
 
-##### 0.6.2.0.2.2 (b) Allow descriptions and requirements to be changed
+##### 0.6.2.0.2.2 (b) Allow descriptions and requirements to be changed (DONE)
 
-##### 0.6.2.0.2.3 (c) Allow items to be added
+##### 0.6.2.0.2.3 (c) Allow items to be added (DONE)
 
 ##### 0.6.2.0.2.4 (d) Allow items to be removed
 
@@ -1052,71 +1052,92 @@ Allow the completed roadmap to proceed directly into GitMap's existing synchroni
 
 Allow users to choose how roadmap item numbers are assigned while building and editing a roadmap.
 
-#### 0.7.5.0.1 Choose Numbering Mode
+#### 0.7.5.0.1 Explain Roadmap Numbering
+
+Explain GitMap's numbering system when the user begins building a roadmap.
+
+**End Goal:**
+- Make the roadmap hierarchy and numbering rules clear before the user begins creating items.
+
+##### 0.7.5.0.1.1 (a) Explain the milestone numbering format
+
+##### 0.7.5.0.1.2 (b) Explain how child numbers extend their parent number
+
+##### 0.7.5.0.1.3 (c) Show an example hierarchy
+
+##### 0.7.5.0.1.4 (d) Explain automatic numbering
+
+##### 0.7.5.0.1.5 (e) Explain manual numbering
+
+#### 0.7.5.0.2 Choose Numbering Mode
 
 Allow the user to choose between automatic and manual numbering.
 
 **End Goal:**
 - Let users control whether GitMap assigns roadmap numbers or they enter them manually.
 
-##### 0.7.5.0.1.1 (a) Offer automatic numbering
+##### 0.7.5.0.2.1 (a) Offer automatic numbering
 
-##### 0.7.5.0.1.2 (b) Offer manual numbering
+##### 0.7.5.0.2.2 (b) Offer manual numbering
 
-##### 0.7.5.0.1.3 (c) Allow manual numbering when automatic numbering cannot be used
+##### 0.7.5.0.2.3 (c) Allow manual numbering when automatic numbering cannot be used
 
-#### 0.7.5.0.2 Choose Starting Series
+#### 0.7.5.0.3 Choose Starting Series
 
 Allow automatic numbering to reflect the project's development stage.
 
 **End Goal:**
 - Start roadmap numbering in the appropriate version series.
 
-##### 0.7.5.0.2.1 (a) Offer pre-production numbering beginning with 0.x
+##### 0.7.5.0.3.1 (a) Offer pre-production numbering beginning with 0.x
 
-##### 0.7.5.0.2.2 (b) Offer production numbering beginning with 1.x
+##### 0.7.5.0.3.2 (b) Offer production numbering beginning with 1.x
 
-#### 0.7.5.0.3 Generate Hierarchical Numbers
+#### 0.7.5.0.4 Generate Hierarchical Numbers
 
 Generate roadmap numbers based on the hierarchy the user actually creates.
 
 **End Goal:**
 - Automatically assign valid numbers without requiring every hierarchy level to be present.
 
-##### 0.7.5.0.3.1 (a) Number milestones automatically
+##### 0.7.5.0.4.1 (a) Number milestones automatically
 
-##### 0.7.5.0.3.2 (b) Number Sections automatically
+##### 0.7.5.0.4.2 (b) Number Sections automatically
 
-##### 0.7.5.0.3.3 (c) Number features automatically
+##### 0.7.5.0.4.3 (c) Number features automatically
 
-##### 0.7.5.0.3.4 (d) Number issues automatically
+##### 0.7.5.0.4.4 (d) Number issues automatically
 
-##### 0.7.5.0.3.5 (e) Number Work Steps automatically
+##### 0.7.5.0.4.5 (e) Number Work Steps automatically
 
-##### 0.7.5.0.3.6 (f) Increment sibling numbers automatically
+##### 0.7.5.0.4.6 (f) Increment sibling numbers automatically
 
-##### 0.7.5.0.3.7 (g) Support letter sequences such as (a), (b), and (c) where used
+##### 0.7.5.0.4.7 (g) Support letter sequences such as (a), (b), and (c) where used
 
-#### 0.7.5.0.4 Handle Numbering Conflicts
+#### 0.7.5.0.5 Handle Numbering Conflicts
 
 Prevent duplicate or conflicting roadmap numbers.
 
 **End Goal:**
 - Detect numbering conflicts and let the user decide how they should be resolved.
 
-##### 0.7.5.0.4.1 (a) Detect duplicate roadmap numbers
+##### 0.7.5.0.5.1 (a) Detect duplicate roadmap numbers
 
-##### 0.7.5.0.4.2 (b) Warn before changing existing numbers
+##### 0.7.5.0.5.2 (b) Warn before changing existing numbers
 
-##### 0.7.5.0.4.3 (c) Offer to renumber following items
+##### 0.7.5.0.5.3 (c) Offer to renumber following items
 
-##### 0.7.5.0.4.4 (d) Preview affected numbers before renumbering
+##### 0.7.5.0.5.4 (d) Preview affected numbers before renumbering
 
-##### 0.7.5.0.4.5 (e) Require confirmation before renumbering
+##### 0.7.5.0.5.5 (e) Require confirmation before renumbering
 
-##### 0.7.5.0.4.6 (f) Allow the user to switch to manual numbering
+##### 0.7.5.0.5.6 (f) Allow the user to switch to manual numbering
 
-##### 0.7.5.0.4.7 (g) Allow the operation to be cancelled
+##### 0.7.5.0.5.7 (g) Allow the operation to be cancelled
+
+##### 0.7.5.0.5.8 (h) Detect roadmap numbers that do not match their parent hierarchy
+
+##### 0.7.5.0.5.9 (i) Explain the expected number when a hierarchy mismatch is found
 
 # 0.8 Command-Line Experience
 

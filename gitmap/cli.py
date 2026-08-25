@@ -3,14 +3,18 @@ from pathlib import Path
 
 from rich.console import Console
 
-from gitmap.builder import review_roadmap, start_new_roadmap
+from gitmap.builder import (
+    render_roadmap_markdown,
+    review_roadmap,
+    start_new_roadmap,
+)
 from gitmap.github_mapping import (
     get_existing_issues,
     summarize_roadmap_differences,
     sync_issues,
 )
 from gitmap.github_setup import collect_repository_info, verify_repository
-from gitmap.parser import parse_roadmap
+from gitmap.parser import parse_roadmap, parse_roadmap_text
 from gitmap.validators import validate_roadmap
 
 console = Console()
@@ -161,7 +165,37 @@ def main():
 
     if args.command == "new-roadmap":
         roadmap = start_new_roadmap()
-        roadmap = review_roadmap(roadmap)
+
+        while True:
+            roadmap = review_roadmap(roadmap)
+
+            roadmap_text = render_roadmap_markdown(roadmap)
+            parsed_roadmap = parse_roadmap_text(roadmap_text)
+
+            errors = validate_roadmap(parsed_roadmap)
+
+            if not errors:
+                print()
+                print("Roadmap validation passed.")
+                break
+
+            print()
+            print("Roadmap validation failed:")
+
+            for error in errors:
+                print(f"  • {error}")
+
+            print()
+            print("Return to review to fix these problems.")
+
+        roadmap_path = Path("roadmap.md")
+        roadmap_path.write_text(
+            render_roadmap_markdown(roadmap),
+            encoding="utf-8",
+        )
+
+        print()
+        print(f"Roadmap saved to: {roadmap_path.resolve()}")
 
     if args.command == "sync":
         roadmap_path = Path(args.roadmap)
