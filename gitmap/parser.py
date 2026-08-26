@@ -17,6 +17,63 @@ def parse_roadmap(path: str | Path) -> Roadmap:
 
     return parse_roadmap_text(text)
 
+def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
+    """Write permanent GitMap IDs into an existing roadmap Markdown file."""
+
+    roadmap_path = Path(path)
+    lines = roadmap_path.read_text(encoding="utf-8").splitlines()
+
+    ids_by_number = {}
+
+    for milestone in roadmap.milestones:
+        for issue in milestone.issues:
+            if issue.gitmap_id:
+                ids_by_number[issue.number] = issue.gitmap_id
+
+        for section in milestone.sections:
+            for issue in section.issues:
+                if issue.gitmap_id:
+                    ids_by_number[issue.number] = issue.gitmap_id
+
+            for feature in section.features:
+                for issue in feature.issues:
+                    if issue.gitmap_id:
+                        ids_by_number[issue.number] = issue.gitmap_id
+
+    output = []
+    index = 0
+
+    while index < len(lines):
+        line = lines[index]
+        output.append(line)
+
+        stripped = line.strip()
+
+        if stripped.startswith("#### "):
+            heading = stripped[5:].strip()
+            parts = heading.split(maxsplit=1)
+
+            if parts:
+                number = parts[0]
+                gitmap_id = ids_by_number.get(number)
+
+                if gitmap_id:
+                    output.append(f"<!-- GitMap-ID: {gitmap_id} -->")
+
+                    # Skip an existing GitMap-ID immediately after
+                    # the issue heading so we don't duplicate it.
+                    if index + 1 < len(lines):
+                        next_line = lines[index + 1].strip()
+
+                        if next_line.startswith("<!-- GitMap-ID:"):
+                            index += 1
+
+        index += 1
+
+    roadmap_path.write_text(
+        "\n".join(output) + "\n",
+        encoding="utf-8",
+    )
 
 def parse_roadmap_text(text: str) -> Roadmap:
     """Parse roadmap Markdown text."""
@@ -135,6 +192,16 @@ def parse_roadmap_text(text: str) -> Roadmap:
                     current_milestone.issues.append(current_issue)
 
                 current_requirements = []
+
+            continue
+
+        if current_issue is not None and stripped.startswith("<!-- GitMap-ID:"):
+            gitmap_id = (
+                stripped.removeprefix("<!-- GitMap-ID:").removesuffix("-->").strip()
+            )
+
+            if gitmap_id:
+                current_issue.gitmap_id = gitmap_id
 
             continue
 

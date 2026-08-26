@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from github import Github, GithubException
 
 DEFAULT_LABEL_COLOR = "0366d6"
+FIRST_GITMAP_ID = "goredsox"
 
 
 def get_github_client(token):
@@ -31,6 +32,7 @@ class IssueMapping:
     milestone: str
     labels: list
     work_steps: list
+    gitmap_id: str = ""
 
 
 @dataclass
@@ -43,6 +45,91 @@ class WorkStepMapping:
     milestone: str
     labels: list
 
+def increment_gitmap_id(gitmap_id: str) -> str:
+    """Return the next GitMap ID using outside-in paired counting."""
+
+    if len(gitmap_id) != 8 or not gitmap_id.isalpha() or not gitmap_id.islower():
+        raise ValueError(f"Invalid GitMap ID: {gitmap_id}")
+
+    letters = list(gitmap_id)
+
+    pairs = [
+        (0, 7),  # positions 1 & 8
+        (1, 6),  # positions 2 & 7
+        (2, 5),  # positions 3 & 6
+        (3, 4),  # positions 4 & 5
+    ]
+
+    for left, right in pairs:
+        # Each pair is one base-26 wheel.
+        #
+        # Left moves forward.
+        # Right moves backward.
+        #
+        # The right character tells us whether this wheel
+        # has completed its 26-position cycle.
+        start_right = FIRST_GITMAP_ID[right]
+
+        letters[left] = (
+            "a"
+            if letters[left] == "z"
+            else chr(ord(letters[left]) + 1)
+        )
+
+        letters[right] = (
+            "z"
+            if letters[right] == "a"
+            else chr(ord(letters[right]) - 1)
+        )
+
+        # If this pair has NOT returned to its starting
+        # right-hand character, this increment is finished.
+        if letters[right] != start_right:
+            return "".join(letters)
+
+        # This pair completed a full cycle.
+        # Restore it and carry into the next pair.
+        letters[left] = FIRST_GITMAP_ID[left]
+        letters[right] = FIRST_GITMAP_ID[right]
+
+    raise ValueError("GitMap ID space exhausted.")
+
+def assign_missing_gitmap_ids(roadmap) -> list:
+    """Assign permanent GitMap IDs to roadmap issues that do not have one."""
+
+    issues = [
+        issue
+        for issue, _, _, _ in iter_roadmap_issues(roadmap)
+    ]
+
+    existing_ids = [
+        issue.gitmap_id
+        for issue in issues
+        if issue.gitmap_id
+    ]
+
+    if existing_ids:
+        next_id = increment_gitmap_id(existing_ids[-1])
+    else:
+        next_id = FIRST_GITMAP_ID
+
+    assigned = []
+
+    for issue in issues:
+        if issue.gitmap_id:
+            continue
+
+        issue.gitmap_id = next_id
+        assigned.append(issue)
+
+        next_id = increment_gitmap_id(next_id)
+
+    all_ids = [issue.gitmap_id for issue in issues if issue.gitmap_id]
+
+    if len(all_ids) != len(set(all_ids)):
+        raise ValueError("Duplicate GitMap IDs detected.")
+
+    return assigned
 
 def map_issue_labels(issue):
     """Map labels defined on a roadmap issue to GitHub labels."""
@@ -104,10 +191,33 @@ def map_milestone(milestone):
 
 
 def find_existing_milestone(mapping, existing_milestones):
-    """Find an existing GitHub milestone with the same title."""
+    """Find an existing GitHub milestone, including a renumbered milestone."""
+
+    # First try the exact title.
+    for milestone in existing_milestones:
+        existing_title = milestone.title.removesuffix(" (DONE)")
+
+        if existing_title == mapping.title:
+            return milestone
+
+    # Then try matching without the milestone number.
+    mapping_parts = mapping.title.split(maxsplit=1)
+
+    if len(mapping_parts) != 2:
+        return None
+
+    mapping_name = mapping_parts[1]
 
     for milestone in existing_milestones:
-        if milestone.title.removesuffix(" (DONE)") == mapping.title:
+        existing_title = milestone.title.removesuffix(" (DONE)")
+        existing_parts = existing_title.split(maxsplit=1)
+
+        if len(existing_parts) != 2:
+            continue
+
+        existing_name = existing_parts[1]
+
+        if existing_name == mapping_name:
             return milestone
 
     return None
@@ -131,7 +241,7 @@ def get_existing_milestones(repository):
 
 
 def create_missing_milestones(repository, mappings):
-    """Create milestones that do not already exist."""
+    """Create missing milestones and update renumbered milestones."""
 
     existing_milestones = get_existing_milestones(repository)
     milestones = list(existing_milestones)
@@ -140,6 +250,11 @@ def create_missing_milestones(repository, mappings):
         existing = find_existing_milestone(mapping, milestones)
 
         if existing:
+            existing_title = existing.title.removesuffix(" (DONE)")
+
+            if existing_title != mapping.title:
+                existing.edit(title=mapping.title)
+
             continue
 
         milestone = repository.create_milestone(
@@ -177,6 +292,7 @@ def map_issue(issue, milestone, section=None, feature=None):
         milestone=f"{milestone.number} {milestone.title.removesuffix(' (DONE)')}",
         labels=[section.title.removesuffix(" (DONE)")],
         work_steps=issue.work_steps,
+        gitmap_id=issue.gitmap_id,
     )
 
 
@@ -299,10 +415,43 @@ def get_existing_issues(repository):
         if is_gitmap_managed_issue(issue)
     ]
 
+def get_gitmap_id_from_github_issue(issue) -> str:
+    """Return the permanent GitMap ID stored in a GitHub issue body."""
+
+    body = issue.body or ""
+
+    for line in body.splitlines():
+        if line.startswith("GitMap-ID:"):
+            return line.removeprefix("GitMap-ID:").strip()
+
+    return ""
+
+
+def find_existing_issue_by_gitmap_id(mapping, existing_issues):
+    """Find an existing GitHub issue by permanent GitMap ID."""
+
+    if not mapping.gitmap_id:
+        return None
+
+    for issue in existing_issues:
+        if get_gitmap_id_from_github_issue(issue) == mapping.gitmap_id:
+            return issue
+
+    return None
 
 def find_existing_issue(mapping, existing_issues):
-    """Find an existing GitHub issue by GitMap roadmap number."""
+    """Find an existing GitHub issue by permanent ID or roadmap number."""
 
+    existing = find_existing_issue_by_gitmap_id(
+        mapping,
+        existing_issues,
+    )
+
+    if existing is not None:
+        return existing
+
+    # Backward-compatible fallback for roadmaps that have not
+    # yet been migrated to permanent GitMap IDs.
     marker = f"GitMap: {mapping.number}"
 
     for issue in existing_issues:
@@ -310,7 +459,6 @@ def find_existing_issue(mapping, existing_issues):
             return issue
 
     return None
-
 
 def build_issue_body(mapping):
     """Build the GitHub issue body from a roadmap issue mapping."""
@@ -323,13 +471,8 @@ def build_issue_body(mapping):
         for requirement in mapping.requirements:
             body += f"- {requirement.text}\n"
 
-    if mapping.work_steps:
-        body += "\n\n**Work Steps:**\n"
-
-        for work_step in mapping.work_steps:
-            title = work_step.title.removesuffix(" (DONE)")
-            checkbox = "[x]" if work_step.title.endswith(" (DONE)") else "[ ]"
-            body += f"- {checkbox} {title}\n"
+    if mapping.gitmap_id:
+        body += f"\nGitMap-ID: {mapping.gitmap_id}"
 
     body += f"\nGitMap: {mapping.number}"
 
@@ -377,28 +520,72 @@ def sync_issue(repository, mapping):
     return issue, True
 
 
-def sync_issues(repository, roadmap):
-    """Synchronize all roadmap issues with GitHub."""
+def sync_issues(
+    repository,
+    roadmap,
+    issues_to_sync=None,
+    progress_start=0,
+    progress_total=None,
+):
+    """Synchronize changed roadmap issues with GitHub."""
 
     sync_milestones(repository, roadmap)
     sync_labels(repository, roadmap)
 
+    if issues_to_sync is not None:
+        issues_to_sync = {id(issue) for issue in issues_to_sync}
+
+    if progress_total is None:
+        progress_total = (
+            len(issues_to_sync)
+            if issues_to_sync is not None
+            else 0
+        )
+
+    progress = progress_start
     results = []
 
     for milestone in roadmap.milestones:
         for issue in milestone.issues:
+            if issues_to_sync is not None and id(issue) not in issues_to_sync:
+                continue
+
+            progress += 1
+            print(
+                f"[{progress}/{progress_total}] "
+                f"Processing {issue.number} {issue.title}"
+            )
+
             mapping = map_issue(issue, milestone)
             result, created = sync_issue(repository, mapping)
             results.append((result, created))
 
         for section in milestone.sections:
             for issue in section.issues:
+                if issues_to_sync is not None and id(issue) not in issues_to_sync:
+                    continue
+
+                progress += 1
+                print(
+                    f"[{progress}/{progress_total}] "
+                    f"Processing {issue.number} {issue.title}"
+                )
+
                 mapping = map_issue(issue, milestone, section)
                 result, created = sync_issue(repository, mapping)
                 results.append((result, created))
 
             for feature in section.features:
                 for issue in feature.issues:
+                    if issues_to_sync is not None and id(issue) not in issues_to_sync:
+                        continue
+
+                    progress += 1
+                    print(
+                        f"[{progress}/{progress_total}] "
+                        f"Processing {issue.number} {issue.title}"
+                    )
+
                     mapping = map_issue(
                         issue,
                         milestone,
@@ -410,6 +597,34 @@ def sync_issues(repository, roadmap):
 
     return results
 
+def sync_removed_issues(
+    removed_issues,
+    progress_start=0,
+    progress_total=None,
+):
+    """Close GitHub issues that were removed from the roadmap."""
+
+    if progress_total is None:
+        progress_total = progress_start + len(removed_issues)
+
+    progress = progress_start
+    results = []
+
+    for issue in removed_issues:
+        if issue.state != "open":
+            continue
+
+        progress += 1
+
+        print(
+            f"[{progress}/{progress_total}] "
+            f"Closing removed issue #{issue.number} {issue.title}"
+        )
+
+        issue.edit(state="closed")
+        results.append(issue)
+
+    return results
 
 def resolve_issue_targets(repository, mapping):
     """Resolve the GitHub milestone and labels for an issue."""
@@ -611,20 +826,22 @@ def iter_roadmap_issues(roadmap):
 def detect_new_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that do not yet exist on GitHub."""
 
-    existing_numbers = set()
-
-    for issue in existing_issues:
-        body = issue.body or ""
-
-        for line in body.splitlines():
-            if line.startswith("GitMap:"):
-                existing_numbers.add(line.removeprefix("GitMap:").strip())
-                break
-
     new_items = []
 
-    for issue, _, _, _ in iter_roadmap_issues(roadmap):
-        if issue.number not in existing_numbers:
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+        )
+
+        existing = find_existing_issue(
+            mapping,
+            existing_issues,
+        )
+
+        if existing is None:
             new_items.append(issue)
 
     return new_items
@@ -684,7 +901,44 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
             matching.append(issue)
 
     return matching
+def detect_renumbered_roadmap_items(roadmap, existing_issues):
+    """Return roadmap issues whose GitMap number has changed."""
 
+    renumbered = []
+
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        if not issue.gitmap_id:
+            continue
+
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+        )
+
+        existing = find_existing_issue_by_gitmap_id(
+            mapping,
+            existing_issues,
+        )
+
+        if existing is None:
+            continue
+
+        body = existing.body or ""
+        old_number = None
+
+        for line in body.splitlines():
+            if line.startswith("GitMap:"):
+                old_number = line.removeprefix("GitMap:").strip()
+                break
+
+        if old_number and old_number != issue.number:
+            renumbered.append(
+                (issue, old_number, issue.number)
+            )
+
+    return renumbered
 
 def summarize_roadmap_differences(roadmap, existing_issues):
     """Summarize roadmap differences before synchronization."""
@@ -692,39 +946,47 @@ def summarize_roadmap_differences(roadmap, existing_issues):
     return {
         "new": detect_new_roadmap_items(roadmap, existing_issues),
         "changed": detect_changed_roadmap_items(roadmap, existing_issues),
+        "renumbered": detect_renumbered_roadmap_items(
+            roadmap,
+            existing_issues,
+        ),
         "matching": detect_matching_roadmap_items(roadmap, existing_issues),
         "removed": detect_removed_roadmap_items(roadmap, existing_issues),
     }
 
 
 def detect_removed_roadmap_items(roadmap, existing_issues):
-    """Return GitMap-managed GitHub issues no longer present in the roadmap."""
+    """Return previously tracked GitMap issues removed from the roadmap."""
 
-    roadmap_numbers = {issue.number for issue, _, _, _ in iter_roadmap_issues(roadmap)}
+    roadmap_ids = {
+        issue.gitmap_id
+        for issue, _, _, _ in iter_roadmap_issues(roadmap)
+        if issue.gitmap_id
+    }
 
     removed = []
 
-    for issue in existing_issues:
-        if not is_gitmap_managed_issue(issue):
+    for github_issue in existing_issues:
+        if github_issue.state != "open":
             continue
 
-        body = issue.body or ""
+        gitmap_id = get_gitmap_id_from_github_issue(github_issue)
 
-        for line in body.splitlines():
-            if line.startswith("GitMap:"):
-                roadmap_number = line.removeprefix("GitMap:").strip()
+        if not gitmap_id:
+            continue
 
-                if roadmap_number not in roadmap_numbers:
-                    removed.append(issue)
-
-                break
+        if gitmap_id not in roadmap_ids:
+            removed.append(github_issue)
 
     return removed
 
 
 def is_gitmap_managed_issue(issue):
     """Return True if the GitHub issue is managed by GitMap."""
-    return "GitMap:" in (issue.body or "")
+
+    body = issue.body or ""
+
+    return "GitMap-ID:" in body or "GitMap:" in body
 
 
 if __name__ == "__main__":

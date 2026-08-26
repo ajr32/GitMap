@@ -9,12 +9,14 @@ from gitmap.builder import (
     start_new_roadmap,
 )
 from gitmap.github_mapping import (
+    assign_missing_gitmap_ids,
     get_existing_issues,
     summarize_roadmap_differences,
     sync_issues,
+    sync_removed_issues,
 )
 from gitmap.github_setup import collect_repository_info, verify_repository
-from gitmap.parser import parse_roadmap, parse_roadmap_text
+from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
 from gitmap.validators import validate_roadmap
 
 console = Console()
@@ -206,6 +208,17 @@ def main():
 
         roadmap = parse_roadmap(roadmap_path)
 
+        assigned_ids = assign_missing_gitmap_ids(roadmap)
+
+        if assigned_ids:
+            write_gitmap_ids_to_roadmap(roadmap_path, roadmap)
+
+            print()
+            print(
+                f"Assigned permanent GitMap IDs to {len(assigned_ids)} roadmap items."
+            )
+            print(f"Updated: {roadmap_path.resolve()}")
+
         info = collect_repository_info()
         repository = verify_repository(info)
 
@@ -219,17 +232,15 @@ def main():
         print("Roadmap Update Preview")
         print("----------------------")
 
-        print(f"New: {len(differences['new'])}")
-        for issue in differences["new"]:
-            print(f"  + {issue.number} {issue.title}")
-
+        print(f"Added: {len(differences['new'])}")
         print(f"Changed: {len(differences['changed'])}")
 
-        print(f"Unchanged: {len(differences['matching'])}")
+        if differences["renumbered"]:
+            print(f"  Renumbered: {len(differences['renumbered'])}")
 
+        print(f"Unchanged: {len(differences['matching'])}")
         print(f"Removed: {len(differences['removed'])}")
-        for issue in differences["removed"]:
-            print(f"  - #{issue.number} {issue.title}")
+
 
         print()
 
@@ -254,8 +265,23 @@ def main():
 
             elif confirm in ("c", "changed", "review changed", "list changed"):
                 print("Issues changed:")
+
+                renumbered_by_id = {
+                    issue.gitmap_id: (old_number, new_number)
+                    for issue, old_number, new_number in differences["renumbered"]
+                }
+
                 for issue in differences["changed"]:
-                    print(f"  • {issue.number} {issue.title}")
+                    renumbering = renumbered_by_id.get(issue.gitmap_id)
+
+                    if renumbering:
+                        old_number, new_number = renumbering
+
+                        print(f"  • {old_number} -> {new_number} {issue.title}")
+
+                    else:
+                        print(f"  • {issue.number} {issue.title}")
+
                 print()
 
             elif confirm in ("u", "unchanged", "review unchanged", "list unchanged"):
@@ -271,10 +297,45 @@ def main():
                 print()
 
             elif confirm in ("y", "yes"):
-                results = sync_issues(repository, roadmap)
+                issues_to_sync = differences["new"] + differences["changed"]
+
+                total_changes = len(issues_to_sync) + len(differences["removed"])
+
+                if total_changes == 0:
+                    print()
+
+                    print("Nothing to synchronize.")
+
+                    break
 
                 print()
+
+                print(f"Synchronizing {total_changes} changes...")
+
+                print()
+
+                results = sync_issues(
+                    repository,
+                    roadmap,
+                    issues_to_sync,
+                    progress_start=0,
+                    progress_total=total_changes,
+                )
+
+                removed_results = sync_removed_issues(
+                    differences["removed"],
+                    progress_start=len(results),
+                    progress_total=total_changes,
+                )
+
+                print()
+
+                print("Synchronization complete.")
+
                 print(f"Synchronized {len(results)} issues.")
+
+                print(f"Closed {len(removed_results)} removed issues.")
+
                 break
 
             else:
