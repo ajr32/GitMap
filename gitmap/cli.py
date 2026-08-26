@@ -9,11 +9,13 @@ from gitmap.builder import (
     start_new_roadmap,
 )
 from gitmap.github_mapping import (
+    SynchronizationError,
     assign_missing_gitmap_ids,
     get_existing_issues,
     summarize_roadmap_differences,
     sync_issues,
     sync_removed_issues,
+    validate_synchronization_plan,
 )
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
@@ -223,6 +225,24 @@ def main():
         repository = verify_repository(info)
 
         existing_issues = get_existing_issues(repository)
+
+        conflicts = validate_synchronization_plan(
+            roadmap,
+            existing_issues,
+        )
+
+        if conflicts:
+            print()
+            print("Synchronization conflicts detected")
+            print("----------------------------------")
+
+            for conflict in conflicts:
+                print(f"• {conflict}")
+
+            print()
+            print("Synchronization cancelled. Resolve the conflicts and try again.")
+            return
+
         differences = summarize_roadmap_differences(
             roadmap,
             existing_issues,
@@ -240,7 +260,6 @@ def main():
 
         print(f"Unchanged: {len(differences['matching'])}")
         print(f"Removed: {len(differences['removed'])}")
-
 
         print()
 
@@ -314,19 +333,37 @@ def main():
 
                 print()
 
-                results = sync_issues(
-                    repository,
-                    roadmap,
-                    issues_to_sync,
-                    progress_start=0,
-                    progress_total=total_changes,
-                )
+                try:
+                    results = sync_issues(
+                        repository,
+                        roadmap,
+                        issues_to_sync,
+                        progress_start=0,
+                        progress_total=total_changes,
+                    )
 
-                removed_results = sync_removed_issues(
-                    differences["removed"],
-                    progress_start=len(results),
-                    progress_total=total_changes,
-                )
+                    removed_results = sync_removed_issues(
+                        differences["removed"],
+                        progress_start=len(results),
+                        progress_total=total_changes,
+                    )
+
+                except SynchronizationError as error:
+                    print()
+                    print("Synchronization stopped.")
+                    print("------------------------")
+                    print(f"Completed: {error.completed}")
+                    print("Failed: 1")
+                    print(f"Remaining: {error.remaining}")
+                    print()
+                    print("Failed operation:")
+                    print(f"  {error.failed.number} {error.failed.title}")
+                    print()
+                    print(f"Reason: {error.original_error}")
+                    print()
+                    print("No further changes were attempted.")
+                    print("Fix the problem and run sync again.")
+                    return
 
                 print()
 

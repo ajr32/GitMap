@@ -45,6 +45,27 @@ class WorkStepMapping:
     milestone: str
     labels: list
 
+
+@dataclass
+class SynchronizationError(Exception):
+    """Raised when synchronization stops after a GitHub operation fails."""
+
+    def __init__(
+        self,
+        message,
+        completed,
+        failed,
+        remaining,
+        original_error,
+    ):
+        super().__init__(message)
+
+        self.completed = completed
+        self.failed = failed
+        self.remaining = remaining
+        self.original_error = original_error
+
+
 def increment_gitmap_id(gitmap_id: str) -> str:
     """Return the next GitMap ID using outside-in paired counting."""
 
@@ -70,17 +91,9 @@ def increment_gitmap_id(gitmap_id: str) -> str:
         # has completed its 26-position cycle.
         start_right = FIRST_GITMAP_ID[right]
 
-        letters[left] = (
-            "a"
-            if letters[left] == "z"
-            else chr(ord(letters[left]) + 1)
-        )
+        letters[left] = "a" if letters[left] == "z" else chr(ord(letters[left]) + 1)
 
-        letters[right] = (
-            "z"
-            if letters[right] == "a"
-            else chr(ord(letters[right]) - 1)
-        )
+        letters[right] = "z" if letters[right] == "a" else chr(ord(letters[right]) - 1)
 
         # If this pair has NOT returned to its starting
         # right-hand character, this increment is finished.
@@ -94,19 +107,13 @@ def increment_gitmap_id(gitmap_id: str) -> str:
 
     raise ValueError("GitMap ID space exhausted.")
 
+
 def assign_missing_gitmap_ids(roadmap) -> list:
     """Assign permanent GitMap IDs to roadmap issues that do not have one."""
 
-    issues = [
-        issue
-        for issue, _, _, _ in iter_roadmap_issues(roadmap)
-    ]
+    issues = [issue for issue, _, _, _ in iter_roadmap_issues(roadmap)]
 
-    existing_ids = [
-        issue.gitmap_id
-        for issue in issues
-        if issue.gitmap_id
-    ]
+    existing_ids = [issue.gitmap_id for issue in issues if issue.gitmap_id]
 
     if existing_ids:
         next_id = increment_gitmap_id(existing_ids[-1])
@@ -124,12 +131,8 @@ def assign_missing_gitmap_ids(roadmap) -> list:
 
         next_id = increment_gitmap_id(next_id)
 
-    all_ids = [issue.gitmap_id for issue in issues if issue.gitmap_id]
-
-    if len(all_ids) != len(set(all_ids)):
-        raise ValueError("Duplicate GitMap IDs detected.")
-
     return assigned
+
 
 def map_issue_labels(issue):
     """Map labels defined on a roadmap issue to GitHub labels."""
@@ -388,6 +391,119 @@ def prepare_labels(repository, roadmap):
     return [resolve_label(mapping, existing_labels) for mapping in mappings]
 
 
+def validate_synchronization_plan(roadmap, existing_issues):
+    """Validate that roadmap items can be synchronized safely."""
+
+    conflicts = []
+
+    # Check duplicate GitMap IDs in the roadmap.
+    roadmap_by_id = {}
+
+    for issue, _, _, _ in iter_roadmap_issues(roadmap):
+        if not issue.gitmap_id:
+            continue
+
+        roadmap_by_id.setdefault(issue.gitmap_id, []).append(issue)
+
+    for gitmap_id, issues in roadmap_by_id.items():
+        if len(issues) > 1:
+            numbers = ", ".join(issue.number for issue in issues)
+
+            conflicts.append(f"Duplicate GitMap-ID {gitmap_id}: {numbers}")
+
+    # Check duplicate GitMap IDs on GitHub.
+    github_by_id = {}
+
+    for github_issue in existing_issues:
+        gitmap_id = get_gitmap_id_from_github_issue(github_issue)
+
+        if not gitmap_id:
+            continue
+
+        github_by_id.setdefault(gitmap_id, []).append(github_issue)
+
+    for gitmap_id, issues in github_by_id.items():
+        if len(issues) > 1:
+            numbers = ", ".join(f"#{issue.number}" for issue in issues)
+
+            conflicts.append(
+                f"GitMap-ID {gitmap_id} matches multiple GitHub issues: {numbers}"
+            )
+
+    # Check ambiguous legacy GitMap-number matches.
+    github_by_number = {}
+
+    for github_issue in existing_issues:
+        body = github_issue.body or ""
+
+        for line in body.splitlines():
+            if line.startswith("GitMap:"):
+                number = line.removeprefix("GitMap:").strip()
+
+                github_by_number.setdefault(
+                    number,
+                    [],
+                ).append(github_issue)
+
+                break
+
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+        )
+
+        # Permanent identity wins. If the GitMap-ID uniquely
+        # identifies an existing issue, legacy number collisions
+        # do not make the match ambiguous.
+        permanent_match = find_existing_issue_by_gitmap_id(
+            mapping,
+            existing_issues,
+        )
+
+        if permanent_match is not None:
+            continue
+
+        matches = github_by_number.get(issue.number, [])
+
+        if len(matches) > 1:
+            github_numbers = ", ".join(f"#{match.number}" for match in matches)
+
+            conflicts.append(
+                f"Roadmap item {issue.number} matches multiple "
+                f"GitHub issues: {github_numbers}"
+            )
+
+    # Check for ambiguous milestone mappings.
+    milestone_by_name = {}
+
+    for milestone in roadmap.milestones:
+        mapping = map_milestone(milestone)
+        parts = mapping.title.split(maxsplit=1)
+
+        if len(parts) != 2:
+            continue
+
+        name = parts[1].casefold()
+
+        milestone_by_name.setdefault(
+            name,
+            [],
+        ).append(mapping)
+
+    for name, mappings in milestone_by_name.items():
+        if len(mappings) > 1:
+            titles = ", ".join(mapping.title for mapping in mappings)
+
+            conflicts.append(
+                f"Multiple roadmap milestones could map to "
+                f"the same GitHub milestone: {titles}"
+            )
+    return conflicts
+
+
 def preview_missing_labels(repository, roadmap):
     """Preview labels that would be created without changing GitHub."""
 
@@ -415,6 +531,7 @@ def get_existing_issues(repository):
         if is_gitmap_managed_issue(issue)
     ]
 
+
 def get_gitmap_id_from_github_issue(issue) -> str:
     """Return the permanent GitMap ID stored in a GitHub issue body."""
 
@@ -439,6 +556,7 @@ def find_existing_issue_by_gitmap_id(mapping, existing_issues):
 
     return None
 
+
 def find_existing_issue(mapping, existing_issues):
     """Find an existing GitHub issue by permanent ID or roadmap number."""
 
@@ -459,6 +577,7 @@ def find_existing_issue(mapping, existing_issues):
             return issue
 
     return None
+
 
 def build_issue_body(mapping):
     """Build the GitHub issue body from a roadmap issue mapping."""
@@ -536,11 +655,7 @@ def sync_issues(
         issues_to_sync = {id(issue) for issue in issues_to_sync}
 
     if progress_total is None:
-        progress_total = (
-            len(issues_to_sync)
-            if issues_to_sync is not None
-            else 0
-        )
+        progress_total = len(issues_to_sync) if issues_to_sync is not None else 0
 
     progress = progress_start
     results = []
@@ -552,13 +667,35 @@ def sync_issues(
 
             progress += 1
             print(
-                f"[{progress}/{progress_total}] "
-                f"Processing {issue.number} {issue.title}"
+                f"[{progress}/{progress_total}] Processing {issue.number} {issue.title}"
             )
 
             mapping = map_issue(issue, milestone)
-            result, created = sync_issue(repository, mapping)
-            results.append((result, created))
+            try:
+                result, created = sync_issue(repository, mapping)
+                results.append((result, created))
+
+            except Exception as error:
+                remaining = progress_total - progress
+
+                raise SynchronizationError(
+                    message=f"Failed to synchronize {issue.number} {issue.title}",
+                    completed=len(results),
+                    failed=issue,
+                    remaining=remaining,
+                    original_error=error,
+                ) from error
+
+            except Exception as error:
+                remaining = progress_total - progress
+
+                raise SynchronizationError(
+                    message=f"Failed to synchronize {issue.number} {issue.title}",
+                    completed=len(results),
+                    failed=issue,
+                    remaining=remaining,
+                    original_error=error,
+                ) from error
 
         for section in milestone.sections:
             for issue in section.issues:
@@ -572,8 +709,20 @@ def sync_issues(
                 )
 
                 mapping = map_issue(issue, milestone, section)
-                result, created = sync_issue(repository, mapping)
-                results.append((result, created))
+                try:
+                    result, created = sync_issue(repository, mapping)
+                    results.append((result, created))
+
+                except Exception as error:
+                    remaining = progress_total - progress
+
+                    raise SynchronizationError(
+                        message=f"Failed to synchronize {issue.number} {issue.title}",
+                        completed=len(results),
+                        failed=issue,
+                        remaining=remaining,
+                        original_error=error,
+                    ) from error
 
             for feature in section.features:
                 for issue in feature.issues:
@@ -592,10 +741,23 @@ def sync_issues(
                         section,
                         feature,
                     )
-                    result, created = sync_issue(repository, mapping)
-                    results.append((result, created))
+                    try:
+                        result, created = sync_issue(repository, mapping)
+                        results.append((result, created))
+
+                    except Exception as error:
+                        remaining = progress_total - progress
+
+                        raise SynchronizationError(
+                            message=f"Failed to synchronize {issue.number} {issue.title}",
+                            completed=len(results),
+                            failed=issue,
+                            remaining=remaining,
+                            original_error=error,
+                        ) from error
 
     return results
+
 
 def sync_removed_issues(
     removed_issues,
@@ -621,10 +783,23 @@ def sync_removed_issues(
             f"Closing removed issue #{issue.number} {issue.title}"
         )
 
-        issue.edit(state="closed")
-        results.append(issue)
+        try:
+            issue.edit(state="closed")
+            results.append(issue)
+
+        except Exception as error:
+            remaining = progress_total - progress
+
+            raise SynchronizationError(
+                message=f"Failed to close removed issue #{issue.number}",
+                completed=progress - 1,
+                failed=issue,
+                remaining=remaining,
+                original_error=error,
+            ) from error
 
     return results
+
 
 def resolve_issue_targets(repository, mapping):
     """Resolve the GitHub milestone and labels for an issue."""
@@ -901,6 +1076,8 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
             matching.append(issue)
 
     return matching
+
+
 def detect_renumbered_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues whose GitMap number has changed."""
 
@@ -934,11 +1111,10 @@ def detect_renumbered_roadmap_items(roadmap, existing_issues):
                 break
 
         if old_number and old_number != issue.number:
-            renumbered.append(
-                (issue, old_number, issue.number)
-            )
+            renumbered.append((issue, old_number, issue.number))
 
     return renumbered
+
 
 def summarize_roadmap_differences(roadmap, existing_issues):
     """Summarize roadmap differences before synchronization."""
