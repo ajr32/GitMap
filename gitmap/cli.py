@@ -10,12 +10,15 @@ from gitmap.builder import (
 )
 from gitmap.github_mapping import (
     SynchronizationError,
+    acquire_sync_lock,
     assign_missing_gitmap_ids,
     get_existing_issues,
+    release_sync_lock,
     summarize_roadmap_differences,
     sync_issues,
     sync_removed_issues,
     validate_synchronization_plan,
+    verify_synchronization_results,
 )
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
@@ -327,6 +330,24 @@ def main():
 
                     break
 
+                repository_name = repository.full_name
+
+                acquired, lock = acquire_sync_lock(repository_name)
+
+                if not acquired:
+                    print()
+                    print("Synchronization blocked.")
+                    print("------------------------")
+                    print(
+                        f"A synchronization is already running for {repository_name}."
+                    )
+                    print(f"Process ID: {lock['pid']}")
+                    print()
+                    print(
+                        "Wait for the active synchronization to finish and try again."
+                    )
+                    return
+
                 print()
 
                 print(f"Synchronizing {total_changes} changes...")
@@ -348,6 +369,12 @@ def main():
                         progress_total=total_changes,
                     )
 
+                    verification = verify_synchronization_results(
+                        repository,
+                        roadmap,
+                        differences,
+                    )
+
                 except SynchronizationError as error:
                     print()
                     print("Synchronization stopped.")
@@ -363,6 +390,58 @@ def main():
                     print()
                     print("No further changes were attempted.")
                     print("Fix the problem and run sync again.")
+                    return
+
+                finally:
+                    release_sync_lock()
+
+                verification_failed = (
+                    verification["missing_created"]
+                    or verification["incorrect_updates"]
+                    or verification["identity_failures"]
+                    or verification["duplicate_ids"]
+                )
+
+                if verification_failed:
+                    print()
+                    print("Synchronization verification failed.")
+                    print("------------------------------------")
+
+                    if verification["missing_created"]:
+                        print()
+                        print("Expected creations not found:")
+
+                        for issue in verification["missing_created"]:
+                            print(f"  • {issue.number} {issue.title}")
+
+                    if verification["incorrect_updates"]:
+                        print()
+                        print("Updates that do not match the roadmap:")
+
+                        for issue, reason in verification["incorrect_updates"]:
+                            print(f"  • {issue.number} {issue.title}: {reason}")
+
+                    if verification["identity_failures"]:
+                        print()
+                        print("Identity verification failures:")
+
+                        for issue, reason in verification["identity_failures"]:
+                            print(f"  • {issue.number} {issue.title}: {reason}")
+
+                    if verification["duplicate_ids"]:
+                        print()
+                        print("Duplicate GitMap identifiers:")
+
+                        for gitmap_id, github_issues in verification["duplicate_ids"]:
+                            issue_numbers = ", ".join(
+                                f"#{issue.number}" for issue in github_issues
+                            )
+
+                            print(f"  • {gitmap_id}: {issue_numbers}")
+
+                    print()
+                    print("GitHub does not match the synchronization plan.")
+                    print("Review the differences before synchronizing again.")
                     return
 
                 print()
