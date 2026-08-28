@@ -6,7 +6,6 @@ from rich.console import Console
 from gitmap.builder import (
     render_roadmap_markdown,
     review_roadmap,
-    start_new_roadmap,
 )
 from gitmap.github_mapping import (
     SynchronizationError,
@@ -22,6 +21,7 @@ from gitmap.github_mapping import (
 )
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
+from gitmap.roadmap_creation import start_new_roadmap
 from gitmap.validators import validate_roadmap
 
 console = Console()

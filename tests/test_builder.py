@@ -5,8 +5,8 @@ from gitmap.builder import (
     rename_feature,
     rename_work_step,
     render_roadmap_markdown,
-    start_new_roadmap,
 )
+from gitmap.roadmap_creation import start_new_roadmap
 
 
 def test_start_new_roadmap(monkeypatch):

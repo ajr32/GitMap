@@ -1119,7 +1119,7 @@ Show where GitMap is during an active synchronization.
 
 ##### 0.7.2.0.3.6 (f) Report differences between planned and actual results
 
-#### 0.7.2.0.4 Support Safe Synchronization Retry
+#### 0.7.2.0.4 Support Safe Synchronization Retry (DONE)
 
 <!-- GitMap-ID: kqredsmt -->
 
@@ -1135,7 +1135,7 @@ Show where GitMap is during an active synchronization.
 
 ##### 0.7.2.0.4.6 (f) Report final retry results
 
-#### 0.7.2.0.5 Prevent Concurrent Synchronization
+#### 0.7.2.0.5 Prevent Concurrent Synchronization (DONE)
 
 <!-- GitMap-ID: lqredsms -->
 
@@ -1163,7 +1163,7 @@ Prevent multiple GitMap synchronization operations from modifying the same repos
 
 Improve command-line synchronization performance by avoiding unnecessary work.
 
-#### 0.7.3.0.1 Reuse Synchronization Plan
+#### 0.7.3.0.1 Reuse Synchronization Plan (DONE)
 
 <!-- GitMap-ID: nqredsmq -->
 
