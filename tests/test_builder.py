@@ -1,10 +1,16 @@
-from gitmap.builder import (
+from gitmap.builder.builder import (
+    render_roadmap_markdown,
+)
+from gitmap.builder.builder_add import (
     add_issue,
     add_work_step,
+)
+from gitmap.builder.builder_edit import (
     edit_issue,
+)
+from gitmap.builder.builder_rename import (
     rename_feature,
     rename_work_step,
-    render_roadmap_markdown,
 )
 from gitmap.roadmap_creation import start_new_roadmap
 
@@ -12,28 +18,45 @@ from gitmap.roadmap_creation import start_new_roadmap
 def test_start_new_roadmap(monkeypatch):
     answers = iter(
         [
+            # Numbering / structure setup
+            "2",  # manual numbering
+            "3",  # sections and features
+
+            # Project
             "Test Project",
             "A test project overview.",
             "",  # finished overview
+
+            # Milestone
             "0.1",
             "Foundations",
-            "s",  # add section
+
+            # Section
+            "s",
             "0.1.1",
             "Project Setup",
             "Set up the initial project.",
             "",  # finished section overview
-            "f",  # add feature
+
+            # Feature
+            "f",
             "0.1.1.1",
             "Project Structure",
             "Set up the project structure.",
             "",  # finished feature description
+
+            # Issue
             "0.1.1.1.1",
             "Create Python Project",
             "Create the initial Python project structure.",
             "",  # finished issue description
+
+            # Requirement
             "r",
             "Python 3.14",
             "",  # finished issue requirements
+
+            # Work step
             "w",
             "0.1.1.1.1.1",
             "Set up package structure",
@@ -42,6 +65,8 @@ def test_start_new_roadmap(monkeypatch):
             "Use src layout",
             "",  # finished work-step requirements
             "n",  # no nested work step
+
+            # Finish issue / feature / section / milestone / roadmap
             "d",  # done with issue
             "",  # finished issues in feature
             "",  # finished features
@@ -83,7 +108,9 @@ def test_start_new_roadmap(monkeypatch):
                                 {
                                     "number": "0.1.1.1.1",
                                     "title": "Create Python Project",
-                                    "description": "Create the initial Python project structure.",
+                                    "description": (
+                                        "Create the initial Python project structure."
+                                    ),
                                     "requirements": ["Python 3.14"],
                                     "parent": "Project Structure",
                                     "work_steps": [
@@ -189,7 +216,8 @@ def test_rename_feature(monkeypatch):
     rename_feature(roadmap)
 
     assert (
-        roadmap["milestones"][0]["sections"][0]["features"][0]["title"] == "New Feature"
+        roadmap["milestones"][0]["sections"][0]["features"][0]["title"]
+        == "New Feature"
     )
 
 
@@ -233,9 +261,9 @@ def test_rename_nested_work_step(monkeypatch):
 
     rename_work_step(roadmap)
 
-    nested_step = roadmap["milestones"][0]["issues"][0]["work_steps"][0]["work_steps"][
-        0
-    ]
+    nested_step = roadmap["milestones"][0]["issues"][0]["work_steps"][0][
+        "work_steps"
+    ][0]
 
     assert nested_step["title"] == "New Nested Step"
 
@@ -274,7 +302,9 @@ def test_edit_issue_requirements(monkeypatch):
 
     edit_issue(roadmap)
 
-    assert roadmap["milestones"][0]["issues"][0]["requirements"] == ["New requirement"]
+    assert roadmap["milestones"][0]["issues"][0]["requirements"] == [
+        "New requirement"
+    ]
 
 
 def test_add_issue(monkeypatch):
@@ -355,9 +385,11 @@ def test_add_nested_work_step(monkeypatch):
         lambda prompt="": next(answers),
     )
 
-    add_work_step(roadmap)
+    add_work_step(roadmap, "manual")
 
-    nested = roadmap["milestones"][0]["issues"][0]["work_steps"][0]["work_steps"][0]
+    nested = roadmap["milestones"][0]["issues"][0]["work_steps"][0][
+        "work_steps"
+    ][0]
 
     assert nested["number"] == "0.1.1.1.1"
     assert nested["title"] == "Nested Work Step"

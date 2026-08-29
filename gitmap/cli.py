@@ -3,7 +3,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from gitmap.builder import (
+from gitmap.builder.builder import (
     render_roadmap_markdown,
     review_roadmap,
 )

@@ -1,92 +1,30 @@
-def explain_roadmap_numbering():
-    """Explain GitMap's roadmap numbering system."""
-
-    print()
-    print("Roadmap Numbering")
-    print("-----------------")
-    print("Milestones use top-level numbers, such as 0.1.")
-    print("Items below a milestone extend their parent's number.")
-    print()
-    print("Example:")
-    print("  0         Development Stage (typically 0)")
-    print("  0.1       Milestone")
-    print("  0.1.1     Section")
-    print("  0.1.1.1   Feature")
-    print("  0.1.1.1.1 Issue")
-    print()
-    print("GitMap can number roadmap items automatically,")
-    print("or you can enter numbers manually.")
-    print()
-    print("Automatic numbering:")
-    print("     GitMap assigns the next available number based on the item's parent.")
-    print()
-    print("Manual numbering:")
-    print("     You may enter a number yourself. Child numbers ")
-    print("     must extend their parent's number.")
-    print()
-
-def choose_numbering_mode():
-    """Ask whether GitMap should use automatic or manual numbering."""
-
-    print()
-    print("Choose Numbering Mode")
-    print("---------------------")
-    print("1. Automatic numbering")
-    print("2. Manual numbering")
-
-    while True:
-        choice = input("\nChoose an option: ").strip()
-
-        if choice == "1":
-            return "automatic"
-
-        if choice == "2":
-            return "manual"
-
-        print("Please choose 1 or 2.")
-
-def choose_starting_series():
-    """Ask which version series automatic numbering should use."""
-
-    print()
-    print("Choose Starting Series")
-    print("----------------------")
-    print("1. Pre-production (0.x)")
-    print("2. Production (1.x)")
-    print("3. Choose another production series (ex. 3.x)")
-
-    while True:
-        choice = input("\nChoose an option: ").strip()
-
-        if choice == "1":
-            return "0"
-
-        if choice == "2":
-            return "1"
-
-        if choice == "3":
-            while True:
-                series = input("Starting series: ").strip()
-
-                if series.isdigit():
-                    return series
-
-                print("Enter a positive whole number, such as 2, 10, or 22.")
-
-        print("Please choose 1, 2 or 3.")
-
-
-def generate_child_number(parent_number, sibling_index):
-    """Generate a hierarchical number beneath a parent."""
-
-    return f"{parent_number}.{sibling_index}"
-
-
 def generate_milestone_number(starting_series, sibling_index):
     """Generate a milestone number."""
 
     return f"{starting_series}.{sibling_index}"
 
+def generate_section_number(milestone_number, sibling_index):
+    """Generate a section number beneath a milestone."""
+    return f"{milestone_number}.{sibling_index}"
+
+
+def generate_feature_number(section_number, sibling_index):
+    """Generate a feature number beneath a section."""
+    return f"{section_number}.{sibling_index}"
+
+def generate_issue_number(parent_number, parent_type, sibling_index):
+    """Generate an issue number while preserving hierarchy slots."""
+
+    if parent_type == "milestone":
+        return f"{parent_number}.0.0.{sibling_index}"
+
+    if parent_type == "section":
+        return f"{parent_number}.0.{sibling_index}"
+
+    if parent_type == "feature":
+        return f"{parent_number}.{sibling_index}"
+
+    raise ValueError(f"Cannot create an issue beneath {parent_type}.")
 
 def generate_work_step_number(sibling_index):
     """Generate a letter-based work step number."""
@@ -103,3 +41,48 @@ def generate_work_step_number(sibling_index):
         number //= 26
 
     return f"({letters})"
+
+def next_section_number(milestone):
+    """Generate the next section number for a milestone."""
+    sibling_index = milestone.get("_next_section_number", 1)
+    number = generate_section_number(
+        milestone["number"],
+        sibling_index,
+    )
+    milestone["_next_section_number"] = sibling_index + 1
+    return number
+
+
+def next_feature_number(section):
+    """Generate the next feature number for a section."""
+    sibling_index = section.get("_next_feature_number", 1)
+    number = generate_feature_number(
+        section["number"],
+        sibling_index,
+    )
+    section["_next_feature_number"] = sibling_index + 1
+    return number
+
+
+def next_issue_number(parent, parent_type):
+    """Generate the next issue number for a parent."""
+    sibling_index = parent.get("_next_issue_number", 1)
+    number = generate_issue_number(
+        parent["number"],
+        parent_type,
+        sibling_index,
+    )
+    parent["_next_issue_number"] = sibling_index + 1
+    return number
+
+
+
+
+def next_work_step_number(parent):
+    """Return the next letter-based number beneath a work-step parent."""
+
+    child_index = parent.get("_next_work_step_number", 1)
+    number = generate_work_step_number(child_index)
+    parent["_next_work_step_number"] = child_index + 1
+
+    return number

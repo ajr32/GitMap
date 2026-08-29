@@ -18,7 +18,7 @@ def parse_roadmap(path: str | Path) -> Roadmap:
     return parse_roadmap_text(text)
 
 def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
-    """Write permanent GitMap IDs into an existing roadmap Markdown file."""
+    """Write exactly one permanent GitMap ID for each issue."""
 
     roadmap_path = Path(path)
     lines = roadmap_path.read_text(encoding="utf-8").splitlines()
@@ -45,9 +45,14 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
 
     while index < len(lines):
         line = lines[index]
-        output.append(line)
-
         stripped = line.strip()
+
+        # Never copy an existing GitMap-ID marker.
+        if stripped.startswith("<!-- GitMap-ID:"):
+            index += 1
+            continue
+
+        output.append(line)
 
         if stripped.startswith("#### "):
             heading = stripped[5:].strip()
@@ -58,15 +63,9 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
                 gitmap_id = ids_by_number.get(number)
 
                 if gitmap_id:
-                    output.append(f"<!-- GitMap-ID: {gitmap_id} -->")
-
-                    # Skip an existing GitMap-ID immediately after
-                    # the issue heading so we don't duplicate it.
-                    if index + 1 < len(lines):
-                        next_line = lines[index + 1].strip()
-
-                        if next_line.startswith("<!-- GitMap-ID:"):
-                            index += 1
+                    output.append(
+                        f"<!-- GitMap-ID: {gitmap_id} -->"
+                    )
 
         index += 1
 
