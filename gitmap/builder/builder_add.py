@@ -183,7 +183,7 @@ def add_issue(roadmap):
     print("Parent not found.")
 
 
-def add_work_step(roadmap):
+def add_work_step(roadmap, numbering_mode="manual"):
     """Add a work step to an issue or another work step."""
 
     parents = []
@@ -218,7 +218,7 @@ def add_work_step(roadmap):
 
     for parent in parents:
         if parent["number"] == parent_number:
-            work_step = collect_work_step(parent)
+            work_step = collect_work_step(parent, numbering_mode)
 
             if work_step:
                 parent["work_steps"].append(work_step)

@@ -3,8 +3,8 @@ from types import SimpleNamespace
 from gitmap.github_mapping import (
     detect_removed_roadmap_items,
     summarize_roadmap_differences,
-    sync_issue,
 )
+from gitmap.mapping_mod.issues import sync_issue
 
 
 def test_summarize_roadmap_differences():
@@ -14,6 +14,7 @@ def test_summarize_roadmap_differences():
         description="New description",
         requirements=[],
         work_steps=[],
+        gitmap_id="newissue",
     )
 
     issue_matching = SimpleNamespace(
@@ -22,6 +23,7 @@ def test_summarize_roadmap_differences():
         description="Matching description",
         requirements=[],
         work_steps=[],
+        gitmap_id="matching1",
     )
 
     issue_changed = SimpleNamespace(
@@ -30,31 +32,45 @@ def test_summarize_roadmap_differences():
         description="Changed description",
         requirements=[],
         work_steps=[],
+        gitmap_id="changed1",
     )
 
     section = SimpleNamespace(
         title="Test Section",
         issues=[issue_new, issue_matching, issue_changed],
+        gitmap_id="",
     )
 
     milestone = SimpleNamespace(
         number="0.1",
         title="Test Milestone",
         sections=[section],
+        gitmap_id="",
     )
 
     roadmap = SimpleNamespace(
         milestones=[milestone],
+        gitmap_id="",
     )
 
     existing_issues = [
         SimpleNamespace(
-            title="Matching Issue",
-            body="Matching description\nGitMap: 0.1.2",
+            title="0.1.2 Matching Issue",
+            body=(
+                "Matching description\n"
+                "GitMap-ID: matching1\n"
+                "GitMap: 0.1.2"
+            ),
+            state="open",
         ),
         SimpleNamespace(
-            title="Changed Issue",
-            body="Old description\nGitMap: 0.1.3",
+            title="0.1.3 Changed Issue",
+            body=(
+                "Old description\n"
+                "GitMap-ID: changed1\n"
+                "GitMap: 0.1.3"
+            ),
+            state="open",
         ),
     ]
 
@@ -101,10 +117,11 @@ def test_sync_issue_updates_existing_issue_without_recreating(monkeypatch):
         milestone="0.1 Test",
         labels=[],
         work_steps=[],
+        gitmap_id="",
     )
 
     monkeypatch.setattr(
-        "gitmap.github_mapping.resolve_issue_targets",
+        "gitmap.mapping_mod.issues.resolve_issue_targets",
         lambda repository, mapping: (None, []),
     )
 
@@ -120,24 +137,29 @@ def test_sync_issue_updates_existing_issue_without_recreating(monkeypatch):
 def test_detect_removed_roadmap_items():
     roadmap_issue = SimpleNamespace(
         number="0.1.1",
+        gitmap_id="still-here",
     )
 
     section = SimpleNamespace(
         issues=[roadmap_issue],
+        gitmap_id="",
     )
 
     milestone = SimpleNamespace(
         sections=[section],
+        gitmap_id="",
     )
 
     roadmap = SimpleNamespace(
         milestones=[milestone],
+        gitmap_id="",
     )
 
     existing_issue = SimpleNamespace(
         number=42,
         title="Removed Issue",
-        body="Old description\nGitMap: 0.1.2",
+        body="Old description\nGitMap-ID: removed-id\nGitMap: 0.1.2",
+        state="open",
     )
 
     removed = detect_removed_roadmap_items(

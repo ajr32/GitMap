@@ -20,7 +20,7 @@ def test_start_new_roadmap(monkeypatch):
         [
             # Numbering / structure setup
             "2",  # manual numbering
-            "3",  # sections and features
+            "2",  # sections and features
 
             # Project
             "Test Project",

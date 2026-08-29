@@ -8,17 +8,13 @@ from gitmap.builder.builder import (
     review_roadmap,
 )
 from gitmap.github_mapping import (
-    SynchronizationError,
-    acquire_sync_lock,
     assign_missing_gitmap_ids,
-    get_existing_issues,
-    release_sync_lock,
     summarize_roadmap_differences,
-    sync_issues,
-    sync_removed_issues,
-    validate_synchronization_plan,
-    verify_synchronization_results,
 )
+from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
+from gitmap.mapping_mod.mapping_validation import validate_synchronization_plan, verify_synchronization_results
+from gitmap.mapping_mod.mapping_issues import get_existing_issues
+from gitmap.mapping_mod.issues import sync_issues, sync_removed_issues, SynchronizationError
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
 from gitmap.roadmap_creation import start_new_roadmap
