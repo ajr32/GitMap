@@ -1,13 +1,23 @@
 from dataclasses import dataclass
 
-from gitmap.mapping_mod.mapping import map_issue, MilestoneMapping, LabelMapping
+from gitmap.github_mapping import collect_hierarchy_issue_mappings
+from gitmap.mapping_mod.mapping import LabelMapping, MilestoneMapping, map_issue
 from gitmap.mapping_mod.mapping_issues import (
     build_issue_body,
-    get_existing_issues,
     find_existing_issue,
+    get_existing_issues,
+    sync_hierarchy_issue,
 )
-from gitmap.mapping_mod.mapping_labels import sync_labels, get_existing_labels, find_existing_label
-from gitmap.mapping_mod.mapping_milestones import sync_milestones, get_existing_milestones, find_existing_milestone
+from gitmap.mapping_mod.mapping_labels import (
+    find_existing_label,
+    get_existing_labels,
+    sync_labels,
+)
+from gitmap.mapping_mod.mapping_milestones import (
+    find_existing_milestone,
+    get_existing_milestones,
+    sync_milestones,
+)
 
 
 def create_issue(repository, mapping, milestone, labels):
@@ -62,6 +72,7 @@ def sync_issues(
 
     sync_milestones(repository, roadmap)
     sync_labels(repository, roadmap)
+    sync_hierarchy_issues(repository, roadmap)
 
     if issues_to_sync is not None:
         issues_to_sync = {id(issue) for issue in issues_to_sync}
@@ -259,3 +270,19 @@ def resolve_issue_targets(repository, mapping):
             issue_labels.append(label)
 
     return milestone, issue_labels
+
+
+def sync_hierarchy_issues(repository, roadmap):
+    """Synchronize Section and Feature hierarchy issues."""
+
+    results = []
+
+    for mapping in collect_hierarchy_issue_mappings(roadmap):
+        result, created = sync_hierarchy_issue(
+            repository,
+            mapping,
+        )
+
+        results.append((result, created))
+
+    return results

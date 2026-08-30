@@ -2,15 +2,61 @@ from dataclasses import dataclass
 
 from github import Github
 
-from gitmap.mapping_mod.mapping import MilestoneMapping, LabelMapping, map_issue
-from gitmap.mapping_mod.mapping_issues import get_gitmap_id_from_github_issue, \
-    find_existing_issue_by_gitmap_id, find_existing_issue, build_issue_body
+from gitmap.mapping_mod.mapping import (
+    LabelMapping,
+    MilestoneMapping,
+    map_feature_issue,
+    map_issue,
+    map_section_issue,
+    should_use_feature_issue,
+    should_use_section_issue,
+)
+from gitmap.mapping_mod.mapping_issues import (
+    build_issue_body,
+    find_existing_issue,
+    find_existing_issue_by_gitmap_id,
+    get_gitmap_id_from_github_issue,
+)
 from gitmap.mapping_mod.mapping_labels import find_existing_label, get_existing_labels
-from gitmap.mapping_mod.mapping_milestones import find_existing_milestone, get_existing_milestones
+from gitmap.mapping_mod.mapping_milestones import (
+    find_existing_milestone,
+    get_existing_milestones,
+)
 from gitmap.mapping_mod.mapping_state import iter_roadmap_issues
 
 DEFAULT_LABEL_COLOR = "0366d6"
 FIRST_GITMAP_ID = "goredsox"
+
+
+def collect_hierarchy_issue_mappings(roadmap):
+    """Collect Section and Feature hierarchy issues."""
+
+    mappings = []
+
+    use_sections = should_use_section_issue(roadmap)
+    use_features = should_use_feature_issue(roadmap)
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            if use_sections:
+                mappings.append(
+                    map_section_issue(
+                        section,
+                        milestone,
+                    )
+                )
+
+            if use_features:
+                for feature in section.features:
+                    mappings.append(
+                        map_feature_issue(
+                            feature,
+                            milestone,
+                            section,
+                        )
+                    )
+
+    return mappings
 
 
 def get_github_client(token):
@@ -64,21 +110,12 @@ def increment_gitmap_id(gitmap_id: str) -> str:
 def assign_missing_gitmap_ids(roadmap) -> list:
     """Assign unique permanent GitMap IDs to roadmap issues."""
 
-    issues = [
-        issue
-        for issue, _, _, _ in iter_roadmap_issues(roadmap)
-    ]
+    issues = [issue for issue, _, _, _ in iter_roadmap_issues(roadmap)]
 
-    existing_ids = {
-        issue.gitmap_id
-        for issue in issues
-        if issue.gitmap_id
-    }
+    existing_ids = {issue.gitmap_id for issue in issues if issue.gitmap_id}
 
     # Existing duplicates are an error; do not make the situation worse.
-    if len(existing_ids) != sum(
-        1 for issue in issues if issue.gitmap_id
-    ):
+    if len(existing_ids) != sum(1 for issue in issues if issue.gitmap_id):
         raise ValueError("Duplicate GitMap IDs detected.")
 
     next_id = FIRST_GITMAP_ID
@@ -305,3 +342,34 @@ if __name__ == "__main__":
     print(f"Work steps: {len(mapping.work_steps)}")
 
     print(build_issue_body(mapping))
+
+
+def collect_hierarchy_issue_mappings(roadmap):
+    """Collect Section and Feature hierarchy issues."""
+
+    mappings = []
+
+    use_sections = should_use_section_issue(roadmap)
+    use_features = should_use_feature_issue(roadmap)
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            if use_sections:
+                mappings.append(
+                    map_section_issue(
+                        section,
+                        milestone,
+                    )
+                )
+
+            if use_features:
+                for feature in section.features:
+                    mappings.append(
+                        map_feature_issue(
+                            feature,
+                            milestone,
+                            section,
+                        )
+                    )
+
+    return mappings

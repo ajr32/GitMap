@@ -1,3 +1,9 @@
+from gitmap.mapping_mod.mapping import MilestoneMapping
+from gitmap.mapping_mod.mapping_milestones import (
+    find_existing_milestone,
+    get_existing_milestones,
+)
+
 
 def get_existing_issues(repository):
     """Retrieve GitMap-managed issues from a GitHub repository."""
@@ -89,3 +95,60 @@ def is_gitmap_managed_issue(issue):
     return "GitMap-ID:" in body or "GitMap:" in body
 
 
+def build_hierarchy_issue_body(mapping):
+    """Build the body for a Section or Feature GitHub Issue."""
+
+    body = mapping.description.strip()
+
+    if mapping.gitmap_id:
+        body += f"\n\nGitMap-ID: {mapping.gitmap_id}"
+
+    body += f"\nGitMap: {mapping.number}"
+    body += f"\nGitMap-Type: {mapping.hierarchy_type}"
+
+    return body
+
+
+def create_hierarchy_issue(repository, mapping, milestone):
+    """Create a GitHub Issue representing a Section or Feature."""
+
+    return repository.create_issue(
+        title=mapping.title,
+        body=build_hierarchy_issue_body(mapping),
+        milestone=milestone,
+    )
+
+
+def sync_hierarchy_issue(repository, mapping):
+    """Create or update a Section or Feature GitHub Issue."""
+
+    existing_issues = get_existing_issues(repository)
+    existing = find_existing_issue(mapping, existing_issues)
+
+    milestones = get_existing_milestones(repository)
+
+    milestone_mapping = MilestoneMapping(
+        number=mapping.number,
+        title=mapping.milestone,
+    )
+
+    milestone = find_existing_milestone(
+        milestone_mapping,
+        milestones,
+    )
+
+    if existing:
+        existing.edit(
+            title=mapping.title,
+            body=build_hierarchy_issue_body(mapping),
+            milestone=milestone,
+        )
+        return existing, False
+
+    issue = create_hierarchy_issue(
+        repository,
+        mapping,
+        milestone,
+    )
+
+    return issue, True

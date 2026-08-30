@@ -77,13 +77,31 @@ def choose_starting_series():
 
         print("Please choose 1, 2 or 3.")
 
+
+def generate_work_step_number(sibling_index):
+    """Generate a letter-based work step number."""
+
+    if sibling_index < 1:
+        raise ValueError("Work step index must be at least 1.")
+
+    letters = ""
+    number = sibling_index
+
+    while number:
+        number -= 1
+        letters = chr(ord("a") + number % 26) + letters
+        number //= 26
+
+    return f"({letters})"
+
+
 RESET = "\033[0m"
 BOLD = "\033[1m"
-PROJECT_COLOR = "\033[95m"    # Magenta
+PROJECT_COLOR = "\033[95m"  # Magenta
 MILESTONE_COLOR = "\033[94m"  # Blue
-SECTION_COLOR = "\033[92m"    # Green
-FEATURE_COLOR = "\033[93m"    # Yellow
-ISSUE_COLOR = "\033[96m"      # Cyan
+SECTION_COLOR = "\033[92m"  # Green
+FEATURE_COLOR = "\033[93m"  # Yellow
+ISSUE_COLOR = "\033[96m"  # Cyan
 
 
 def colored(text, color):
@@ -219,3 +237,71 @@ def choose_roadmap_structure():
             return "neither"
 
         print("Please choose 1, 2, or 3.")
+
+
+def choose_github_representation(roadmap_structure):
+    """Ask how Sections and Features should be represented on GitHub."""
+
+    representation = {
+        "section": None,
+        "feature": None,
+    }
+
+    if roadmap_structure == "neither":
+        return representation
+
+    print()
+    print("GitHub Roadmap Representation")
+    print("-----------------------------")
+
+    if roadmap_structure in ("sections", "sections_and_features"):
+        print()
+        print("What would you like your Sections to have?")
+        print("1. Issues")
+        print("   Track and mark the entire Section as complete.")
+        print("2. Labels")
+        print("   Easily filter and group related Issues.")
+        print("3. Both")
+        print("   Track completion and easily filter related Issues.")
+
+        while True:
+            choice = input("\nChoose an option: ").strip()
+
+            if choice == "1":
+                representation["section"] = "issue"
+                break
+            if choice == "2":
+                representation["section"] = "label"
+                break
+            if choice == "3":
+                representation["section"] = "both"
+                break
+
+            print("Please choose 1, 2, or 3.")
+
+    if roadmap_structure == "sections_and_features":
+        print()
+        print("What would you like your Features to have?")
+        print("1. Issues")
+        print("   Track and mark the entire Feature as complete.")
+        print("2. Labels")
+        print("   Easily filter and group related Issues.")
+        print("3. Both")
+        print("   Track completion and easily filter related Issues.")
+
+        while True:
+            choice = input("\nChoose an option: ").strip()
+
+            if choice == "1":
+                representation["feature"] = "issue"
+                break
+            if choice == "2":
+                representation["feature"] = "label"
+                break
+            if choice == "3":
+                representation["feature"] = "both"
+                break
+
+            print("Please choose 1, 2, or 3.")
+
+    return representation

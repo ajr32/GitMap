@@ -1,10 +1,10 @@
 from gitmap.roadmap_menus import (
+    choose_github_representation,
     choose_numbering_mode,
     choose_roadmap_structure,
     choose_starting_series,
     explain_roadmap_numbering,
 )
-
 from gitmap.roadmap_preparation import (
     ask_project_name,
     ask_project_overview,
@@ -16,7 +16,6 @@ from gitmap.roadmap_preparation import (
 )
 
 
-
 def start_new_roadmap():
     """Start an interactive roadmap-building session."""
 
@@ -24,6 +23,7 @@ def start_new_roadmap():
     explain_roadmap_numbering()
     numbering_mode = choose_numbering_mode()
     roadmap_structure = choose_roadmap_structure()
+    github_representation = choose_github_representation(roadmap_structure)
 
     starting_series = None
 
@@ -88,5 +88,6 @@ def start_new_roadmap():
         "numbering_mode": numbering_mode,
         "starting_series": starting_series,
         "structure": roadmap_structure,
+        "github_representation": github_representation,
         "milestones": milestones,
     }

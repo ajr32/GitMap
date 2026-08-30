@@ -1,8 +1,16 @@
 from github import GithubException
 
-from gitmap.mapping_mod.mapping import LabelMapping, map_section_label, map_feature_label, map_issue_labels
+from gitmap.mapping_mod.mapping import (
+    LabelMapping,
+    map_feature_label,
+    map_issue_labels,
+    map_section_label,
+    should_use_feature_label,
+    should_use_section_label,
+)
 
 DEFAULT_LABEL_COLOR = "0366d6"
+
 
 def find_existing_label(mapping, existing_labels):
     """Find an existing GitHub label with the same name."""
@@ -80,13 +88,15 @@ def collect_label_mappings(roadmap):
             mappings.extend(map_issue_labels(issue))
 
         for section in milestone.sections:
-            mappings.append(map_section_label(section))
+            if should_use_section_label(roadmap):
+                mappings.append(map_section_label(section))
 
             for issue in section.issues:
                 mappings.extend(map_issue_labels(issue))
 
             for feature in section.features:
-                mappings.append(map_feature_label(feature))
+                if should_use_feature_label(roadmap):
+                    mappings.append(map_feature_label(feature))
 
                 for issue in feature.issues:
                     mappings.extend(map_issue_labels(issue))
