@@ -72,6 +72,22 @@ def map_feature_label(feature):
         name=title,
     )
 
+def has_explicit_github_representation(roadmap):
+    """Return whether the roadmap has explicit GitHub representation settings."""
+
+    representation = getattr(
+        roadmap,
+        "github_representation",
+        None,
+    )
+
+    if not isinstance(representation, dict):
+        return False
+
+    return (
+        "section" in representation
+        and "feature" in representation
+    )
 
 def should_use_section_issue(roadmap):
     """Return whether Sections should be represented as GitHub Issues."""
@@ -193,3 +209,4 @@ def map_feature_issue(feature, milestone, section):
         gitmap_id=getattr(feature, "gitmap_id", ""),
         hierarchy_type="feature",
     )
+

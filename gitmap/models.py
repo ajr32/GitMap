@@ -60,3 +60,4 @@ class Roadmap:
     name: str
     overview: str = ""
     milestones: list[Milestone] = field(default_factory=list)
+    github_representation: dict | None = None

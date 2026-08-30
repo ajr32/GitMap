@@ -74,6 +74,58 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
         encoding="utf-8",
     )
 
+def write_github_representation_to_roadmap(
+    path: str | Path,
+    roadmap: Roadmap,
+) -> None:
+    """Write GitHub hierarchy representation settings to the roadmap."""
+
+    representation = roadmap.github_representation
+
+    if not isinstance(representation, dict):
+        return
+
+    roadmap_path = Path(path)
+    lines = roadmap_path.read_text(encoding="utf-8").splitlines()
+
+    # Remove existing representation markers so we never duplicate them.
+    output = [
+        line
+        for line in lines
+        if not line.strip().startswith(
+            (
+                "<!-- GitMap-Section-Representation:",
+                "<!-- GitMap-Feature-Representation:",
+            )
+        )
+    ]
+
+    section_value = representation.get("section") or ""
+    feature_value = representation.get("feature") or ""
+
+    markers = [
+        f"<!-- GitMap-Section-Representation: {section_value} -->",
+        f"<!-- GitMap-Feature-Representation: {feature_value} -->",
+    ]
+
+    # Put the settings near the top of the roadmap.
+    insert_at = 0
+
+    for index, line in enumerate(output):
+        if line.strip().startswith(("Title:", "# ")):
+            insert_at = index + 1
+            break
+
+    output[insert_at:insert_at] = [
+        "",
+        *markers,
+    ]
+
+    roadmap_path.write_text(
+        "\n".join(output) + "\n",
+        encoding="utf-8",
+    )
+
 def parse_roadmap_text(text: str) -> Roadmap:
     """Parse roadmap Markdown text."""
 
@@ -83,6 +135,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
     overview_lines: list[str] = []
 
     milestones: list[Milestone] = []
+
+    github_representation = None
 
     current_milestone: Milestone | None = None
 
@@ -100,6 +154,32 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     for line in lines:
         stripped = line.strip()
+
+        if stripped.startswith("<!-- GitMap-Section-Representation:"):
+            value = (
+                stripped.removeprefix("<!-- GitMap-Section-Representation:")
+                .removesuffix("-->")
+                .strip()
+            )
+
+            if github_representation is None:
+                github_representation = {}
+
+            github_representation["section"] = value or None
+            continue
+
+        if stripped.startswith("<!-- GitMap-Feature-Representation:"):
+            value = (
+                stripped.removeprefix("<!-- GitMap-Feature-Representation:")
+                .removesuffix("-->")
+                .strip()
+            )
+
+            if github_representation is None:
+                github_representation = {}
+
+            github_representation["feature"] = value or None
+            continue
 
         if stripped.startswith("Title:"):
             name = stripped[6:].strip()
@@ -259,8 +339,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
         name=name,
         overview=overview,
         milestones=milestones,
+        github_representation=github_representation,
     )
-
 
 def read_roadmap(path):
     roadmap_path = Path(path)

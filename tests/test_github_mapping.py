@@ -4,7 +4,7 @@ from gitmap.github_mapping import (
     detect_removed_roadmap_items,
     summarize_roadmap_differences,
 )
-from gitmap.mapping_mod.issues import sync_issue
+from gitmap.mapping_mod.mapping_issues import sync_issue
 
 
 def test_summarize_roadmap_differences():

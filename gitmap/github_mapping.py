@@ -12,7 +12,9 @@ from gitmap.mapping_mod.mapping import (
     should_use_section_issue,
 )
 from gitmap.mapping_mod.mapping_issues import (
+    build_hierarchy_issue_body,
     build_issue_body,
+    classify_existing_issue,
     find_existing_issue,
     find_existing_issue_by_gitmap_id,
     get_gitmap_id_from_github_issue,
@@ -58,6 +60,132 @@ def collect_hierarchy_issue_mappings(roadmap):
 
     return mappings
 
+def classify_hierarchy_issues(roadmap, existing_issues):
+    """Classify requested hierarchy issues as existing, missing, or conflicting."""
+
+    results = {
+        "existing": [],
+        "missing": [],
+        "conflicts": [],
+    }
+
+    for mapping in collect_hierarchy_issue_mappings(roadmap):
+        status, matches = classify_existing_issue(
+            mapping,
+            existing_issues,
+        )
+
+        entry = {
+            "mapping": mapping,
+            "matches": matches,
+        }
+
+        if status == "conflict":
+            results["conflicts"].append(entry)
+        else:
+            results[status].append(entry)
+
+    return results
+
+def detect_changed_hierarchy_issues(roadmap, existing_issues):
+    """Return existing Section and Feature issues that differ from the roadmap."""
+
+    changed = []
+
+    for mapping in collect_hierarchy_issue_mappings(roadmap):
+        existing = find_existing_issue(mapping, existing_issues)
+
+        if existing is None:
+            continue
+
+        expected_body = build_hierarchy_issue_body(mapping)
+
+        changes = []
+
+        if existing.title != mapping.title:
+            changes.append("title")
+
+        if (existing.body or "").strip() != expected_body.strip():
+            changes.append("body")
+
+        if changes:
+            changed.append(
+                {
+                    "mapping": mapping,
+                    "github_issue": existing,
+                    "changes": changes,
+                }
+            )
+
+    return changed
+
+def count_hierarchy_classifications(classifications):
+    """Count Section and Feature hierarchy issue classifications."""
+
+    counts = {
+        "existing": {
+            "section": 0,
+            "feature": 0,
+        },
+        "missing": {
+            "section": 0,
+            "feature": 0,
+        },
+        "conflicts": {
+            "section": 0,
+            "feature": 0,
+        },
+    }
+
+    for status, entries in classifications.items():
+        for entry in entries:
+            mapping = entry["mapping"]
+            issue_type = mapping.hierarchy_type
+
+            if issue_type in ("section", "feature"):
+                counts[status][issue_type] += 1
+
+    return counts
+
+def display_hierarchy_classifications(counts):
+    """Display hierarchy Issue status for an existing roadmap."""
+
+    print()
+    print("Hierarchy Issues")
+    print()
+
+    print("Existing:")
+    print(f'  Sections: {counts["existing"]["section"]}')
+    print(f'  Features: {counts["existing"]["feature"]}')
+    print()
+
+    print("Missing:")
+    print(f'  Sections: {counts["missing"]["section"]}')
+    print(f'  Features: {counts["missing"]["feature"]}')
+    print()
+
+    print("Conflicts:")
+    print(f'  Sections: {counts["conflicts"]["section"]}')
+    print(f'  Features: {counts["conflicts"]["feature"]}')
+
+def confirm_missing_hierarchy_issues(counts):
+    """Ask whether missing hierarchy Issues should be created."""
+
+    missing_sections = counts["missing"]["section"]
+    missing_features = counts["missing"]["feature"]
+
+    total_missing = missing_sections + missing_features
+
+    if total_missing == 0:
+        return False
+
+    print()
+    response = input(
+        f"Create the {total_missing} missing hierarchy Issues? "
+        "[(y)es/(n)o]: "
+    ).strip().lower()
+
+    return response in ("y", "yes")
 
 def get_github_client(token):
     """Create an authenticated GitHub client."""
@@ -208,13 +336,26 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
 
         expected_body = build_issue_body(mapping)
 
-        if (
-            existing.title != mapping.title
-            or (existing.body or "").strip() != expected_body.strip()
-        ):
-            changed.append(issue)
+        changes = []
+
+        if existing.title != mapping.title:
+            changes.append("title")
+
+        if (existing.body or "").strip() != expected_body.strip():
+            changes.append("body")
+
+        if changes:
+            changed.append(
+                {
+                    "issue": issue,
+                    "github_issue": existing,
+                    "changes": changes,
+                }
+            )
 
     return changed
+
+
 
 
 def detect_matching_roadmap_items(roadmap, existing_issues):
@@ -289,6 +430,10 @@ def summarize_roadmap_differences(roadmap, existing_issues):
     return {
         "new": detect_new_roadmap_items(roadmap, existing_issues),
         "changed": detect_changed_roadmap_items(roadmap, existing_issues),
+        "hierarchy_changed": detect_changed_hierarchy_issues(
+            roadmap,
+            existing_issues,
+        ),
         "renumbered": detect_renumbered_roadmap_items(
             roadmap,
             existing_issues,

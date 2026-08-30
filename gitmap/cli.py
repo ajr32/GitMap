@@ -13,8 +13,8 @@ from gitmap.github_mapping import (
 )
 from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
 from gitmap.mapping_mod.mapping_validation import validate_synchronization_plan, verify_synchronization_results
-from gitmap.mapping_mod.mapping_issues import get_existing_issues
-from gitmap.mapping_mod.issues import sync_issues, sync_removed_issues, SynchronizationError
+from gitmap.mapping_mod.mapping_issues import get_existing_issues, sync_issues, sync_removed_issues, \
+    SynchronizationError
 from gitmap.github_setup import collect_repository_info, verify_repository
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
 from gitmap.roadmap_creation import start_new_roadmap
@@ -256,7 +256,7 @@ def main():
 
         if differences["renumbered"]:
             print(f"  Renumbered: {len(differences['renumbered'])}")
-
+        print(f"  Hierarchy changed: {len(differences['hierarchy_changed'])}")
         print(f"Unchanged: {len(differences['matching'])}")
         print(f"Removed: {len(differences['removed'])}")
 
@@ -289,18 +289,19 @@ def main():
                     for issue, old_number, new_number in differences["renumbered"]
                 }
 
-                for issue in differences["changed"]:
+                for change in differences["changed"]:
+                    issue = change["issue"]
+                    changes = change["changes"]
+
                     renumbering = renumbered_by_id.get(issue.gitmap_id)
 
                     if renumbering:
                         old_number, new_number = renumbering
-
                         print(f"  • {old_number} -> {new_number} {issue.title}")
-
                     else:
                         print(f"  • {issue.number} {issue.title}")
 
-                print()
+                    print(f"    Changes: {', '.join(changes)}")
 
             elif confirm in ("u", "unchanged", "review unchanged", "list unchanged"):
                 print("Issues unchanged:")
@@ -315,7 +316,9 @@ def main():
                 print()
 
             elif confirm in ("y", "yes"):
-                issues_to_sync = differences["new"] + differences["changed"]
+                issues_to_sync = differences["new"] + [
+                    change["issue"] for change in differences["changed"]
+                ]
 
                 total_changes = len(issues_to_sync) + len(differences["removed"])
 
@@ -357,6 +360,7 @@ def main():
                         issues_to_sync,
                         progress_start=0,
                         progress_total=total_changes,
+                        roadmap_path=roadmap_path,
                     )
 
                     removed_results = sync_removed_issues(
