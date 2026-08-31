@@ -1,9 +1,14 @@
 import time
 
-from gitmap.mapping_mod.mapping_state import iter_roadmap_issues
 from gitmap.mapping_mod.mapping import map_issue, map_milestone
-from gitmap.mapping_mod.mapping_issues import get_gitmap_id_from_github_issue, find_existing_issue_by_gitmap_id, \
-    get_existing_issues, build_issue_body
+from gitmap.mapping_mod.mapping_issues import (
+    build_hierarchy_issue_body,
+    build_issue_body,
+    find_existing_issue_by_gitmap_id,
+    get_existing_issues,
+    get_gitmap_id_from_github_issue,
+)
+from gitmap.mapping_mod.mapping_state import iter_roadmap_issues
 
 
 def validate_synchronization_plan(roadmap, existing_issues):
@@ -159,7 +164,9 @@ def verify_synchronization_result_once(
                 )
             )
 
-    affected_issues = differences["new"] + differences["changed"]
+    affected_issues = differences["new"] + [
+        change["issue"] for change in differences["changed"]
+    ]
 
     for issue in affected_issues:
         if not issue.gitmap_id:
@@ -183,7 +190,8 @@ def verify_synchronization_result_once(
                 )
             )
 
-    for issue in differences["changed"]:
+    for change in differences["changed"]:
+        issue = change["issue"]
         mapping = None
 
         for candidate, milestone, section, feature in iter_roadmap_issues(roadmap):
@@ -215,6 +223,28 @@ def verify_synchronization_result_once(
             or (existing.body or "").strip() != expected_body.strip()
         ):
             incorrect_updates.append((issue, "GitHub content does not match roadmap"))
+
+    for change in differences.get("hierarchy_changed", []):
+        mapping = change["mapping"]
+
+        existing = find_existing_issue_by_gitmap_id(
+            mapping,
+            existing_issues,
+        )
+
+        if existing is None:
+            incorrect_updates.append((mapping, "Hierarchy GitHub issue not found"))
+            continue
+
+        expected_body = build_hierarchy_issue_body(mapping)
+
+        if (
+            existing.title != mapping.title
+            or (existing.body or "").strip() != expected_body.strip()
+        ):
+            incorrect_updates.append(
+                (mapping, "Hierarchy GitHub content does not match roadmap")
+            )
 
     for issue in differences["new"]:
         mapping = None

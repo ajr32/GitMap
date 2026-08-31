@@ -1,17 +1,21 @@
 from dataclasses import dataclass
 
-from gitmap.github_mapping import (
-    classify_hierarchy_issues,
-    collect_hierarchy_issue_mappings,
-    confirm_missing_hierarchy_issues,
-    count_hierarchy_classifications,
-    display_hierarchy_classifications,
-)
+# from gitmap.github_mapping import (
+#     classify_hierarchy_issues,
+#     collect_hierarchy_issue_mappings,
+#     confirm_missing_hierarchy_issues,
+#     count_hierarchy_classifications,
+#     display_hierarchy_classifications,
+# )
 from gitmap.mapping_mod.mapping import (
     LabelMapping,
     MilestoneMapping,
     has_explicit_github_representation,
+    map_feature_issue,
     map_issue,
+    map_section_issue,
+    should_use_feature_issue,
+    should_use_section_issue,
 )
 from gitmap.mapping_mod.mapping_labels import (
     find_existing_label,
@@ -36,10 +40,12 @@ def get_existing_issues(repository):
         if is_gitmap_managed_issue(issue)
     ]
 
+
 def has_existing_gitmap_issues(repository):
     """Return whether the repository already contains synchronized GitMap issues."""
 
     return bool(get_existing_issues(repository))
+
 
 def get_gitmap_id_from_github_issue(issue) -> str:
     """Return the permanent GitMap ID stored in a GitHub issue body."""
@@ -82,10 +88,11 @@ def find_existing_issue(mapping, existing_issues):
     marker = f"GitMap: {mapping.number}"
 
     for issue in existing_issues:
-        if marker in (issue.body or ""):
-            return issue
-
+        for line in (issue.body or "").splitlines():
+            if line.strip() == marker:
+                return issue
     return None
+
 
 def find_all_existing_issue_matches(mapping, existing_issues):
     """Return all GitHub issues that could represent a GitMap mapping."""
@@ -97,20 +104,17 @@ def find_all_existing_issue_matches(mapping, existing_issues):
 
         gitmap_id = get_gitmap_id_from_github_issue(issue)
 
-        id_matches = (
-            mapping.gitmap_id
-            and gitmap_id == mapping.gitmap_id
-        )
+        id_matches = mapping.gitmap_id and gitmap_id == mapping.gitmap_id
 
         number_matches = any(
-            line.strip() == f"GitMap: {mapping.number}"
-            for line in body.splitlines()
+            line.strip() == f"GitMap: {mapping.number}" for line in body.splitlines()
         )
 
         if id_matches or number_matches:
             matches.append(issue)
 
     return matches
+
 
 def classify_existing_issue(mapping, existing_issues):
     """Classify a GitMap mapping as existing, missing, or conflicting."""
@@ -186,11 +190,24 @@ def create_hierarchy_issue(repository, mapping, milestone):
     )
 
 
-def sync_hierarchy_issue(repository, mapping):
+def sync_hierarchy_issue(
+    repository,
+    mapping,
+    expected_operation=None,
+):
     """Create or update a Section or Feature GitHub Issue."""
 
     existing_issues = get_existing_issues(repository)
     existing = find_existing_issue(mapping, existing_issues)
+
+    if expected_operation == "create" and existing is not None:
+        raise RuntimeError(
+            f"Approved hierarchy create became an update: {mapping.title}"
+        )
+    if expected_operation == "update" and existing is None:
+        raise RuntimeError(
+            f"Approved hierarchy update no longer exists: {mapping.title}"
+        )
 
     milestones = get_existing_milestones(repository)
 
@@ -232,11 +249,16 @@ def create_issue(repository, mapping, milestone, labels):
     )
 
 
-def sync_issue(repository, mapping):
+def sync_issue(repository, mapping, expected_operation=None):
     """Create or update an issue from a roadmap mapping."""
 
     existing_issues = get_existing_issues(repository)
     existing = find_existing_issue(mapping, existing_issues)
+
+    if expected_operation == "create" and existing is not None:
+        raise RuntimeError(f"Approved update no longer exists: {mapping.title}")
+    if expected_operation == "update" and existing is None:
+        raise RuntimeError(f"Approved create became an update: {mapping.title}")
 
     milestone, labels = resolve_issue_targets(
         repository,
@@ -300,15 +322,13 @@ def sync_existing_roadmap_hierarchy_issues(
     if not confirm_missing_hierarchy_issues(counts):
         return []
 
-    missing_mappings = [
-        entry["mapping"]
-        for entry in classifications["missing"]
-    ]
+    missing_mappings = [entry["mapping"] for entry in classifications["missing"]]
 
     return sync_hierarchy_issues(
         repository,
         roadmap,
         mappings=missing_mappings,
+        expected_operation="create",
     )
 
 
@@ -316,6 +336,8 @@ def sync_issues(
     repository,
     roadmap,
     issues_to_sync=None,
+    hierarchy_mappings_to_sync=None,
+    update_issues=None,
     progress_start=0,
     progress_total=None,
     roadmap_path=None,
@@ -324,27 +346,29 @@ def sync_issues(
 
     sync_milestones(repository, roadmap)
     sync_labels(repository, roadmap)
-
-    if has_existing_gitmap_issues(repository):
-        sync_existing_roadmap_hierarchy_issues(
-            repository,
-            roadmap,
-        )
-    else:
-        sync_existing_roadmap_hierarchy_issues(
-            repository,
-            roadmap,
-            roadmap_path,
-        )
+    results = []
 
     if issues_to_sync is not None:
         issues_to_sync = {id(issue) for issue in issues_to_sync}
 
+    if update_issues is not None:
+        update_issues = {id(issue) for issue in update_issues}
+
     if progress_total is None:
         progress_total = len(issues_to_sync) if issues_to_sync is not None else 0
 
-    progress = progress_start
-    results = []
+    progress = progress_start + len(hierarchy_mappings_to_sync or [])
+
+    if hierarchy_mappings_to_sync:
+        hierarchy_results = sync_hierarchy_issues(
+            repository,
+            roadmap,
+            mappings=hierarchy_mappings_to_sync,
+            expected_operation="update",
+            progress_start=progress_start,
+            progress_total=progress_total,
+        )
+        results.extend(hierarchy_results)
 
     for milestone in roadmap.milestones:
         for issue in milestone.issues:
@@ -358,7 +382,18 @@ def sync_issues(
 
             mapping = map_issue(issue, milestone)
             try:
-                result, created = sync_issue(repository, mapping)
+                expected_operation = (
+                    "update"
+                    if update_issues is not None and id(issue) in update_issues
+                    else "create"
+                )
+
+                result, created = sync_issue(
+                    repository,
+                    mapping,
+                    expected_operation=expected_operation,
+                )
+
                 results.append((result, created))
 
             except Exception as error:
@@ -396,7 +431,18 @@ def sync_issues(
 
                 mapping = map_issue(issue, milestone, section)
                 try:
-                    result, created = sync_issue(repository, mapping)
+                    expected_operation = (
+                        "update"
+                        if update_issues is not None and id(issue) in update_issues
+                        else "create"
+                    )
+
+                    result, created = sync_issue(
+                        repository,
+                        mapping,
+                        expected_operation=expected_operation,
+                    )
+
                     results.append((result, created))
 
                 except Exception as error:
@@ -428,7 +474,17 @@ def sync_issues(
                         feature,
                     )
                     try:
-                        result, created = sync_issue(repository, mapping)
+                        expected_operation = (
+                            "update"
+                            if update_issues is not None and id(issue) in update_issues
+                            else "create"
+                        )
+
+                        result, created = sync_issue(
+                            repository,
+                            mapping,
+                            expected_operation=expected_operation,
+                        )
                         results.append((result, created))
 
                     except Exception as error:
@@ -563,19 +619,208 @@ def resolve_issue_targets(repository, mapping):
     return milestone, issue_labels
 
 
-def sync_hierarchy_issues(repository, roadmap, mappings=None):
+def sync_hierarchy_issues(
+    repository,
+    roadmap,
+    mappings=None,
+    expected_operation=None,
+    progress_start=0,
+    progress_total=None,
+):
     """Synchronize Section and Feature hierarchy issues."""
 
     if mappings is None:
         mappings = collect_hierarchy_issue_mappings(roadmap)
 
+    if progress_total is None:
+        progress_total = progress_start + len(mappings)
+
+    progress = progress_start
+
     results = []
 
     for mapping in mappings:
+        progress += 1
+
+        action = (
+            "Updating"
+            if expected_operation == "update"
+            else "Creating"
+            if expected_operation == "create"
+            else "Synchronizing"
+        )
+
+        print(f"[{progress}/{progress_total}] {action} hierarchy {mapping.title}")
+
         result, created = sync_hierarchy_issue(
             repository,
             mapping,
+            expected_operation=expected_operation,
         )
         results.append((result, created))
 
     return results
+
+
+def collect_hierarchy_issue_mappings(roadmap):
+    """Collect Section and Feature hierarchy issues."""
+
+    mappings = []
+
+    use_sections = should_use_section_issue(roadmap)
+    use_features = should_use_feature_issue(roadmap)
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            if use_sections:
+                mappings.append(
+                    map_section_issue(
+                        section,
+                        milestone,
+                    )
+                )
+
+            if use_features:
+                for feature in section.features:
+                    mappings.append(
+                        map_feature_issue(
+                            feature,
+                            milestone,
+                            section,
+                        )
+                    )
+
+    return mappings
+
+
+def classify_hierarchy_issues(roadmap, existing_issues):
+    """Classify requested hierarchy issues as existing, missing, or conflicting."""
+
+    results = {
+        "existing": [],
+        "missing": [],
+        "conflicts": [],
+    }
+
+    for mapping in collect_hierarchy_issue_mappings(roadmap):
+        status, matches = classify_existing_issue(
+            mapping,
+            existing_issues,
+        )
+
+        entry = {
+            "mapping": mapping,
+            "matches": matches,
+        }
+
+        if status == "conflict":
+            results["conflicts"].append(entry)
+        else:
+            results[status].append(entry)
+
+    return results
+
+
+def count_hierarchy_classifications(classifications):
+    """Count Section and Feature hierarchy issue classifications."""
+
+    counts = {
+        "existing": {
+            "section": 0,
+            "feature": 0,
+        },
+        "missing": {
+            "section": 0,
+            "feature": 0,
+        },
+        "conflicts": {
+            "section": 0,
+            "feature": 0,
+        },
+    }
+
+    for status, entries in classifications.items():
+        for entry in entries:
+            mapping = entry["mapping"]
+            issue_type = mapping.hierarchy_type
+
+            if issue_type in ("section", "feature"):
+                counts[status][issue_type] += 1
+
+    return counts
+
+
+def display_hierarchy_classifications(counts):
+    """Display hierarchy Issue status for an existing roadmap."""
+
+    print()
+    print("Hierarchy Issues")
+    print()
+
+    print("Existing:")
+    print(f"  Sections: {counts['existing']['section']}")
+    print(f"  Features: {counts['existing']['feature']}")
+    print()
+
+    print("Missing:")
+    print(f"  Sections: {counts['missing']['section']}")
+    print(f"  Features: {counts['missing']['feature']}")
+    print()
+
+    print("Conflicts:")
+    print(f"  Sections: {counts['conflicts']['section']}")
+    print(f"  Features: {counts['conflicts']['feature']}")
+
+
+def confirm_missing_hierarchy_issues(counts):
+    """Ask whether missing hierarchy Issues should be created."""
+
+    missing_sections = counts["missing"]["section"]
+    missing_features = counts["missing"]["feature"]
+
+    total_missing = missing_sections + missing_features
+
+    if total_missing == 0:
+        return False
+
+    print()
+    response = (
+        input(f"Create the {total_missing} missing hierarchy Issues? [(y)es/(n)o]: ")
+        .strip()
+        .lower()
+    )
+
+    return response in ("y", "yes")
+
+
+def detect_changed_hierarchy_issues(roadmap, existing_issues):
+    """Return existing Section and Feature issues that differ from the roadmap."""
+
+    changed = []
+
+    for mapping in collect_hierarchy_issue_mappings(roadmap):
+        existing = find_existing_issue(mapping, existing_issues)
+
+        if existing is None:
+            continue
+
+        expected_body = build_hierarchy_issue_body(mapping)
+
+        changes = []
+
+        if existing.title != mapping.title:
+            changes.append("title")
+
+        if (existing.body or "").strip() != expected_body.strip():
+            changes.append("body")
+
+        if changes:
+            changed.append(
+                {
+                    "mapping": mapping,
+                    "github_issue": existing,
+                    "changes": changes,
+                }
+            )
+
+    return changed

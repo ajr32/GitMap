@@ -11,11 +11,18 @@ from gitmap.github_mapping import (
     assign_missing_gitmap_ids,
     summarize_roadmap_differences,
 )
-from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
-from gitmap.mapping_mod.mapping_validation import validate_synchronization_plan, verify_synchronization_results
-from gitmap.mapping_mod.mapping_issues import get_existing_issues, sync_issues, sync_removed_issues, \
-    SynchronizationError
 from gitmap.github_setup import collect_repository_info, verify_repository
+from gitmap.mapping_mod.mapping_issues import (
+    SynchronizationError,
+    get_existing_issues,
+    sync_issues,
+    sync_removed_issues,
+)
+from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
+from gitmap.mapping_mod.mapping_validation import (
+    validate_synchronization_plan,
+    verify_synchronization_results,
+)
 from gitmap.parser import parse_roadmap, parse_roadmap_text, write_gitmap_ids_to_roadmap
 from gitmap.roadmap_creation import start_new_roadmap
 from gitmap.validators import validate_roadmap
@@ -256,7 +263,10 @@ def main():
 
         if differences["renumbered"]:
             print(f"  Renumbered: {len(differences['renumbered'])}")
-        print(f"  Hierarchy changed: {len(differences['hierarchy_changed'])}")
+
+        if differences["hierarchy_changed"]:
+            print(f"Hierarchy changed: {len(differences['hierarchy_changed'])}")
+
         print(f"Unchanged: {len(differences['matching'])}")
         print(f"Removed: {len(differences['removed'])}")
 
@@ -265,7 +275,7 @@ def main():
         while True:
             confirm = (
                 input(
-                    "Apply these changes? [(y)es/(n)o] or review [(a)dded, (c)hanged, (u)nchanged or (r)emoved]: "
+                    "Apply these changes? [(y)es/(n)o] or review [(a)dded, (c)hanged, (h)ierarchy, (u)nchanged or (r)emoved]: "
                 )
                 .strip()
                 .lower()
@@ -303,6 +313,18 @@ def main():
 
                     print(f"    Changes: {', '.join(changes)}")
 
+            elif confirm in ("h", "hierarchy", "review hierarchy", "list hierarchy"):
+                print("Hierarchy issues changed:")
+
+                for change in differences["hierarchy_changed"]:
+                    mapping = change["mapping"]
+                    changes = change["changes"]
+
+                    print(f"  • {mapping.title}")
+                    print(f"    Changes: {', '.join(changes)}")
+
+                print()
+
             elif confirm in ("u", "unchanged", "review unchanged", "list unchanged"):
                 print("Issues unchanged:")
                 for issue in differences["matching"]:
@@ -320,7 +342,15 @@ def main():
                     change["issue"] for change in differences["changed"]
                 ]
 
-                total_changes = len(issues_to_sync) + len(differences["removed"])
+                hierarchy_mappings_to_sync = [
+                    change["mapping"] for change in differences["hierarchy_changed"]
+                ]
+
+                total_changes = (
+                    len(issues_to_sync)
+                    + len(hierarchy_mappings_to_sync)
+                    + len(differences["removed"])
+                )
 
                 if total_changes == 0:
                     print()
@@ -358,9 +388,12 @@ def main():
                         repository,
                         roadmap,
                         issues_to_sync,
+                        hierarchy_mappings_to_sync=hierarchy_mappings_to_sync,
+                        update_issues=[
+                            change["issue"] for change in differences["changed"]
+                        ],
                         progress_start=0,
                         progress_total=total_changes,
-                        roadmap_path=roadmap_path,
                     )
 
                     removed_results = sync_removed_issues(
