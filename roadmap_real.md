@@ -1284,7 +1284,7 @@ Show where GitMap is during an active synchronization.
 
 ##### 0.7.1.0.6.9 (i) Display elapsed synchronization time
 
-## 0.7.2 Synchronization Safety and Recovery
+## 0.7.2 Synchronization Safety and Recovery (DONE)
 
 #### 0.7.2.0.1 Validate Synchronization Plan (DONE)
 
@@ -1378,7 +1378,7 @@ Prevent multiple GitMap synchronization operations from modifying the same repos
 
 ##### 0.7.2.0.5.7 (g) Avoid leaving a stale synchronization lock after GitMap exits unexpectedly
 
-## 0.7.3 Synchronization Performance
+## 0.7.3 Synchronization Performance (DONE)
 
 Improve command-line synchronization performance by avoiding unnecessary work.
 
@@ -1406,7 +1406,7 @@ Use the already-reviewed synchronization plan when applying changes.
 
 ##### 0.7.3.0.1.5 (e) Ensure the applied plan matches the plan the user approved
 
-## 0.7.4 Roadmap Creation Cleanup
+## 0.7.4 Roadmap Creation Cleanup (DONE)
 
 Finish the interactive roadmap creation experience after the initial creation workflow has been implemented and tested.
 
@@ -1474,7 +1474,7 @@ Provide optional help while users build a roadmap without forcing the explanatio
 - New users can understand how to apply GitMap's hierarchy to different kinds of projects without interrupting
   experienced users.
 
-## 0.7.5 Roadmap Numbering
+## 0.7.5 Roadmap Numbering (DONE)
 
 Allow users to choose how roadmap item numbers are assigned while building and editing a roadmap.
 
@@ -1600,7 +1600,7 @@ Prevent duplicate or conflicting roadmap numbers.
 
 ##### 0.7.5.0.5.9 (i) Explain the expected number when a hierarchy mismatch is found
 
-## 0.7.6 GitHub Roadmap Representation
+## 0.7.6 GitHub Roadmap Representation (DONE)
 
 Allow users to choose how roadmap hierarchy is represented in GitHub.
 
@@ -1631,7 +1631,7 @@ Allow the user to choose whether Sections and Features are represented as GitHub
 
 When selected, create GitHub Issues for Sections and/or Features.
 
-## 0.7.7 Behavior Corrections
+## 0.7.7 Behavior Corrections (DONE)
 
 #### 0.7.7.0.1 Create Hierarchy Issues on Existing Roadmaps
 

@@ -1,12 +1,5 @@
 from dataclasses import dataclass
 
-# from gitmap.github_mapping import (
-#     classify_hierarchy_issues,
-#     collect_hierarchy_issue_mappings,
-#     confirm_missing_hierarchy_issues,
-#     count_hierarchy_classifications,
-#     display_hierarchy_classifications,
-# )
 from gitmap.mapping_mod.mapping import (
     LabelMapping,
     MilestoneMapping,
@@ -200,13 +193,14 @@ def sync_hierarchy_issue(
     existing_issues = get_existing_issues(repository)
     existing = find_existing_issue(mapping, existing_issues)
 
-    if expected_operation == "create" and existing is not None:
-        raise RuntimeError(
-            f"Approved hierarchy create became an update: {mapping.title}"
-        )
     if expected_operation == "update" and existing is None:
         raise RuntimeError(
             f"Approved hierarchy update no longer exists: {mapping.title}"
+        )
+
+    if expected_operation == "create" and existing is not None:
+        raise RuntimeError(
+            f"Approved hierarchy create became an update: {mapping.title}"
         )
 
     milestones = get_existing_milestones(repository)
@@ -249,16 +243,48 @@ def create_issue(repository, mapping, milestone, labels):
     )
 
 
+def preserve_work_step_checkboxes(existing_body: str, new_body: str) -> str:
+    """Preserve completed GitHub Work Step checkboxes during an issue update."""
+
+    checked_steps = set()
+
+    for line in existing_body.splitlines():
+        stripped = line.strip()
+
+        if stripped.startswith("- [x] ") or stripped.startswith("- [X] "):
+            checked_steps.add(stripped[6:])
+
+    lines = []
+
+    for line in new_body.splitlines():
+        stripped = line.strip()
+
+        if stripped.startswith("- [ ] "):
+            step_title = stripped[6:]
+
+            if step_title in checked_steps:
+                line = line.replace("- [ ] ", "- [x] ", 1)
+
+        lines.append(line)
+
+    return "\n".join(lines)
+
+
 def sync_issue(repository, mapping, expected_operation=None):
     """Create or update an issue from a roadmap mapping."""
 
     existing_issues = get_existing_issues(repository)
     existing = find_existing_issue(mapping, existing_issues)
 
-    if expected_operation == "create" and existing is not None:
-        raise RuntimeError(f"Approved update no longer exists: {mapping.title}")
     if expected_operation == "update" and existing is None:
-        raise RuntimeError(f"Approved create became an update: {mapping.title}")
+        raise RuntimeError(
+            f"Approved hierarchy update no longer exists: {mapping.title}"
+        )
+
+    if expected_operation == "create" and existing is not None:
+        raise RuntimeError(
+            f"Approved hierarchy create became an update: {mapping.title}"
+        )
 
     milestone, labels = resolve_issue_targets(
         repository,
@@ -266,9 +292,16 @@ def sync_issue(repository, mapping, expected_operation=None):
     )
 
     if existing:
+        new_body = build_issue_body(mapping)
+
+        new_body = preserve_work_step_checkboxes(
+            existing.body or "",
+            new_body,
+        )
+
         existing.edit(
             title=mapping.title,
-            body=build_issue_body(mapping),
+            body=new_body,
             milestone=milestone,
             labels=[label.name for label in labels],
         )

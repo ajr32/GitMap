@@ -1,5 +1,6 @@
 import time
 
+from gitmap.github_mapping import normalize_work_step_checkboxes
 from gitmap.mapping_mod.mapping import map_issue, map_milestone
 from gitmap.mapping_mod.mapping_issues import (
     build_hierarchy_issue_body,
@@ -142,6 +143,8 @@ def verify_synchronization_result_once(
 
     duplicate_ids = []
 
+    incorrect_closures = []
+
     github_ids = {}
 
     for github_issue in existing_issues:
@@ -218,9 +221,12 @@ def verify_synchronization_result_once(
 
         expected_body = build_issue_body(mapping)
 
+        existing_body = normalize_work_step_checkboxes(existing.body or "")
+        expected_body = normalize_work_step_checkboxes(expected_body)
+
         if (
             existing.title != mapping.title
-            or (existing.body or "").strip() != expected_body.strip()
+            or existing_body.strip() != expected_body.strip()
         ):
             incorrect_updates.append((issue, "GitHub content does not match roadmap"))
 
@@ -270,10 +276,24 @@ def verify_synchronization_result_once(
         if existing is None:
             missing_created.append(issue)
 
+    for github_issue in differences["removed"]:
+        refreshed = next(
+            (issue for issue in existing_issues if issue.number == github_issue.number),
+            None,
+        )
+
+        if refreshed is None:
+            incorrect_closures.append((github_issue, "GitHub issue not found"))
+            continue
+
+        if refreshed.state != "closed":
+            incorrect_closures.append((github_issue, "GitHub issue was not closed"))
+
     return {
         "existing_issues": existing_issues,
         "missing_created": missing_created,
         "incorrect_updates": incorrect_updates,
+        "incorrect_closures": incorrect_closures,
         "identity_failures": identity_failures,
         "duplicate_ids": duplicate_ids,
     }
@@ -299,6 +319,7 @@ def verify_synchronization_results(
         failed = (
             verification["missing_created"]
             or verification["incorrect_updates"]
+            or verification["incorrect_closures"]
             or verification["identity_failures"]
             or verification["duplicate_ids"]
         )

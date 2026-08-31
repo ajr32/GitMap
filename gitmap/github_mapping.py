@@ -1,3 +1,5 @@
+import re
+
 from github import Github
 
 from gitmap.mapping_mod.mapping import (
@@ -156,6 +158,17 @@ def detect_new_roadmap_items(roadmap, existing_issues):
     return new_items
 
 
+def normalize_work_step_checkboxes(body: str) -> str:
+    """Ignore GitHub checkbox completion state when comparing issue bodies."""
+
+    return re.sub(
+        r"^- \[[xX ]\]",
+        "- [ ]",
+        body,
+        flags=re.MULTILINE,
+    )
+
+
 def detect_changed_roadmap_items(roadmap, existing_issues):
     """Return roadmap issues that differ from their GitHub issues."""
 
@@ -180,7 +193,10 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
         if existing.title != mapping.title:
             changes.append("title")
 
-        if (existing.body or "").strip() != expected_body.strip():
+        existing_body = normalize_work_step_checkboxes(existing.body or "")
+        expected_body = normalize_work_step_checkboxes(expected_body)
+
+        if existing_body.strip() != expected_body.strip():
             changes.append("body")
 
         if changes:
@@ -213,10 +229,12 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
             continue
 
         expected_body = build_issue_body(mapping)
+        existing_body = normalize_work_step_checkboxes(existing.body or "")
+        expected_body = normalize_work_step_checkboxes(expected_body)
 
         if (
             existing.title == mapping.title
-            and (existing.body or "").strip() == expected_body.strip()
+            and existing_body.strip() == expected_body.strip()
         ):
             matching.append(issue)
 

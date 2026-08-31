@@ -431,6 +431,7 @@ def main():
                 verification_failed = (
                     verification["missing_created"]
                     or verification["incorrect_updates"]
+                    or verification["incorrect_closures"]
                     or verification["identity_failures"]
                     or verification["duplicate_ids"]
                 )
@@ -453,6 +454,13 @@ def main():
 
                         for issue, reason in verification["incorrect_updates"]:
                             print(f"  • {issue.number} {issue.title}: {reason}")
+
+                    if verification["incorrect_closures"]:
+                        print()
+                        print("Closures that do not match the approved plan:")
+
+                        for issue, reason in verification["incorrect_closures"]:
+                            print(f"  • #{issue.number} {issue.title}: {reason}")
 
                     if verification["identity_failures"]:
                         print()
