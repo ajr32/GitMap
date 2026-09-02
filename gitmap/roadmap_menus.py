@@ -305,3 +305,30 @@ def choose_github_representation(roadmap_structure):
             print("Please choose 1, 2, or 3.")
 
     return representation
+
+
+def choose_hierarchy_issue_title_style():
+    """Ask how hierarchy Issues should be titled on GitHub."""
+
+    print()
+    print("Hierarchy Issue Titles")
+    print("----------------------")
+    print("How should Section and Feature Issues be titled?")
+    print()
+    print("1. Plain")
+    print("   Example: Synchronization Safety")
+    print()
+    print("2. Type prefix")
+    print("   Example: Section: Synchronization Safety")
+    print("   Example: Feature: Approval Safety")
+
+    while True:
+        choice = input("\nChoose an option: ").strip()
+
+        if choice == "1":
+            return "plain"
+
+        if choice == "2":
+            return "type_prefix"
+
+        print("Please choose 1 or 2.")

@@ -1,5 +1,6 @@
 from gitmap.roadmap_menus import (
     choose_github_representation,
+    choose_hierarchy_issue_title_style,
     choose_numbering_mode,
     choose_roadmap_structure,
     choose_starting_series,
@@ -24,6 +25,13 @@ def start_new_roadmap():
     numbering_mode = choose_numbering_mode()
     roadmap_structure = choose_roadmap_structure()
     github_representation = choose_github_representation(roadmap_structure)
+
+    hierarchy_issue_title_style = None
+
+    if github_representation["section"] in ("issue", "both") or github_representation[
+        "feature"
+    ] in ("issue", "both"):
+        hierarchy_issue_title_style = choose_hierarchy_issue_title_style()
 
     starting_series = None
 
@@ -89,5 +97,6 @@ def start_new_roadmap():
         "starting_series": starting_series,
         "structure": roadmap_structure,
         "github_representation": github_representation,
+        "hierarchy_issue_title_style": hierarchy_issue_title_style,
         "milestones": milestones,
     }

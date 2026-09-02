@@ -1,21 +1,25 @@
-Title: Test
-Sub-Title: test
+Title: GitMap Roadmap
+Sub-Title: GitMap turns a project roadmap into a structured GitHub project.
+Hierarchy-Issue-Title-Style: plain
 
-# 0.1 One
+# 0.1 Foundations (DONE)
 
-## 0.1.1 One.One
+## 14.1.1 Project Setup (DONE)
+<!-- GitMap-ID: muredsir -->
 
-one
-one point one
+### 14.1.1.1 Test Feature
+<!-- GitMap-ID: nuredsiq -->
 
-### 0.1.1.1 One.One.One
+Feature to test permanent GitMap IDs.
 
-Description
+#### 14.1.1.1.1 Create Python Project (DONE)
+<!-- GitMap-ID: luredsis -->
 
-### 0.1.1.2 One.One.Two
+Create the basic Python project structure for GitMap.
 
-## 0.1.2 One.Two
-
-# 0.2 Two
-
-# 0.3 Three
+**Requirements:**
+- Requirement(text='Requirement(text="Requirement(text=\'Create the basic Python project structure for GitMap.\')")')
+- Requirement(text="Requirement(text='[ ] 14.1.1.1.1.1 (a) Create the `gitmap` package (DONE)')")
+- Requirement(text="Requirement(text='[ ] 14.1.1.1.1.2 (b) Create `../pyproject.toml` (DONE)')")
+- Requirement(text="Requirement(text='[ ] 14.1.1.1.1.3 (c) Create a `tests` directory (DONE)')")
+- Requirement(text="Requirement(text='[ ] 14.1.1.1.1.4 (d) Create a `../.gitignore` (DONE)')")

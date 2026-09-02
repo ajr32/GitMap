@@ -30,6 +30,7 @@ class Feature:
     title: str
     description: str = ""
     issues: list[Issue] = field(default_factory=list)
+    gitmap_id: str | None = None
 
 
 @dataclass
@@ -41,6 +42,7 @@ class Section:
     description: str = ""
     features: list[Feature] = field(default_factory=list)
     issues: list[Issue] = field(default_factory=list)
+    gitmap_id: str | None = None
 
 
 @dataclass
@@ -61,3 +63,4 @@ class Roadmap:
     overview: str = ""
     milestones: list[Milestone] = field(default_factory=list)
     github_representation: dict | None = None
+    hierarchy_issue_title_style: str | None = None

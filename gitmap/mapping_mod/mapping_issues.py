@@ -176,7 +176,7 @@ def build_hierarchy_issue_body(mapping):
 def create_hierarchy_issue(repository, mapping, milestone):
     """Create a GitHub Issue representing a Section or Feature."""
 
-    return create_issue(
+    return repository.create_issue(
         title=mapping.title,
         body=build_hierarchy_issue_body(mapping),
         milestone=milestone,
@@ -371,6 +371,7 @@ def sync_issues(
     issues_to_sync=None,
     hierarchy_mappings_to_sync=None,
     update_issues=None,
+    hierarchy_expected_operation="update",
     progress_start=0,
     progress_total=None,
     roadmap_path=None,
@@ -397,7 +398,7 @@ def sync_issues(
             repository,
             roadmap,
             mappings=hierarchy_mappings_to_sync,
-            expected_operation="update",
+            expected_operation=hierarchy_expected_operation,
             progress_start=progress_start,
             progress_total=progress_total,
         )

@@ -76,30 +76,45 @@ def increment_gitmap_id(gitmap_id: str) -> str:
     raise ValueError("GitMap ID space exhausted.")
 
 
-def assign_missing_gitmap_ids(roadmap) -> list:
-    """Assign unique permanent GitMap IDs to roadmap issues."""
+def assign_missing_gitmap_ids(roadmap, reserved_ids=None) -> list:
+    """Assign unique permanent GitMap IDs to roadmap items."""
 
-    issues = [issue for issue, _, _, _ in iter_roadmap_issues(roadmap)]
+    if reserved_ids is None:
+        reserved_ids = set()
+    else:
+        reserved_ids = set(reserved_ids)
 
-    existing_ids = {issue.gitmap_id for issue in issues if issue.gitmap_id}
+    items = [issue for issue, _, _, _ in iter_roadmap_issues(roadmap)]
 
-    # Existing duplicates are an error; do not make the situation worse.
-    if len(existing_ids) != sum(1 for issue in issues if issue.gitmap_id):
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            items.append(section)
+
+            for feature in section.features:
+                items.append(feature)
+
+    roadmap_ids = [item.gitmap_id for item in items if item.gitmap_id]
+
+    # Existing duplicates in the roadmap are an error.
+    if len(set(roadmap_ids)) != len(roadmap_ids):
         raise ValueError("Duplicate GitMap IDs detected.")
+
+    existing_ids = set(roadmap_ids)
+    existing_ids.update(reserved_ids)
 
     next_id = FIRST_GITMAP_ID
     assigned = []
 
-    for issue in issues:
-        if issue.gitmap_id:
+    for item in items:
+        if item.gitmap_id:
             continue
 
         while next_id in existing_ids:
             next_id = increment_gitmap_id(next_id)
 
-        issue.gitmap_id = next_id
+        item.gitmap_id = next_id
         existing_ids.add(next_id)
-        assigned.append(issue)
+        assigned.append(item)
 
         next_id = increment_gitmap_id(next_id)
 

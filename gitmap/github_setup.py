@@ -1,5 +1,7 @@
 import os
+import subprocess
 from dataclasses import dataclass
+from getpass import getpass
 
 from github import Auth, Github, GithubException
 
@@ -15,12 +17,26 @@ class RepositoryInfo:
 
 
 def get_github_token():
-    """Retrieve the GitHub authentication token from the environment."""
+    """Retrieve the GitHub authentication token."""
 
     token = os.getenv("GITHUB_TOKEN")
 
     if not token:
-        raise ValueError("GitHub authentication token is not configured.")
+        result = subprocess.run(
+            ["gh", "auth", "token"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode == 0:
+            token = result.stdout.strip()
+
+    if not token:
+        token = getpass("GitHub token: ").strip()
+
+    if not token:
+        raise ValueError("GitHub authentication token is required.")
 
     return token
 
@@ -61,9 +77,7 @@ def collect_repository_info():
             )
 
         if not username or not repository:
-            raise ValueError(
-                "GitHub username and repository name are required."
-            )
+            raise ValueError("GitHub username and repository name are required.")
 
         return RepositoryInfo(
             username=username,

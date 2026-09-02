@@ -13,6 +13,7 @@ Set up the basic GitMap project so it can be installed, run, tested, and develop
 Create the basic Python project structure for GitMap.
 
 **End Goal:**
+
 - Create the basic Python project structure for GitMap.
 
 ##### 0.1.1.0.1.1 (a) Create the `gitmap` package (DONE)
@@ -28,6 +29,7 @@ Create the basic Python project structure for GitMap.
 Set up the dependencies needed to develop and test GitMap.
 
 **End Goal:**
+
 - Set up the dependencies needed to develop and test GitMap.
 
 ##### 0.1.1.0.2.1 (a) Support editable installation (DONE)
@@ -41,6 +43,7 @@ Set up the dependencies needed to develop and test GitMap.
 Create the basic command-line entry point for GitMap.
 
 **End Goal:**
+
 - Create the basic command-line entry point for GitMap.
 
 ##### 0.1.1.0.3.1 (a) Allow GitMap to be started from the command line (DONE)
@@ -54,6 +57,7 @@ Create the basic command-line entry point for GitMap.
 Create the first automated tests for GitMap.
 
 **End Goal:**
+
 - Create the first automated tests for GitMap.
 
 ##### 0.1.1.0.4.1 (a) Confirm GitMap can be imported (DONE)
@@ -67,6 +71,7 @@ Create the first automated tests for GitMap.
 Create the basic documentation needed to understand and develop GitMap.
 
 **End Goal:**
+
 - Create the basic documentation needed to understand and develop GitMap.
 
 ##### 0.1.1.0.5.1 (a) Explain what GitMap does (DONE)
@@ -86,6 +91,7 @@ Define the Markdown structure GitMap will use to describe projects before they a
 Define the hierarchy used in a GitMap roadmap.
 
 **End Goal:**
+
 - Define the hierarchy used in a GitMap roadmap.
 
 ##### 0.1.2.0.1.1 (a) Support milestones (DONE)
@@ -105,6 +111,7 @@ Define the hierarchy used in a GitMap roadmap.
 Create a complete example roadmap that can be used for development and testing.
 
 **End Goal:**
+
 - Create a complete example roadmap that can be used for development and testing.
 
 ##### 0.1.2.0.2.1 (a) Include at least one milestone (DONE)
@@ -122,6 +129,7 @@ Create a complete example roadmap that can be used for development and testing.
 Document how users should write a GitMap roadmap.
 
 **End Goal:**
+
 - Document how users should write a GitMap roadmap.
 
 ##### 0.1.2.0.3.1 (a) Explain each heading level (DONE)
@@ -141,6 +149,7 @@ Teach GitMap to read a roadmap and turn its Markdown structure into project data
 Load a roadmap from a Markdown file.
 
 **End Goal:**
+
 - Load a roadmap from a Markdown file.
 
 ##### 0.2.1.0.1.1 (a) Accept a roadmap file path (DONE)
@@ -154,6 +163,7 @@ Load a roadmap from a Markdown file.
 Identify milestone headings in the roadmap.
 
 **End Goal:**
+
 - Identify milestone headings in the roadmap.
 
 ##### 0.2.1.0.2.1 (a) Recognize milestone headings (DONE)
@@ -167,6 +177,7 @@ Identify milestone headings in the roadmap.
 Identify Sections within each milestone.
 
 **End Goal:**
+
 - Identify Sections within each milestone.
 
 ##### 0.2.1.0.3.1 (a) Associate each Section with its milestone (DONE)
@@ -182,6 +193,7 @@ Identify Sections within each milestone.
 Identify issues within each Section.
 
 **End Goal:**
+
 - Identify issues within each Section.
 
 ##### 0.2.1.0.4.1 (a) Associate each issue with its Section (DONE)
@@ -197,6 +209,7 @@ Identify issues within each Section.
 Support issues nested beneath other issues.
 
 **End Goal:**
+
 - Support issues nested beneath other issues.
 
 ##### 0.2.1.0.5.1 (a) Associate each sub-issue with its parent issue (DONE)
@@ -214,6 +227,7 @@ Detect roadmap problems before anything is sent to GitHub.
 Check that the roadmap follows GitMap's expected hierarchy.
 
 **End Goal:**
+
 - Check that the roadmap follows GitMap's expected hierarchy.
 
 ##### 0.2.2.0.1.1 (a) Detect issues outside a Section (DONE)
@@ -229,6 +243,7 @@ Check that the roadmap follows GitMap's expected hierarchy.
 Check roadmap numbering for obvious errors.
 
 **End Goal:**
+
 - Check roadmap numbering for obvious errors.
 
 ##### 0.2.2.0.2.1 (a) Detect duplicate numbers (DONE)
@@ -242,6 +257,7 @@ Check roadmap numbering for obvious errors.
 Allow users to see what GitMap understood before synchronization.
 
 **End Goal:**
+
 - Allow users to see what GitMap understood before synchronization.
 
 ##### 0.2.2.0.3.1 (a) Display milestones (DONE)
@@ -263,6 +279,7 @@ Connect a completed GitMap roadmap to a GitHub repository chosen by the user.
 Ask the user which GitHub repository should receive the roadmap.
 
 **End Goal:**
+
 - Ask the user which GitHub repository should receive the roadmap.
 
 ##### 0.3.1.0.1.1 (a) Ask for the GitHub username (DONE)
@@ -278,6 +295,7 @@ Ask the user which GitHub repository should receive the roadmap.
 Set up authentication required to work with the selected repository.
 
 **End Goal:**
+
 - Set up authentication required to work with the selected repository.
 
 ##### 0.3.1.0.2.1 (a) Keep credentials outside source control (DONE)
@@ -293,6 +311,7 @@ Set up authentication required to work with the selected repository.
 Confirm that GitMap can access the repository before synchronization.
 
 **End Goal:**
+
 - Confirm that GitMap can access the repository before synchronization.
 
 ##### 0.3.1.0.3.1 (a) Verify that the repository exists (DONE)
@@ -312,6 +331,7 @@ Translate GitMap's roadmap concepts into the GitHub structures needed for synchr
 Define how roadmap milestones map to GitHub milestones.
 
 **End Goal:**
+
 - Define how roadmap milestones map to GitHub milestones.
 
 ##### 0.3.2.0.1.1 (a) Preserve milestone titles (DONE)
@@ -325,6 +345,7 @@ Define how roadmap milestones map to GitHub milestones.
 Define the labels GitMap uses when creating GitHub items.
 
 **End Goal:**
+
 - Define the labels GitMap uses when creating GitHub items.
 
 ##### 0.3.2.0.2.1 (a) Support labels for Sections (DONE)
@@ -340,6 +361,7 @@ Define the labels GitMap uses when creating GitHub items.
 Define how roadmap items become GitHub issues.
 
 **End Goal:**
+
 - Define how roadmap items become GitHub issues.
 
 ##### 0.3.2.0.3.1 (a) Preserve issue titles (DONE)
@@ -357,6 +379,7 @@ Define how roadmap items become GitHub issues.
 Define how roadmap hierarchy is represented in GitHub.
 
 **End Goal:**
+
 - Define how roadmap hierarchy is represented in GitHub.
 
 ##### 0.3.2.0.4.1 (a) Preserve parent-child relationships when supported (DONE)
@@ -376,6 +399,7 @@ Synchronize the validated roadmap with the selected GitHub repository.
 Create the labels required by the roadmap before synchronizing other items.
 
 **End Goal:**
+
 - Create the labels required by the roadmap before synchronizing other items.
 
 ##### 0.4.1.0.1.1 (a) Read required labels from the parsed roadmap (DONE)
@@ -391,6 +415,7 @@ Create the labels required by the roadmap before synchronizing other items.
 Create roadmap milestones in GitHub.
 
 **End Goal:**
+
 - Create roadmap milestones in GitHub.
 
 ##### 0.4.1.0.2.1 (a) Detect milestones that already exist (DONE)
@@ -406,6 +431,7 @@ Create roadmap milestones in GitHub.
 Create GitHub issues representing roadmap Sections.
 
 **End Goal:**
+
 - Create GitHub issues representing roadmap Sections.
 
 ##### 0.4.1.0.3.1 (a) Create the Section before its child issues (DONE)
@@ -423,6 +449,7 @@ Create GitHub issues representing roadmap Sections.
 Create GitHub issues from roadmap issues.
 
 **End Goal:**
+
 - Create GitHub issues from roadmap issues.
 
 ##### 0.4.1.0.4.1 (a) Preserve the issue title (DONE)
@@ -442,6 +469,7 @@ Create GitHub issues from roadmap issues.
 Create roadmap sub-issues and associate them with their parent issues.
 
 **End Goal:**
+
 - Create roadmap sub-issues and associate them with their parent issues.
 
 ##### 0.4.1.0.5.1 (a) Create the parent before its sub-issues (DONE)
@@ -461,6 +489,7 @@ Make synchronization predictable and safe to run more than once.
 Allow users to preview what synchronization would change without changing GitHub.
 
 **End Goal:**
+
 - Allow users to preview what synchronization would change without changing GitHub.
 
 ##### 0.4.2.0.1.1 (a) Show items that would be created (DONE)
@@ -476,6 +505,7 @@ Allow users to preview what synchronization would change without changing GitHub
 Make repeated synchronization safe.
 
 **End Goal:**
+
 - Make repeated synchronization safe.
 
 ##### 0.4.2.0.2.1 (a) Check GitHub before creating an item (DONE)
@@ -493,6 +523,7 @@ Make repeated synchronization safe.
 Display the result of synchronization.
 
 **End Goal:**
+
 - Display the result of synchronization.
 
 ##### 0.4.2.0.3.1 (a) Report items created (DONE)
@@ -514,6 +545,7 @@ Allow GitMap to understand what already exists in a connected GitHub repository.
 Retrieve existing milestones from the repository.
 
 **End Goal:**
+
 - Retrieve existing milestones from the repository.
 
 ##### 0.5.1.0.1.1 (a) Read open milestones (DONE)
@@ -527,6 +559,7 @@ Retrieve existing milestones from the repository.
 Retrieve existing repository labels.
 
 **End Goal:**
+
 - Retrieve existing repository labels.
 
 ##### 0.5.1.0.2.1 (a) Read current labels (DONE)
@@ -540,6 +573,7 @@ Retrieve existing repository labels.
 Retrieve existing GitHub issues that correspond to roadmap items.
 
 **End Goal:**
+
 - Retrieve existing GitHub issues that correspond to roadmap items.
 
 ##### 0.5.1.0.3.1 (a) Read existing issues (DONE)
@@ -555,6 +589,7 @@ Retrieve existing GitHub issues that correspond to roadmap items.
 Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 **End Goal:**
+
 - Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 ##### 0.5.1.0.4.1 (a) Associate existing issues with milestones (DONE)
@@ -569,11 +604,12 @@ Use GitHub data to reconstruct the current state of a GitMap-managed project.
 
 Allow a user to modify the roadmap after the initial synchronization and safely apply those changes to GitHub.
 
-#### 0.5.2.0.1 Detect Roadmap Changes  (DONE)
+#### 0.5.2.0.1 Detect Roadmap Changes (DONE)
 
 Compare the local roadmap with the current GitHub project.
 
 **End Goal:**
+
 - Compare the local roadmap with the current GitHub project.
 
 ##### 0.5.2.0.1.1 (a) Detect new roadmap items (DONE)
@@ -589,6 +625,7 @@ Compare the local roadmap with the current GitHub project.
 Update GitHub items when their corresponding roadmap entries change.
 
 **End Goal:**
+
 - Update GitHub items when their corresponding roadmap entries change.
 
 ##### 0.5.2.0.2.1 (a) Update titles when changed (DONE)
@@ -606,6 +643,7 @@ Update GitHub items when their corresponding roadmap entries change.
 Safely identify items that exist in GitHub but have been removed from the roadmap.
 
 **End Goal:**
+
 - Safely identify items that exist in GitHub but have been removed from the roadmap.
 
 ##### 0.5.2.0.3.1 (a) Never delete GitHub items automatically (DONE)
@@ -621,6 +659,7 @@ Safely identify items that exist in GitHub but have been removed from the roadma
 Show the user exactly what an update synchronization will do.
 
 **End Goal:**
+
 - Show the user exactly what an update synchronization will do.
 
 ##### 0.5.2.0.4.1 (a) Show new items (DONE)
@@ -644,6 +683,7 @@ Guide users through creating a roadmap without requiring them to know GitMap's M
 Begin an interactive roadmap-building session.
 
 **End Goal:**
+
 - Begin an interactive roadmap-building session.
 
 ##### 0.6.1.0.1.1 (a) Ask for the project name (DONE)
@@ -659,6 +699,7 @@ Begin an interactive roadmap-building session.
 Guide the user through defining project milestones.
 
 **End Goal:**
+
 - Guide the user through defining project milestones.
 
 ##### 0.6.1.0.2.1 (a) Ask for the milestone number (DONE)
@@ -674,6 +715,7 @@ Guide the user through defining project milestones.
 Guide the user through defining Sections within each milestone.
 
 **End Goal:**
+
 - Guide the user through defining Sections within each milestone.
 
 ##### 0.6.1.0.3.1 (a) Ask for the Section title (DONE)
@@ -689,6 +731,7 @@ Guide the user through defining Sections within each milestone.
 Guide the user through defining issues within a Section.
 
 **End Goal:**
+
 - Guide the user through defining issues within a Section.
 
 ##### 0.6.1.0.4.1 (a) Ask for the issue title (DONE)
@@ -706,6 +749,7 @@ Guide the user through defining issues within a Section.
 Allow an issue to contain smaller sub-issues.
 
 **End Goal:**
+
 - Allow an issue to contain smaller sub-issues.
 
 ##### 0.6.1.0.5.1 (a) Ask whether an issue needs sub-issues (DONE)
@@ -723,6 +767,7 @@ Allow an issue to contain smaller sub-issues.
 Allow users to paste existing project information instead of answering every question individually.
 
 **End Goal:**
+
 - Allow users to paste existing project information instead of answering every question individually.
 
 ##### 0.6.1.0.6.1 (a) Accept pasted overview text (DONE)
@@ -744,6 +789,7 @@ Let the user review and revise the roadmap before connecting it to GitHub.
 Show the complete generated roadmap.
 
 **End Goal:**
+
 - Show the complete generated roadmap.
 
 ##### 0.6.2.0.1.1 (a) Preserve Markdown hierarchy (DONE)
@@ -757,6 +803,7 @@ Show the complete generated roadmap.
 Allow changes before GitHub synchronization begins.
 
 **End Goal:**
+
 - Allow changes before GitHub synchronization begins.
 
 ##### 0.6.2.0.2.1 (a) Allow items to be renamed (DONE)
@@ -774,6 +821,7 @@ Allow changes before GitHub synchronization begins.
 Save the completed roadmap to `roadmap.md`.
 
 **End Goal:**
+
 - Save the completed roadmap to `roadmap.md`.
 
 ##### 0.6.2.0.3.1 (a) Produce valid GitMap Markdown (DONE)
@@ -793,6 +841,7 @@ Improve roadmap synchronization behavior discovered during real-world GitMap use
 Avoid displaying detailed change lists before the user asks to review them.
 
 **End Goal:**
+
 - Present a concise synchronization summary first and allow the user to choose which details to inspect.
 
 ##### 0.7.1.0.1.1 (a) Display change counts before detailed change lists
@@ -814,7 +863,9 @@ Avoid displaying detailed change lists before the user asks to review them.
 Recognize existing roadmap items when their GitMap numbers change.
 
 **End Goal:**
-- Treat renumbered roadmap items as updates to existing GitHub items rather than unrelated removed and newly created items.
+
+- Treat renumbered roadmap items as updates to existing GitHub items rather than unrelated removed and newly created
+  items.
 
 ##### 0.7.1.0.2.1 (a) Detect an existing roadmap item after its number changes
 
@@ -831,6 +882,7 @@ Recognize existing roadmap items when their GitMap numbers change.
 Update existing GitHub milestones when roadmap milestone numbers change.
 
 **End Goal:**
+
 - Prevent duplicate GitHub milestones when roadmap milestones are renumbered.
 
 ##### 0.7.1.0.3.1 (a) Match a renumbered milestone to its existing GitHub milestone
@@ -850,6 +902,7 @@ Update existing GitHub milestones when roadmap milestone numbers change.
 Make renumbering visible before GitHub is changed.
 
 **End Goal:**
+
 - Clearly distinguish renumbering from ordinary additions and removals during synchronization preview.
 
 ##### 0.7.1.0.4.1 (a) Identify renumbered roadmap items
@@ -869,6 +922,7 @@ Make renumbering visible before GitHub is changed.
 Show where GitMap is during an active synchronization.
 
 **End Goal:**
+
 - Let the user see how much synchronization work has completed and what GitMap is currently processing.
 
 ##### 0.7.1.0.5.1 (a) Count the total planned synchronization operations
@@ -894,37 +948,57 @@ Show where GitMap is during an active synchronization.
 #### 0.7.2.0.1 Validate Synchronization Plan
 
 ##### 0.7.2.0.1.1 (a) Detect duplicate GitMap identifiers
+
 ##### 0.7.2.0.1.2 (b) Detect duplicate milestone mappings
+
 ##### 0.7.2.0.1.3 (c) Detect ambiguous identity matches
+
 ##### 0.7.2.0.1.4 (d) Refuse to guess when identity cannot be determined safely
+
 ##### 0.7.2.0.1.5 (e) Explain conflicts before synchronization
+
 ##### 0.7.2.0.1.6 (f) Allow conflicts to be resolved before retrying
 
 #### 0.7.2.0.2 Protect Partial Synchronization
 
 ##### 0.7.2.0.2.1 (a) Track completed synchronization operations
+
 ##### 0.7.2.0.2.2 (b) Identify the operation that failed
+
 ##### 0.7.2.0.2.3 (c) Report operations completed before failure
+
 ##### 0.7.2.0.2.4 (d) Report operations that remain incomplete
+
 ##### 0.7.2.0.2.5 (e) Stop safely when synchronization cannot continue
+
 ##### 0.7.2.0.2.6 (f) Preserve enough state for a safe retry
 
 #### 0.7.2.0.3 Verify Synchronization Results
 
 ##### 0.7.2.0.3.1 (a) Re-read affected GitHub items after synchronization
+
 ##### 0.7.2.0.3.2 (b) Confirm expected items were created
+
 ##### 0.7.2.0.3.3 (c) Confirm expected items were updated
+
 ##### 0.7.2.0.3.4 (d) Confirm expected roadmap identities were preserved
+
 ##### 0.7.2.0.3.5 (e) Detect unexpected duplicate identifiers
+
 ##### 0.7.2.0.3.6 (f) Report differences between planned and actual results
 
 #### 0.7.2.0.4 Support Safe Synchronization Retry
 
 ##### 0.7.2.0.4.1 (a) Re-read GitHub state before retrying
+
 ##### 0.7.2.0.4.2 (b) Recognize operations already completed
+
 ##### 0.7.2.0.4.3 (c) Avoid recreating successfully created items
+
 ##### 0.7.2.0.4.4 (d) Avoid reapplying unnecessary updates
+
 ##### 0.7.2.0.4.5 (e) Continue remaining synchronization work safely
+
 ##### 0.7.2.0.4.6 (f) Report final retry results
 
 #### 0.7.2.0.5 Prevent Concurrent Synchronization
@@ -932,6 +1006,7 @@ Show where GitMap is during an active synchronization.
 Prevent multiple GitMap synchronization operations from modifying the same repository at the same time.
 
 **End Goal:**
+
 - Prevent concurrent synchronization from creating duplicate or conflicting GitHub changes.
 
 ##### 0.7.2.0.5.1 (a) Detect when synchronization is already in progress
@@ -957,6 +1032,7 @@ Improve command-line synchronization performance by avoiding unnecessary work.
 Avoid unnecessary GitHub operations for roadmap items that have already been determined to be unchanged.
 
 **End Goal:**
+
 - Reduce synchronization time by processing only items that require GitHub changes.
 
 ##### 0.7.3.0.1.1 (a) Identify unchanged items during synchronization planning
@@ -976,6 +1052,7 @@ Avoid unnecessary GitHub operations for roadmap items that have already been det
 Use the already-reviewed synchronization plan when applying changes.
 
 **End Goal:**
+
 - Avoid repeating work that was already completed while determining the synchronization preview.
 
 ##### 0.7.3.0.2.1 (a) Preserve the synchronization plan after preview
@@ -997,6 +1074,7 @@ Allow a completed roadmap to be connected to a new or existing GitHub repository
 Allow the user to choose where the roadmap will be synchronized.
 
 **End Goal:**
+
 - Connect the completed roadmap to the appropriate GitHub repository.
 
 ##### 0.7.4.0.1.1 (a) Use an existing repository
@@ -1008,6 +1086,7 @@ Allow the user to choose where the roadmap will be synchronized.
 Create a GitHub repository directly from GitMap.
 
 **End Goal:**
+
 - Create the repository without requiring the user to leave GitMap.
 
 ##### 0.7.4.0.2.1 (a) Ask for the repository name
@@ -1025,6 +1104,7 @@ Create a GitHub repository directly from GitMap.
 Connect the roadmap to the selected repository.
 
 **End Goal:**
+
 - Make the selected repository the synchronization target for the roadmap.
 
 ##### 0.7.4.0.3.1 (a) Verify repository access
@@ -1038,6 +1118,7 @@ Connect the roadmap to the selected repository.
 Allow the completed roadmap to proceed directly into GitMap's existing synchronization workflow.
 
 **End Goal:**
+
 - Move from roadmap creation to GitHub synchronization without restarting GitMap.
 
 ##### 0.7.4.0.4.1 (a) Preview the initial synchronization
@@ -1057,6 +1138,7 @@ Allow users to choose how roadmap item numbers are assigned while building and e
 Explain GitMap's numbering system when the user begins building a roadmap.
 
 **End Goal:**
+
 - Make the roadmap hierarchy and numbering rules clear before the user begins creating items.
 
 ##### 0.7.5.0.1.1 (a) Explain the milestone numbering format
@@ -1074,6 +1156,7 @@ Explain GitMap's numbering system when the user begins building a roadmap.
 Allow the user to choose between automatic and manual numbering.
 
 **End Goal:**
+
 - Let users control whether GitMap assigns roadmap numbers or they enter them manually.
 
 ##### 0.7.5.0.2.1 (a) Offer automatic numbering
@@ -1087,6 +1170,7 @@ Allow the user to choose between automatic and manual numbering.
 Allow automatic numbering to reflect the project's development stage.
 
 **End Goal:**
+
 - Start roadmap numbering in the appropriate version series.
 
 ##### 0.7.5.0.3.1 (a) Offer pre-production numbering beginning with 0.x
@@ -1098,6 +1182,7 @@ Allow automatic numbering to reflect the project's development stage.
 Generate roadmap numbers based on the hierarchy the user actually creates.
 
 **End Goal:**
+
 - Automatically assign valid numbers without requiring every hierarchy level to be present.
 
 ##### 0.7.5.0.4.1 (a) Number milestones automatically
@@ -1119,6 +1204,7 @@ Generate roadmap numbers based on the hierarchy the user actually creates.
 Prevent duplicate or conflicting roadmap numbers.
 
 **End Goal:**
+
 - Detect numbering conflicts and let the user decide how they should be resolved.
 
 ##### 0.7.5.0.5.1 (a) Detect duplicate roadmap numbers
@@ -1139,6 +1225,445 @@ Prevent duplicate or conflicting roadmap numbers.
 
 ##### 0.7.5.0.5.9 (i) Explain the expected number when a hierarchy mismatch is found
 
+## 0.7.6 GitHub Roadmap Representation
+
+Allow users to choose how roadmap hierarchy is represented in GitHub.
+
+#### 0.7.6.0.1 Create Roadmap Labels
+
+<!-- GitMap-ID: ptredsjo -->
+
+
+
+
+Create a searchable GitHub label identifying Issues belonging to a roadmap.
+
+#### 0.7.6.0.2 Choose Section and Feature Representation
+
+<!-- GitMap-ID: qtredsjn -->
+
+
+
+
+Allow the user to choose whether Sections and Features are represented as GitHub Issues or labels.
+
+#### 0.7.6.0.3 Create Hierarchy Issues
+
+<!-- GitMap-ID: rtredsjm -->
+
+
+
+
+When selected, create GitHub Issues for Sections and/or Features.
+
+## 0.7.7 Behavior Corrections
+
+#### 0.7.7.0.1 Create Hierarchy Issues on Existing Roadmaps
+
+<!-- GitMap-ID: juredsiu -->
+
+When Section or Feature Issues are enabled for a roadmap that already has synchronized GitHub content, GitMap should
+detect that the hierarchy Issues do not yet exist and ask the user whether they should be created.
+
+##### 0.7.7.0.1.1 (a) Detect when Section or Feature Issues are enabled for an existing roadmap
+
+##### 0.7.7.0.1.2 (b) Determine whether the corresponding hierarchy Issues already exist
+
+##### 0.7.7.0.1.3 (c) Inform the user how many Section and Feature Issues will be created
+
+##### 0.7.7.0.1.4 (d) Ask the user whether to create the missing hierarchy Issues
+
+##### 0.7.7.0.1.5 (e) Create hierarchy Issues only after confirmation
+
+**End Goal**
+Users explicitly choose whether missing Section and Feature Issues are created for an existing synchronized roadmap.
+
+#### 0.7.7.0.2 Require Approval Before Modifying Existing GitHub Items
+
+<!-- GitMap-ID: kuredsit -->
+
+Once a GitHub item already exists, GitMap must not update, close, or otherwise modify it unless the change appears in
+the synchronization preview and has been approved by the user.
+
+##### 0.7.7.0.2.1 (a) Detect modifications to existing GitHub items
+
+##### 0.7.7.0.2.2 (b) Include all modifications in the synchronization preview
+
+##### 0.7.7.0.2.3 (c) Prevent updates that were not included in the approved synchronization plan
+
+##### 0.7.7.0.2.4 (d) Ensure updates and closures require user approval
+
+##### 0.7.7.0.2.5 (e) Verify only approved changes are applied
+
+**End Goal**
+
+Existing GitHub items are never modified without first being shown to the user and explicitly approved.
+
+## 0.7.8 Finish 0.7.6
+
+#### 0.7.8.0.1 Customize Hierarchy Issue Titles
+
+<!-- GitMap-ID: quredsin -->
+
+Allow users to choose how Section and Feature GitHub Issues are titled so they are easy to distinguish from normal
+roadmap Issues.
+
+##### 0.7.8.0.1.1 (a) Add a hierarchy Issue title style option during roadmap creation.
+
+##### 0.7.8.0.1.2 (b) Store the selected title style in the roadmap.
+
+##### 0.7.8.0.1.3 (c) Update Section Issue title generation.
+
+##### 0.7.8.0.1.4 (d) Update Feature Issue title generation.
+
+##### 0.7.8.0.1.5 (e) Preserve title style during synchronization.
+
+##### 0.7.8.0.1.6 (f) Show the selected title style in synchronization preview.
+
+**End Goal**
+
+Users can easily distinguish hierarchy Issues from normal roadmap Issues while preserving a consistent appearance across
+GitHub.
+
+#### 0.7.8.0.2 Create Parent/Child Relationships
+
+<!-- GitMap-ID: stredsjl -->
+
+
+
+
+When hierarchy items are created as GitHub Issues, create the appropriate GitHub sub-issue relationships between parents
+and their children.
+
+#### 0.7.8.0.3 Preserve GitHub Issue Identity
+
+<!-- GitMap-ID: ttredsjk -->
+
+
+
+
+Ensure Sections, Features, and Issues retain their GitHub Issue associations across subsequent synchronizations.
+
+#### 0.7.8.0.4 Support Roadmap-Specific Searching
+
+<!-- GitMap-ID: utredsjj -->
+
+
+
+Allow the roadmap label and GitMap identifiers to be used to locate the appropriate GitHub Issues.
+
+## 0.7.9 Automatic Numbering During Roadmap Editing
+
+Extend automatic numbering beyond initial roadmap creation so users do not have to manually manage numbers while editing
+a roadmap.
+
+#### 0.7.9.0.1 Preserve Numbering Mode During Editing
+
+<!-- GitMap-ID: vtredsji -->
+
+
+
+
+Remember how the roadmap is being numbered and use that behavior when the user enters the roadmap options or editing
+workflow.
+
+**Work Steps:**
+
+- [ ] (a) Preserve the selected numbering mode after roadmap creation
+- [ ] (b) Make the editing workflow aware of automatic numbering
+- [ ] (c) Avoid asking for numbers manually when automatic numbering is active
+- [ ] (d) Continue allowing manual numbers when manual numbering is selected
+
+**End Goal:**
+
+- Automatic numbering remains automatic throughout creation and editing.
+
+#### 0.7.9.0.2 Add Items at the End Automatically
+
+<!-- GitMap-ID: wtredsjh -->
+
+
+
+
+Determine the next available sibling number when a new item is added at the end of an existing list.
+
+**Work Steps:**
+
+- [ ] (a) Determine the last existing sibling number
+- [ ] (b) Tell the user what the last existing number is
+- [ ] (c) Generate the next sibling number automatically
+- [ ] (d) Apply the same behavior to Milestones, Sections, Features, and Issues
+- [ ] (e) Generate the next Work Step letter automatically
+
+**End Goal:**
+
+- If the last Milestone is 0.4, adding another Milestone automatically creates 0.5 without asking the user to calculate
+  it.
+
+#### 0.7.9.0.3 Insert Items Between Existing Items
+
+<!-- GitMap-ID: xtredsjg -->
+
+
+
+
+Allow an automatically numbered item to be inserted at a chosen position instead of requiring every new item to be
+placed at the end.
+
+**Work Steps:**
+
+- [ ] (a) Show the existing sibling items when choosing an insertion point
+- [ ] (b) Allow the user to choose where the new item belongs
+- [ ] (c) Assign the inserted item the appropriate number
+- [ ] (d) Shift following sibling numbers as necessary
+- [ ] (e) Renumber descendants when their parent number changes
+
+**End Goal:**
+
+- Users can place a new item where it logically belongs without manually renumbering the roadmap.
+
+#### 0.7.9.0.4 Preview Automatic Renumbering
+
+<!-- GitMap-ID: ytredsjf -->
+
+
+
+
+Show the numbering changes before an insertion or other edit changes existing roadmap numbers.
+
+**Work Steps:**
+
+- [ ] (a) Calculate all numbers affected by the proposed change
+- [ ] (b) Show old and new numbers for affected items
+- [ ] (c) Include descendants whose numbers change with their parent
+- [ ] (d) Allow the user to approve or cancel the renumbering
+- [ ] (e) Apply numbering changes only after approval
+
+**End Goal:**
+
+- Existing roadmap numbers are never silently changed by automatic numbering.
+
+#### 0.7.9.0.5 Preserve Identity During Renumbering
+
+<!-- GitMap-ID: ztredsje -->
+
+
+
+
+Keep roadmap and GitHub items associated with the same underlying item when their roadmap numbers change.
+
+**Work Steps:**
+
+- [ ] (a) Use the permanent GitMap ID as the stable item identity
+- [ ] (b) Do not rely on the roadmap number alone to identify an existing item
+- [ ] (c) Preserve existing GitHub Issue associations after renumbering
+- [ ] (d) Update displayed GitMap numbers without creating replacement Issues
+- [ ] (e) Verify descendants retain their identities after parent renumbering
+
+**End Goal:**
+
+- Renumbering reorganizes the roadmap without making existing items appear new to GitMap or GitHub.
+
+#### 0.7.9.0.6 Detect Numbering Conflicts
+
+<!-- GitMap-ID: atredsjd -->
+
+
+
+
+Protect automatically numbered roadmaps from invalid or conflicting numbers.
+
+**Work Steps:**
+
+- [ ] (a) Detect duplicate numbers
+- [ ] (b) Detect numbers that do not match their hierarchy
+- [ ] (c) Detect gaps or conflicts created during insertion or renumbering
+- [ ] (d) Report the affected roadmap items clearly
+- [ ] (e) Revalidate the roadmap after numbering changes
+
+**End Goal:**
+
+- Automatic numbering produces a valid and internally consistent roadmap.~~
+
+#### 0.7.9.0.7 Respect Roadmap Structure During Editing
+
+<!-- GitMap-ID: btredsjc -->
+
+
+
+
+Ensure that editing and adding items follow the hierarchy selected for the roadmap.
+
+**Work Steps:**
+
+- [ ] (a) Read the roadmap's selected structure before presenting edit options
+- [ ] (b) Offer only valid parent levels for new items
+- [ ] (c) Do not offer direct Milestone Issues when Sections are enabled
+- [ ] (d) Do not offer direct Section Issues when Features are enabled
+- [ ] (e) Preserve the selected hierarchy when adding new items
+- [ ] (f) Validate the resulting hierarchy after an edit
+
+**End Goal:**
+
+- Editing an existing roadmap follows the same structural rules used when the roadmap was created.
+
+## 0.7.10 GitHub Repository Setup
+
+Allow a completed roadmap to be connected to a new or existing GitHub repository.
+
+#### 0.7.10.0.1 Choose Repository
+
+<!-- GitMap-ID: oqredsmp -->
+
+
+
+
+
+Allow the user to choose where the roadmap will be synchronized.
+
+**End Goal:**
+
+- Connect the completed roadmap to the appropriate GitHub repository.
+
+##### 0.7.10.0.1.1 (a) Use an existing repository
+
+##### 0.7.10.0.1.2 (b) Create a new repository
+
+#### 0.7.10.0.2 Create Repository
+
+<!-- GitMap-ID: pqredsmo -->
+
+
+
+
+
+Create a GitHub repository directly from GitMap.
+
+**End Goal:**
+
+- Create the repository without requiring the user to leave GitMap.
+
+##### 0.7.10.0.2.1 (a) Ask for the repository name
+
+##### 0.7.10.0.2.2 (b) Ask for a repository description
+
+##### 0.7.10.0.2.3 (c) Allow public or private visibility
+
+##### 0.7.10.0.2.4 (d) Create the repository through GitHub
+
+##### 0.7.10.0.2.5 (e) Confirm successful repository creation
+
+#### 0.7.10.0.3 Connect Repository
+
+<!-- GitMap-ID: qqredsmn -->
+
+
+
+
+
+Connect the roadmap to the selected repository.
+
+**End Goal:**
+
+- Make the selected repository the synchronization target for the roadmap.
+
+##### 0.7.10.0.3.1 (a) Verify repository access
+
+##### 0.7.10.0.3.2 (b) Store the repository association
+
+##### 0.7.10.0.3.3 (c) Prepare the repository for synchronization
+
+#### 0.7.10.0.4 Initial Synchronization
+
+<!-- GitMap-ID: rqredsmm -->
+
+
+
+
+
+Allow the completed roadmap to proceed directly into GitMap's existing synchronization workflow.
+
+**End Goal:**
+
+- Move from roadmap creation to GitHub synchronization without restarting GitMap.
+
+##### 0.7.10.0.4.1 (a) Preview the initial synchronization
+
+##### 0.7.10.0.4.2 (b) Require confirmation before synchronization
+
+##### 0.7.10.0.4.3 (c) Synchronize the roadmap to the repository
+
+##### 0.7.10.0.4.4 (d) Report synchronization results
+
+## 0.7.11 Roadmap Maintenance
+
+Allow users to continue managing a roadmap after it has been created and connected to GitHub.
+
+#### 0.7.11.0.1 Reopen an Existing Roadmap
+
+<!-- GitMap-ID: ctredsjb -->
+
+
+
+
+Allow a saved roadmap to be loaded for continued work.
+
+#### 0.7.11.0.2 Review Roadmap Status
+
+<!-- GitMap-ID: dtredsja -->
+
+
+
+
+Show the current state of roadmap items before making changes.
+
+#### 0.7.11.0.3 Edit Existing Items
+
+<!-- GitMap-ID: etredsjz -->
+
+
+
+
+Allow users to change names, descriptions, requirements, and Work Steps.
+
+#### 0.7.11.0.4 Add and Remove Items
+
+<!-- GitMap-ID: ftredsjy -->
+
+
+
+
+Allow users to add or remove roadmap items while preserving hierarchy, numbering, and identity.
+
+#### 0.7.11.0.5 Synchronize Changes
+
+<!-- GitMap-ID: guredsix -->
+
+
+
+
+Allow changes made after the initial synchronization to proceed through the existing preview and synchronization
+workflow.
+
+#### 0.7.11.0.6 Recover From Cancelled Changes
+
+<!-- GitMap-ID: huredsiw -->
+
+
+
+
+Ensure that cancelling an edit or renumbering operation leaves the previous roadmap unchanged.
+
+#### 0.7.11.0.7 Keep Roadmap and GitHub State Consistent
+
+<!-- GitMap-ID: iuredsiv -->
+
+
+
+
+Ensure that the roadmap saved locally and the corresponding GitHub items remain associated through subsequent edits and
+synchronizations.
+
 # 0.8 Command-Line Experience
 
 ## 0.8.1 GitMap Commands
@@ -1147,9 +1672,16 @@ Provide a simple command-line interface for the complete GitMap workflow.
 
 #### 0.8.1.0.1 Create Main GitMap Command
 
+<!-- GitMap-ID: xqredsmg -->
+
+
+
+
+
 Create the primary command used to launch GitMap.
 
 **End Goal:**
+
 - Create the primary command used to launch GitMap.
 
 ##### 0.8.1.0.1.1 (a) Provide a `gitmap` command
@@ -1162,9 +1694,16 @@ Create the primary command used to launch GitMap.
 
 #### 0.8.1.0.2 Create Roadmap Command
 
+<!-- GitMap-ID: yqredsmf -->
+
+
+
+
+
 Provide a command for creating or working with a roadmap.
 
 **End Goal:**
+
 - Provide a command for creating or working with a roadmap.
 
 ##### 0.8.1.0.2.1 (a) Start the interactive roadmap builder
@@ -1177,9 +1716,16 @@ Provide a command for creating or working with a roadmap.
 
 #### 0.8.1.0.3 Create Preview Command
 
+<!-- GitMap-ID: zqredsme -->
+
+
+
+
+
 Provide a command for previewing how GitMap interprets a roadmap.
 
 **End Goal:**
+
 - Provide a command for previewing how GitMap interprets a roadmap.
 
 ##### 0.8.1.0.3.1 (a) Parse the selected roadmap
@@ -1192,9 +1738,16 @@ Provide a command for previewing how GitMap interprets a roadmap.
 
 #### 0.8.1.0.4 Create Setup Command
 
+<!-- GitMap-ID: aqredsmd -->
+
+
+
+
+
 Guide the user through connecting a roadmap to a GitHub repository.
 
 **End Goal:**
+
 - Guide the user through connecting a roadmap to a GitHub repository.
 
 ##### 0.8.1.0.4.1 (a) Ask for the GitHub username
@@ -1209,9 +1762,16 @@ Guide the user through connecting a roadmap to a GitHub repository.
 
 #### 0.8.1.0.5 Create Sync Command
 
+<!-- GitMap-ID: bqredsmc -->
+
+
+
+
+
 Provide a command for synchronizing the roadmap with GitHub.
 
 **End Goal:**
+
 - Provide a command for synchronizing the roadmap with GitHub.
 
 ##### 0.8.1.0.5.1 (a) Validate before synchronization
@@ -1230,9 +1790,16 @@ Make GitMap understandable when something goes wrong.
 
 #### 0.8.2.0.1 Add User-Friendly Errors
 
+<!-- GitMap-ID: cqredsmb -->
+
+
+
+
+
 Replace technical failures with useful messages when possible.
 
 **End Goal:**
+
 - Replace technical failures with useful messages when possible.
 
 ##### 0.8.2.0.1.1 (a) Explain missing roadmap files
@@ -1247,9 +1814,16 @@ Replace technical failures with useful messages when possible.
 
 #### 0.8.2.0.2 Add Next-Step Guidance
 
+<!-- GitMap-ID: dqredsma -->
+
+
+
+
+
 Tell users what they can do after each major operation.
 
 **End Goal:**
+
 - Tell users what they can do after each major operation.
 
 ##### 0.8.2.0.2.1 (a) Provide guidance after roadmap creation
@@ -1262,9 +1836,11 @@ Tell users what they can do after each major operation.
 
 # 0.9 Graphical User Interface
 
-Create a graphical GitMap workspace for building, editing, reviewing, validating, and synchronizing roadmaps without requiring the user to work directly with Markdown or the command line.
+Create a graphical GitMap workspace for building, editing, reviewing, validating, and synchronizing roadmaps without
+requiring the user to work directly with Markdown or the command line.
 
-The graphical interface should use the same underlying roadmap, validation, numbering, GitHub, and synchronization logic as the command-line workflow rather than creating a separate implementation.
+The graphical interface should use the same underlying roadmap, validation, numbering, GitHub, and synchronization logic
+as the command-line workflow rather than creating a separate implementation.
 
 ## 0.9.1 GUI Foundation
 
@@ -1272,9 +1848,16 @@ Create the application foundation for the GitMap graphical interface.
 
 #### 0.9.1.0.1 Create GUI Application
 
+<!-- GitMap-ID: eqredsmz -->
+
+
+
+
+
 Create the primary graphical GitMap application.
 
 **End Goal:**
+
 - Provide a graphical application that can launch independently and use GitMap's existing core functionality.
 
 ##### 0.9.1.0.1.1 (a) Create the main GUI application entry point
@@ -1291,9 +1874,16 @@ Create the primary graphical GitMap application.
 
 #### 0.9.1.0.2 Create Main Workspace
 
+<!-- GitMap-ID: fqredsmy -->
+
+
+
+
+
 Create the primary workspace used while working with a roadmap.
 
 **End Goal:**
+
 - Provide a consistent workspace for navigating, editing, and previewing a roadmap.
 
 ##### 0.9.1.0.2.1 (a) Create a roadmap navigation area
@@ -1310,9 +1900,16 @@ Create the primary workspace used while working with a roadmap.
 
 #### 0.9.1.0.3 Create Project Start Screen
 
+<!-- GitMap-ID: grredslx -->
+
+
+
+
+
 Provide clear ways to begin working in GitMap.
 
 **End Goal:**
+
 - Allow the user to create a new project or continue working with an existing roadmap.
 
 ##### 0.9.1.0.3.1 (a) Provide a New Roadmap option
@@ -1329,9 +1926,16 @@ Provide clear ways to begin working in GitMap.
 
 #### 0.9.1.0.4 Track Roadmap State
 
+<!-- GitMap-ID: hrredslw -->
+
+
+
+
+
 Track whether the roadmap has changed while it is open.
 
 **End Goal:**
+
 - Prevent changes made in the GUI from being accidentally lost.
 
 ##### 0.9.1.0.4.1 (a) Detect changes made in the editor
@@ -1344,16 +1948,22 @@ Track whether the roadmap has changed while it is open.
 
 ##### 0.9.1.0.4.5 (e) Allow the user to save, discard, or cancel when unsaved changes exist
 
-
 ## 0.9.2 Roadmap Navigation
 
 Allow users to move quickly through roadmaps of any practical size.
 
 #### 0.9.2.0.1 Create Roadmap Tree
 
+<!-- GitMap-ID: irredslv -->
+
+
+
+
+
 Display the roadmap as an expandable hierarchy.
 
 **End Goal:**
+
 - Make the complete roadmap structure understandable and navigable without displaying the entire roadmap at once.
 
 ##### 0.9.2.0.1.1 (a) Display milestones
@@ -1376,9 +1986,16 @@ Display the roadmap as an expandable hierarchy.
 
 #### 0.9.2.0.2 Select Roadmap Items
 
+<!-- GitMap-ID: jrredslu -->
+
+
+
+
+
 Allow an item in the roadmap tree to be opened for editing.
 
 **End Goal:**
+
 - Make navigating to any roadmap item a direct operation.
 
 ##### 0.9.2.0.2.1 (a) Select an item from the roadmap tree
@@ -1391,9 +2008,16 @@ Allow an item in the roadmap tree to be opened for editing.
 
 #### 0.9.2.0.3 Add Go To Navigation
 
+<!-- GitMap-ID: krredslt -->
+
+
+
+
+
 Allow users to jump directly to a roadmap item.
 
 **End Goal:**
+
 - Make individual items easy to locate even in very large roadmaps.
 
 ##### 0.9.2.0.3.1 (a) Provide a Go To control
@@ -1416,9 +2040,16 @@ Allow users to jump directly to a roadmap item.
 
 #### 0.9.2.0.4 Preserve Navigation Context
 
+<!-- GitMap-ID: lrredsls -->
+
+
+
+
+
 Avoid forcing the user to repeatedly find their place.
 
 **End Goal:**
+
 - Keep navigation predictable while the roadmap is being edited.
 
 ##### 0.9.2.0.4.1 (a) Preserve expanded and collapsed tree branches during normal editing
@@ -1431,16 +2062,22 @@ Avoid forcing the user to repeatedly find their place.
 
 ##### 0.9.2.0.4.5 (e) Preserve useful navigation context after renumbering
 
-
 ## 0.9.3 Roadmap Editor
 
 Allow the roadmap to be changed directly through graphical controls.
 
 #### 0.9.3.0.1 Display Item Editor
 
+<!-- GitMap-ID: mrredslr -->
+
+
+
+
+
 Display fields appropriate to the selected roadmap item.
 
 **End Goal:**
+
 - Provide a clear editing interface based on the type of item being edited.
 
 ##### 0.9.3.0.1.1 (a) Display the item type
@@ -1459,9 +2096,16 @@ Display fields appropriate to the selected roadmap item.
 
 #### 0.9.3.0.2 Edit Roadmap Items
 
+<!-- GitMap-ID: nrredslq -->
+
+
+
+
+
 Allow roadmap content to be changed directly.
 
 **End Goal:**
+
 - Allow normal roadmap editing without requiring Markdown editing.
 
 ##### 0.9.3.0.2.1 (a) Rename items
@@ -1480,9 +2124,16 @@ Allow roadmap content to be changed directly.
 
 #### 0.9.3.0.3 Add Roadmap Items
 
+<!-- GitMap-ID: orredslp -->
+
+
+
+
+
 Allow new items to be added from anywhere appropriate in the roadmap.
 
 **End Goal:**
+
 - Make it easy to add newly discovered work to an existing roadmap.
 
 ##### 0.9.3.0.3.1 (a) Add milestones
@@ -1505,9 +2156,16 @@ Allow new items to be added from anywhere appropriate in the roadmap.
 
 #### 0.9.3.0.4 Insert Roadmap Items
 
+<!-- GitMap-ID: prredslo -->
+
+
+
+
+
 Allow new work to be inserted at a specific location in the roadmap.
 
 **End Goal:**
+
 - Allow newly discovered roadmap items to be placed where they logically belong rather than only appended.
 
 ##### 0.9.3.0.4.1 (a) Insert an item before a sibling
@@ -1524,9 +2182,16 @@ Allow new work to be inserted at a specific location in the roadmap.
 
 #### 0.9.3.0.5 Remove Roadmap Items
 
+<!-- GitMap-ID: qrredsln -->
+
+
+
+
+
 Allow items to be removed safely.
 
 **End Goal:**
+
 - Allow unwanted roadmap content to be removed without accidentally deleting additional work.
 
 ##### 0.9.3.0.5.1 (a) Remove individual roadmap items
@@ -1541,16 +2206,22 @@ Allow items to be removed safely.
 
 ##### 0.9.3.0.5.6 (f) Revalidate the roadmap after removal
 
-
 ## 0.9.4 Graphical Numbering
 
 Expose GitMap's roadmap-numbering system through the GUI.
 
 #### 0.9.4.0.1 Select Numbering Mode
 
+<!-- GitMap-ID: rrredslm -->
+
+
+
+
+
 Allow the user to control how roadmap numbers are assigned.
 
 **End Goal:**
+
 - Make automatic numbering easy to use while retaining complete manual control.
 
 ##### 0.9.4.0.1.1 (a) Provide an Auto numbering option
@@ -1563,9 +2234,16 @@ Allow the user to control how roadmap numbers are assigned.
 
 #### 0.9.4.0.2 Display Automatic Numbers
 
+<!-- GitMap-ID: srredsll -->
+
+
+
+
+
 Show numbers GitMap will assign before an item is created.
 
 **End Goal:**
+
 - Let users understand automatic numbering without needing to calculate numbers themselves.
 
 ##### 0.9.4.0.2.1 (a) Display the next automatically generated number
@@ -1580,9 +2258,16 @@ Show numbers GitMap will assign before an item is created.
 
 #### 0.9.4.0.3 Handle Numbering Conflicts
 
+<!-- GitMap-ID: trredslk -->
+
+
+
+
+
 Provide a graphical workflow when an automatic or manual number conflicts with the roadmap.
 
 **End Goal:**
+
 - Prevent duplicate numbers without making unusual roadmap structures impossible.
 
 ##### 0.9.4.0.3.1 (a) Clearly identify the conflicting number
@@ -1597,9 +2282,16 @@ Provide a graphical workflow when an automatic or manual number conflicts with t
 
 #### 0.9.4.0.4 Preview Renumbering
 
+<!-- GitMap-ID: urredslj -->
+
+
+
+
+
 Show the impact of renumbering before changing the roadmap.
 
 **End Goal:**
+
 - Ensure the user understands every existing roadmap number that will change.
 
 ##### 0.9.4.0.4.1 (a) List affected roadmap items
@@ -1616,16 +2308,22 @@ Show the impact of renumbering before changing the roadmap.
 
 ##### 0.9.4.0.4.7 (g) Refresh navigation and preview after renumbering
 
-
 ## 0.9.5 Live Roadmap Preview
 
 Provide a useful live representation of the roadmap without overwhelming the user with the complete document.
 
 #### 0.9.5.0.1 Create Contextual Live Preview
 
+<!-- GitMap-ID: vrredsli -->
+
+
+
+
+
 Display the part of the roadmap relevant to the item currently being edited.
 
 **End Goal:**
+
 - Let users see the effect of their work immediately while keeping the preview manageable.
 
 ##### 0.9.5.0.1.1 (a) Show the currently selected item
@@ -1640,9 +2338,16 @@ Display the part of the roadmap relevant to the item currently being edited.
 
 #### 0.9.5.0.2 Update Preview While Editing
 
+<!-- GitMap-ID: wrredslh -->
+
+
+
+
+
 Refresh the contextual preview as roadmap content changes.
 
 **End Goal:**
+
 - Make the preview reflect what the user is currently creating or editing.
 
 ##### 0.9.5.0.2.1 (a) Update titles while they are edited
@@ -1659,9 +2364,16 @@ Refresh the contextual preview as roadmap content changes.
 
 #### 0.9.5.0.3 Navigate From Preview
 
+<!-- GitMap-ID: xrredslg -->
+
+
+
+
+
 Allow the preview itself to act as a roadmap navigation tool.
 
 **End Goal:**
+
 - Let users move directly from something they see in the preview to editing that item.
 
 ##### 0.9.5.0.3.1 (a) Make roadmap items in the preview selectable
@@ -1674,9 +2386,16 @@ Allow the preview itself to act as a roadmap navigation tool.
 
 #### 0.9.5.0.4 View Full Roadmap
 
+<!-- GitMap-ID: yrredslf -->
+
+
+
+
+
 Allow the complete roadmap to be inspected when requested.
 
 **End Goal:**
+
 - Provide full-roadmap review without making it the default editing view.
 
 ##### 0.9.5.0.4.1 (a) Provide a View Full Roadmap action
@@ -1691,9 +2410,16 @@ Allow the complete roadmap to be inspected when requested.
 
 #### 0.9.5.0.5 Provide Preview Formats
 
+<!-- GitMap-ID: zrredsle -->
+
+
+
+
+
 Allow users to inspect both the readable roadmap and the Markdown GitMap will save.
 
 **End Goal:**
+
 - Make the roadmap understandable while still allowing the generated Markdown to be inspected.
 
 ##### 0.9.5.0.5.1 (a) Provide a rendered roadmap preview
@@ -1704,16 +2430,22 @@ Allow users to inspect both the readable roadmap and the Markdown GitMap will sa
 
 ##### 0.9.5.0.5.4 (d) Keep rendered and Markdown previews synchronized
 
-
 ## 0.9.6 Validation and Feedback
 
 Make roadmap problems visible while the user is working.
 
 #### 0.9.6.0.1 Validate During Editing
 
+<!-- GitMap-ID: arredsld -->
+
+
+
+
+
 Run appropriate validation as roadmap content changes.
 
 **End Goal:**
+
 - Identify problems before the user reaches save or synchronization.
 
 ##### 0.9.6.0.1.1 (a) Detect missing required values
@@ -1728,9 +2460,16 @@ Run appropriate validation as roadmap content changes.
 
 #### 0.9.6.0.2 Display Validation Status
 
+<!-- GitMap-ID: brredslc -->
+
+
+
+
+
 Show whether the current roadmap is valid.
 
 **End Goal:**
+
 - Make roadmap health visible without requiring a separate validation command.
 
 ##### 0.9.6.0.2.1 (a) Display a valid roadmap status
@@ -1743,9 +2482,16 @@ Show whether the current roadmap is valid.
 
 #### 0.9.6.0.3 Navigate Validation Problems
 
+<!-- GitMap-ID: crredslb -->
+
+
+
+
+
 Allow validation errors to be used as navigation.
 
 **End Goal:**
+
 - Make detected roadmap problems quick to locate and repair.
 
 ##### 0.9.6.0.3.1 (a) Display a list of validation problems
@@ -1758,16 +2504,22 @@ Allow validation errors to be used as navigation.
 
 ##### 0.9.6.0.3.5 (e) Revalidate after the problem is corrected
 
-
 ## 0.9.7 Roadmap File Operations
 
 Allow roadmaps to be safely opened and saved from the GUI.
 
 #### 0.9.7.0.1 Save Roadmap
 
+<!-- GitMap-ID: drredsla -->
+
+
+
+
+
 Save changes to the roadmap file.
 
 **End Goal:**
+
 - Produce valid GitMap Markdown from the graphical editor.
 
 ##### 0.9.7.0.1.1 (a) Render the current roadmap as GitMap Markdown
@@ -1784,9 +2536,16 @@ Save changes to the roadmap file.
 
 #### 0.9.7.0.2 Save Roadmap As
 
+<!-- GitMap-ID: erredslz -->
+
+
+
+
+
 Allow the roadmap to be saved to another location when appropriate.
 
 **End Goal:**
+
 - Give the user control over where a roadmap is stored.
 
 ##### 0.9.7.0.2.1 (a) Provide Save As
@@ -1799,9 +2558,16 @@ Allow the roadmap to be saved to another location when appropriate.
 
 #### 0.9.7.0.3 Protect Existing Files
 
+<!-- GitMap-ID: frredsly -->
+
+
+
+
+
 Avoid accidentally destroying valid roadmap data.
 
 **End Goal:**
+
 - Make roadmap file operations safe and predictable.
 
 ##### 0.9.7.0.3.1 (a) Validate before saving when appropriate
@@ -1812,16 +2578,22 @@ Avoid accidentally destroying valid roadmap data.
 
 ##### 0.9.7.0.3.4 (d) Preserve unsaved GUI state when saving fails
 
-
 ## 0.9.8 GitHub Repository Integration
 
 Allow GitHub repository setup to be performed from the graphical workflow.
 
 #### 0.9.8.0.1 Display Repository Status
 
+<!-- GitMap-ID: gsredskx -->
+
+
+
+
+
 Show the GitHub repository associated with the current roadmap.
 
 **End Goal:**
+
 - Make it immediately clear whether and where the roadmap is connected.
 
 ##### 0.9.8.0.1.1 (a) Display when no repository is connected
@@ -1834,9 +2606,16 @@ Show the GitHub repository associated with the current roadmap.
 
 #### 0.9.8.0.2 Connect Existing Repository
 
+<!-- GitMap-ID: hsredskw -->
+
+
+
+
+
 Allow an existing GitHub repository to be selected.
 
 **End Goal:**
+
 - Connect the current roadmap to an existing repository without leaving the GUI.
 
 ##### 0.9.8.0.2.1 (a) Enter or select a GitHub repository
@@ -1851,9 +2630,16 @@ Allow an existing GitHub repository to be selected.
 
 #### 0.9.8.0.3 Create GitHub Repository
 
+<!-- GitMap-ID: isredskv -->
+
+
+
+
+
 Expose GitMap's repository-creation workflow through the GUI.
 
 **End Goal:**
+
 - Allow a new GitHub project to be created directly from the roadmap workspace.
 
 ##### 0.9.8.0.3.1 (a) Enter a repository name
@@ -1872,16 +2658,22 @@ Expose GitMap's repository-creation workflow through the GUI.
 
 ##### 0.9.8.0.3.8 (h) Report successful repository creation
 
-
 ## 0.9.9 GitHub Synchronization
 
 Provide the existing GitMap synchronization workflow through the GUI.
 
 #### 0.9.9.0.1 Prepare Synchronization
 
+<!-- GitMap-ID: jsredsku -->
+
+
+
+
+
 Verify that the roadmap is ready to synchronize.
 
 **End Goal:**
+
 - Prevent synchronization when required roadmap or repository conditions are not satisfied.
 
 ##### 0.9.9.0.1.1 (a) Validate the roadmap
@@ -1894,9 +2686,16 @@ Verify that the roadmap is ready to synchronize.
 
 #### 0.9.9.0.2 Preview GitHub Changes
 
+<!-- GitMap-ID: ksredskt -->
+
+
+
+
+
 Show what GitMap intends to change before synchronization.
 
 **End Goal:**
+
 - Preserve GitMap's safe preview-before-sync workflow in the graphical interface.
 
 ##### 0.9.9.0.2.1 (a) Display newly added items
@@ -1913,9 +2712,16 @@ Show what GitMap intends to change before synchronization.
 
 #### 0.9.9.0.3 Review Planned Changes
 
+<!-- GitMap-ID: lsredsks -->
+
+
+
+
+
 Allow the synchronization preview to be inspected before proceeding.
 
 **End Goal:**
+
 - Make significant GitHub changes understandable before they occur.
 
 ##### 0.9.9.0.3.1 (a) Inspect added items
@@ -1930,9 +2736,16 @@ Allow the synchronization preview to be inspected before proceeding.
 
 #### 0.9.9.0.4 Confirm Synchronization
 
+<!-- GitMap-ID: msredskr -->
+
+
+
+
+
 Require explicit approval before changing GitHub.
 
 **End Goal:**
+
 - Ensure synchronization never begins merely because the user opened a preview.
 
 ##### 0.9.9.0.4.1 (a) Provide an explicit synchronization action
@@ -1947,9 +2760,16 @@ Require explicit approval before changing GitHub.
 
 #### 0.9.9.0.5 Display Synchronization Progress
 
+<!-- GitMap-ID: nsredskq -->
+
+
+
+
+
 Provide useful feedback while synchronization is running.
 
 **End Goal:**
+
 - Keep the user informed without exposing unnecessary implementation details.
 
 ##### 0.9.9.0.5.1 (a) Indicate that synchronization is in progress
@@ -1962,9 +2782,16 @@ Provide useful feedback while synchronization is running.
 
 #### 0.9.9.0.6 Display Synchronization Results
 
+<!-- GitMap-ID: osredskp -->
+
+
+
+
+
 Show what happened after synchronization completes.
 
 **End Goal:**
+
 - Make the final state of the GitHub synchronization clear.
 
 ##### 0.9.9.0.6.1 (a) Report successful synchronization
@@ -1979,16 +2806,22 @@ Show what happened after synchronization completes.
 
 ##### 0.9.9.0.6.6 (f) Preserve useful error information for troubleshooting
 
-
 ## 0.9.10 GUI Usability
 
 Make the graphical interface practical for regular use rather than only functionally complete.
 
 #### 0.9.10.0.1 Add Keyboard Navigation
 
+<!-- GitMap-ID: psredsko -->
+
+
+
+
+
 Support efficient keyboard use throughout the roadmap workspace.
 
 **End Goal:**
+
 - Allow common GitMap operations without requiring constant mouse use.
 
 ##### 0.9.10.0.1.1 (a) Support normal keyboard traversal between controls
@@ -2003,9 +2836,16 @@ Support efficient keyboard use throughout the roadmap workspace.
 
 #### 0.9.10.0.2 Preserve Editing Focus
 
+<!-- GitMap-ID: qsredskn -->
+
+
+
+
+
 Avoid unnecessary disruption while the user is entering roadmap content.
 
 **End Goal:**
+
 - Keep live updates and validation from making editing frustrating.
 
 ##### 0.9.10.0.2.1 (a) Keep keyboard focus in the active editor while preview updates
@@ -2018,9 +2858,16 @@ Avoid unnecessary disruption while the user is entering roadmap content.
 
 #### 0.9.10.0.3 Handle Large Roadmaps
 
+<!-- GitMap-ID: rsredskm -->
+
+
+
+
+
 Keep the interface practical as roadmap size increases.
 
 **End Goal:**
+
 - Allow GitMap roadmaps with many milestones and issues to remain manageable.
 
 ##### 0.9.10.0.3.1 (a) Avoid rendering the entire roadmap during every edit
@@ -2035,9 +2882,16 @@ Keep the interface practical as roadmap size increases.
 
 #### 0.9.10.0.4 Add Clear User Feedback
 
+<!-- GitMap-ID: ssredskl -->
+
+
+
+
+
 Provide useful confirmation for important operations.
 
 **End Goal:**
+
 - Make it clear what GitMap has done without filling the interface with unnecessary messages.
 
 ##### 0.9.10.0.4.1 (a) Confirm successful saves
@@ -2052,16 +2906,22 @@ Provide useful confirmation for important operations.
 
 ##### 0.9.10.0.4.6 (f) Keep routine feedback unobtrusive
 
-
 ## 0.9.11 GUI Testing
 
 Protect the graphical workflow from regressions.
 
 #### 0.9.11.0.1 Test GUI Roadmap Operations
 
+<!-- GitMap-ID: tsredskk -->
+
+
+
+
+
 Test roadmap operations invoked through the graphical interface.
 
 **End Goal:**
+
 - Verify that GUI operations produce the same valid roadmap structures as the core GitMap workflow.
 
 ##### 0.9.11.0.1.1 (a) Test opening a roadmap
@@ -2080,9 +2940,16 @@ Test roadmap operations invoked through the graphical interface.
 
 #### 0.9.11.0.2 Test GUI Numbering
 
+<!-- GitMap-ID: usredskj -->
+
+
+
+
+
 Test numbering behavior exposed through the graphical interface.
 
 **End Goal:**
+
 - Verify that graphical numbering controls use the same numbering rules as the core roadmap workflow.
 
 ##### 0.9.11.0.2.1 (a) Test automatic numbering
@@ -2097,9 +2964,16 @@ Test numbering behavior exposed through the graphical interface.
 
 #### 0.9.11.0.3 Test Live Preview
 
+<!-- GitMap-ID: vsredski -->
+
+
+
+
+
 Verify that roadmap preview remains synchronized with editing.
 
 **End Goal:**
+
 - Ensure the preview accurately represents the roadmap without changing roadmap data itself.
 
 ##### 0.9.11.0.3.1 (a) Test preview after selection changes
@@ -2114,9 +2988,16 @@ Verify that roadmap preview remains synchronized with editing.
 
 #### 0.9.11.0.4 Test Navigation
 
+<!-- GitMap-ID: wsredskh -->
+
+
+
+
+
 Test navigation across representative large roadmaps.
 
 **End Goal:**
+
 - Verify that users can reliably locate and open roadmap items.
 
 ##### 0.9.11.0.4.1 (a) Test tree navigation
@@ -2131,9 +3012,16 @@ Test navigation across representative large roadmaps.
 
 #### 0.9.11.0.5 Test GUI GitHub Workflow
 
+<!-- GitMap-ID: xsredskg -->
+
+
+
+
+
 Test GitHub operations without depending on a user's production repository.
 
 **End Goal:**
+
 - Verify that the GUI correctly drives GitMap's existing GitHub workflow.
 
 ##### 0.9.11.0.5.1 (a) Test repository connection workflow
@@ -2156,9 +3044,16 @@ Build a test suite that protects GitMap's roadmap and synchronization behavior.
 
 #### 0.10.1.0.1 Test Roadmap Parsing
 
+<!-- GitMap-ID: ysredskf -->
+
+
+
+
+
 Test conversion of Markdown roadmaps into GitMap project data.
 
 **End Goal:**
+
 - Test conversion of Markdown roadmaps into GitMap project data.
 
 ##### 0.10.1.0.1.1 (a) Test milestones
@@ -2173,9 +3068,16 @@ Test conversion of Markdown roadmaps into GitMap project data.
 
 #### 0.10.1.0.2 Test Roadmap Validation
 
+<!-- GitMap-ID: zsredske -->
+
+
+
+
+
 Test detection of invalid roadmap structures.
 
 **End Goal:**
+
 - Test detection of invalid roadmap structures.
 
 ##### 0.10.1.0.2.1 (a) Test malformed hierarchy
@@ -2188,9 +3090,16 @@ Test detection of invalid roadmap structures.
 
 #### 0.10.1.0.3 Test GitHub Mapping
 
+<!-- GitMap-ID: asredskd -->
+
+
+
+
+
 Test conversion of roadmap data into GitHub structures.
 
 **End Goal:**
+
 - Test conversion of roadmap data into GitHub structures.
 
 ##### 0.10.1.0.3.1 (a) Test milestone mapping
@@ -2205,9 +3114,16 @@ Test conversion of roadmap data into GitHub structures.
 
 #### 0.10.1.0.4 Test Duplicate Prevention
 
+<!-- GitMap-ID: bsredskc -->
+
+
+
+
+
 Verify that synchronization can safely run more than once.
 
 **End Goal:**
+
 - Verify that synchronization can safely run more than once.
 
 ##### 0.10.1.0.4.1 (a) Test existing labels
@@ -2220,9 +3136,16 @@ Verify that synchronization can safely run more than once.
 
 #### 0.10.1.0.5 Test Roadmap Updates
 
+<!-- GitMap-ID: csredskb -->
+
+
+
+
+
 Test synchronization after a roadmap has changed.
 
 **End Goal:**
+
 - Test synchronization after a roadmap has changed.
 
 ##### 0.10.1.0.5.1 (a) Test newly added items
@@ -2241,9 +3164,16 @@ Prevent partial or failed synchronization from leaving a project in a confusing 
 
 #### 0.10.2.0.1 Handle GitHub API Failures
 
+<!-- GitMap-ID: dsredska -->
+
+
+
+
+
 Handle failures while communicating with GitHub.
 
 **End Goal:**
+
 - Handle failures while communicating with GitHub.
 
 ##### 0.10.2.0.1.1 (a) Detect API errors
@@ -2256,9 +3186,16 @@ Handle failures while communicating with GitHub.
 
 #### 0.10.2.0.2 Test Dry Run Safety
 
+<!-- GitMap-ID: esredskz -->
+
+
+
+
+
 Verify that dry-run mode never changes GitHub.
 
 **End Goal:**
+
 - Verify that dry-run mode never changes GitHub.
 
 ##### 0.10.2.0.2.1 (a) Exercise the complete synchronization path
@@ -2271,9 +3208,16 @@ Verify that dry-run mode never changes GitHub.
 
 #### 0.10.2.0.3 Add Integration Tests
 
+<!-- GitMap-ID: fsredsky -->
+
+
+
+
+
 Test complete GitMap workflows using representative roadmap data.
 
 **End Goal:**
+
 - Test complete GitMap workflows using representative roadmap data.
 
 ##### 0.10.2.0.3.1 (a) Test roadmap creation through parsing
@@ -2292,9 +3236,16 @@ Prepare GitMap for people other than its developers to install and use.
 
 #### 0.11.1.0.1 Complete README
 
+<!-- GitMap-ID: gtredsjx -->
+
+
+
+
+
 Create the main user-facing GitMap documentation.
 
 **End Goal:**
+
 - Create the main user-facing GitMap documentation.
 
 ##### 0.11.1.0.1.1 (a) Explain what GitMap does
@@ -2309,9 +3260,16 @@ Create the main user-facing GitMap documentation.
 
 #### 0.11.1.0.2 Create Roadmap Format Guide
 
+<!-- GitMap-ID: htredsjw -->
+
+
+
+
+
 Create detailed documentation for writing GitMap roadmaps manually.
 
 **End Goal:**
+
 - Create detailed documentation for writing GitMap roadmaps manually.
 
 ##### 0.11.1.0.2.1 (a) Explain milestones
@@ -2328,9 +3286,16 @@ Create detailed documentation for writing GitMap roadmaps manually.
 
 #### 0.11.1.0.3 Create GitHub Setup Guide
 
+<!-- GitMap-ID: itredsjv -->
+
+
+
+
+
 Document how to prepare a GitHub repository for GitMap.
 
 **End Goal:**
+
 - Document how to prepare a GitHub repository for GitMap.
 
 ##### 0.11.1.0.3.1 (a) Explain that the user creates the repository
@@ -2349,9 +3314,16 @@ Prepare the first usable GitMap release.
 
 #### 0.11.2.0.1 Add Version Information
 
+<!-- GitMap-ID: jtredsju -->
+
+
+
+
+
 Provide consistent GitMap version information.
 
 **End Goal:**
+
 - Provide consistent GitMap version information.
 
 ##### 0.11.2.0.1.1 (a) Define the application version
@@ -2362,9 +3334,16 @@ Provide consistent GitMap version information.
 
 #### 0.11.2.0.2 Run Release Test
 
+<!-- GitMap-ID: ktredsjt -->
+
+
+
+
+
 Test GitMap from a clean environment before release.
 
 **End Goal:**
+
 - Test GitMap from a clean environment before release.
 
 ##### 0.11.2.0.2.1 (a) Install GitMap from scratch
@@ -2381,9 +3360,16 @@ Test GitMap from a clean environment before release.
 
 #### 0.11.2.0.3 Create Version 1.0 Release
 
+<!-- GitMap-ID: ltredsjs -->
+
+
+
+
+
 Publish the first stable GitMap release.
 
 **End Goal:**
+
 - Publish the first stable GitMap release.
 
 ##### 0.11.2.0.3.1 (a) Complete all required tests

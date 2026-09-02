@@ -17,6 +17,34 @@ def parse_roadmap(path: str | Path) -> Roadmap:
 
     return parse_roadmap_text(text)
 
+
+def write_hierarchy_issue_title_style_to_roadmap(
+    path,
+    hierarchy_issue_title_style,
+):
+    """Write the hierarchy Issue title style to the roadmap file."""
+
+    roadmap_path = Path(path)
+    text = roadmap_path.read_text(encoding="utf-8")
+
+    setting = f"Hierarchy-Issue-Title-Style: {hierarchy_issue_title_style}"
+
+    lines = text.splitlines()
+
+    for index, line in enumerate(lines):
+        if line.startswith("Hierarchy-Issue-Title-Style:"):
+            lines[index] = setting
+            break
+    else:
+        insert_at = 1
+        lines.insert(insert_at, setting)
+
+    roadmap_path.write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+    )
+
+
 def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
     """Write exactly one permanent GitMap ID for each issue."""
 
@@ -31,11 +59,17 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
                 ids_by_number[issue.number] = issue.gitmap_id
 
         for section in milestone.sections:
+            if section.gitmap_id:
+                ids_by_number[section.number] = section.gitmap_id
+
             for issue in section.issues:
                 if issue.gitmap_id:
                     ids_by_number[issue.number] = issue.gitmap_id
 
             for feature in section.features:
+                if feature.gitmap_id:
+                    ids_by_number[feature.number] = feature.gitmap_id
+
                 for issue in feature.issues:
                     if issue.gitmap_id:
                         ids_by_number[issue.number] = issue.gitmap_id
@@ -54,6 +88,28 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
 
         output.append(line)
 
+        if stripped.startswith("## ") and not stripped.startswith("### "):
+            heading = stripped[3:].strip()
+            parts = heading.split(maxsplit=1)
+
+            if parts:
+                number = parts[0]
+                gitmap_id = ids_by_number.get(number)
+
+                if gitmap_id:
+                    output.append(f"<!-- GitMap-ID: {gitmap_id} -->")
+
+        if stripped.startswith("### ") and not stripped.startswith("#### "):
+            heading = stripped[4:].strip()
+            parts = heading.split(maxsplit=1)
+
+            if parts:
+                number = parts[0]
+                gitmap_id = ids_by_number.get(number)
+
+                if gitmap_id:
+                    output.append(f"<!-- GitMap-ID: {gitmap_id} -->")
+
         if stripped.startswith("#### "):
             heading = stripped[5:].strip()
             parts = heading.split(maxsplit=1)
@@ -63,9 +119,7 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
                 gitmap_id = ids_by_number.get(number)
 
                 if gitmap_id:
-                    output.append(
-                        f"<!-- GitMap-ID: {gitmap_id} -->"
-                    )
+                    output.append(f"<!-- GitMap-ID: {gitmap_id} -->")
 
         index += 1
 
@@ -73,6 +127,7 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
         "\n".join(output) + "\n",
         encoding="utf-8",
     )
+
 
 def write_github_representation_to_roadmap(
     path: str | Path,
@@ -126,6 +181,7 @@ def write_github_representation_to_roadmap(
         encoding="utf-8",
     )
 
+
 def parse_roadmap_text(text: str) -> Roadmap:
     """Parse roadmap Markdown text."""
 
@@ -137,6 +193,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
     milestones: list[Milestone] = []
 
     github_representation = None
+
+    hierarchy_issue_title_style = None
 
     current_milestone: Milestone | None = None
 
@@ -179,6 +237,12 @@ def parse_roadmap_text(text: str) -> Roadmap:
                 github_representation = {}
 
             github_representation["feature"] = value or None
+            continue
+
+        if stripped.startswith("Hierarchy-Issue-Title-Style:"):
+            hierarchy_issue_title_style = stripped.removeprefix(
+                "Hierarchy-Issue-Title-Style:"
+            ).strip()
             continue
 
         if stripped.startswith("Title:"):
@@ -274,13 +338,18 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             continue
 
-        if current_issue is not None and stripped.startswith("<!-- GitMap-ID:"):
+        if stripped.startswith("<!-- GitMap-ID:"):
             gitmap_id = (
                 stripped.removeprefix("<!-- GitMap-ID:").removesuffix("-->").strip()
             )
 
             if gitmap_id:
-                current_issue.gitmap_id = gitmap_id
+                if current_issue is not None:
+                    current_issue.gitmap_id = gitmap_id
+                elif current_feature is not None:
+                    current_feature.gitmap_id = gitmap_id
+                elif current_section is not None:
+                    current_section.gitmap_id = gitmap_id
 
             continue
 
@@ -340,7 +409,9 @@ def parse_roadmap_text(text: str) -> Roadmap:
         overview=overview,
         milestones=milestones,
         github_representation=github_representation,
+        hierarchy_issue_title_style=hierarchy_issue_title_style,
     )
+
 
 def read_roadmap(path):
     roadmap_path = Path(path)
