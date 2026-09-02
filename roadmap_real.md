@@ -2,6 +2,8 @@ Title: GitMap Roadmap
 
 Sub-Title: GitMap turns a project roadmap into a structured GitHub project.
 
+Hierarchy-Issue-Title-Style: type_prefix
+
 # 0.1 Foundations (DONE)
 
 ## 0.1.1 Project Setup (DONE)

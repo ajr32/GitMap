@@ -36,6 +36,7 @@ def render_roadmap_markdown(roadmap):
         lines.append(f"Sub-Title: {roadmap['overview']}")
 
     if roadmap.get("hierarchy_issue_title_style"):
+        lines.append("")
         lines.append(
             f"Hierarchy-Issue-Title-Style: {roadmap['hierarchy_issue_title_style']}"
         )

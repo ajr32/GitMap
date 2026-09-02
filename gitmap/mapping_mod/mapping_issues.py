@@ -711,6 +711,7 @@ def collect_hierarchy_issue_mappings(roadmap):
                     map_section_issue(
                         section,
                         milestone,
+                        roadmap.hierarchy_issue_title_style,
                     )
                 )
 
@@ -721,6 +722,7 @@ def collect_hierarchy_issue_mappings(roadmap):
                             feature,
                             milestone,
                             section,
+                            roadmap.hierarchy_issue_title_style,
                         )
                     )
 

@@ -72,6 +72,7 @@ def map_feature_label(feature):
         name=title,
     )
 
+
 def has_explicit_github_representation(roadmap):
     """Return whether the roadmap has explicit GitHub representation settings."""
 
@@ -84,10 +85,8 @@ def has_explicit_github_representation(roadmap):
     if not isinstance(representation, dict):
         return False
 
-    return (
-        "section" in representation
-        and "feature" in representation
-    )
+    return "section" in representation and "feature" in representation
+
 
 def should_use_section_issue(roadmap):
     """Return whether Sections should be represented as GitHub Issues."""
@@ -185,12 +184,17 @@ def map_work_step(work_step, parent_issue, milestone, section):
     )
 
 
-def map_section_issue(section, milestone):
+def map_section_issue(section, milestone, title_style="plain"):
     """Map a roadmap Section to a GitHub hierarchy Issue."""
+
+    if title_style == "type_prefix":
+        title = f"Section: {section.number} {section.title.removesuffix(' (DONE)')}"
+    else:
+        title = f"{section.number} {section.title.removesuffix(' (DONE)')}"
 
     return HierarchyIssueMapping(
         number=section.number,
-        title=f"{section.number} {section.title.removesuffix(' (DONE)')}",
+        title=title,
         description=section.description,
         milestone=f"{milestone.number} {milestone.title.removesuffix(' (DONE)')}",
         gitmap_id=getattr(section, "gitmap_id", ""),
@@ -198,15 +202,19 @@ def map_section_issue(section, milestone):
     )
 
 
-def map_feature_issue(feature, milestone, section):
+def map_feature_issue(feature, milestone, section, title_style="plain"):
     """Map a roadmap Feature to a GitHub hierarchy Issue."""
+
+    if title_style == "type_prefix":
+        title = f"Feature: {feature.number} {feature.title.removesuffix(' (DONE)')}"
+    else:
+        title = f"{feature.number} {feature.title.removesuffix(' (DONE)')}"
 
     return HierarchyIssueMapping(
         number=feature.number,
-        title=f"{feature.number} {feature.title.removesuffix(' (DONE)')}",
+        title=title,
         description=feature.description,
         milestone=f"{milestone.number} {milestone.title.removesuffix(' (DONE)')}",
         gitmap_id=getattr(feature, "gitmap_id", ""),
         hierarchy_type="feature",
     )
-

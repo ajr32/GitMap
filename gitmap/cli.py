@@ -320,6 +320,7 @@ def run_sync(roadmap_path):
 
     roadmap = parse_roadmap(roadmap_path)
     # roadmap = ensure_gitmap_ids(roadmap_path, roadmap)
+    print("TITLE STYLE:", roadmap.hierarchy_issue_title_style)
 
     errors = validate_roadmap(roadmap)
 
@@ -555,7 +556,7 @@ def main():
                 "screw this": "exit",
                 "let me out": "exit",
                 # "6": "configure-sync",
-                "7": "update-sync"
+                "7": "update-sync",
             }
 
             if command is not None:
@@ -672,6 +673,8 @@ def run_update_sync(roadmap_path):
         return
 
     roadmap = parse_roadmap(roadmap_path)
+
+    print("TITLE STYLE:", roadmap.hierarchy_issue_title_style)
 
     assigned_ids = assign_missing_gitmap_ids(roadmap)
 
@@ -802,9 +805,9 @@ def run_update_sync(roadmap_path):
             ]
 
             total_changes = (
-                    len(issues_to_sync)
-                    + len(hierarchy_mappings_to_sync)
-                    + len(differences["removed"])
+                len(issues_to_sync)
+                + len(hierarchy_mappings_to_sync)
+                + len(differences["removed"])
             )
 
             if total_changes == 0:
@@ -880,11 +883,11 @@ def run_update_sync(roadmap_path):
                 release_sync_lock()
 
             verification_failed = (
-                    verification["missing_created"]
-                    or verification["incorrect_updates"]
-                    or verification["incorrect_closures"]
-                    or verification["identity_failures"]
-                    or verification["duplicate_ids"]
+                verification["missing_created"]
+                or verification["incorrect_updates"]
+                or verification["incorrect_closures"]
+                or verification["identity_failures"]
+                or verification["duplicate_ids"]
             )
 
             if verification_failed:
