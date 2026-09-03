@@ -25,6 +25,7 @@ from gitmap.mapping_mod.mapping_issues import (
     get_gitmap_id_from_github_issue,
     sync_issues,
     sync_removed_issues,
+    sync_sub_issue_relationships,
 )
 from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
 from gitmap.mapping_mod.mapping_validation import (
@@ -320,7 +321,6 @@ def run_sync(roadmap_path):
 
     roadmap = parse_roadmap(roadmap_path)
     # roadmap = ensure_gitmap_ids(roadmap_path, roadmap)
-    print("TITLE STYLE:", roadmap.hierarchy_issue_title_style)
 
     errors = validate_roadmap(roadmap)
 
@@ -337,8 +337,18 @@ def run_sync(roadmap_path):
 
     repository_name = detect_repository()
 
+    if repository_name:
+        print(f"Detected repository: {repository_name}")
+
+        use_detected = input("Use this repository? (y/n): ").strip().lower()
+
+        if use_detected != "y":
+            repository_name = input("GitHub repository (owner/name): ").strip()
+    else:
+        repository_name = input("GitHub repository (owner/name): ").strip()
+
     if not repository_name:
-        print("Could not detect a GitHub repository from the current folder.")
+        print("No GitHub repository selected.")
         return
 
     print(f"Repository: {repository_name}")
@@ -673,9 +683,6 @@ def run_update_sync(roadmap_path):
         return
 
     roadmap = parse_roadmap(roadmap_path)
-
-    print("TITLE STYLE:", roadmap.hierarchy_issue_title_style)
-
     assigned_ids = assign_missing_gitmap_ids(roadmap)
 
     if assigned_ids:
@@ -715,6 +722,14 @@ def run_update_sync(roadmap_path):
     print()
     print("Roadmap Update Preview")
     print("----------------------")
+
+    if roadmap.hierarchy_issue_title_style:
+        print(
+            f"Hierarchy Issue Title Style: "
+            f"{roadmap.hierarchy_issue_title_style.replace('_', ' ').title()}"
+        )
+
+    print()
 
     print(f"Added: {len(differences['new'])}")
     print(f"Changed: {len(differences['changed'])}")
@@ -812,8 +827,12 @@ def run_update_sync(roadmap_path):
 
             if total_changes == 0:
                 print()
+                print("No Issue changes to synchronize.")
 
-                print("Nothing to synchronize.")
+                sync_sub_issue_relationships(
+                    repository,
+                    roadmap,
+                )
 
                 break
 

@@ -322,6 +322,15 @@ def detect_removed_roadmap_items(roadmap, existing_issues):
         if issue.gitmap_id
     }
 
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            if section.gitmap_id:
+                roadmap_ids.add(section.gitmap_id)
+
+            for feature in section.features:
+                if feature.gitmap_id:
+                    roadmap_ids.add(feature.gitmap_id)
+
     removed = []
 
     for github_issue in existing_issues:
