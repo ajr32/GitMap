@@ -86,3 +86,46 @@ def next_work_step_number(parent):
     parent["_next_work_step_number"] = child_index + 1
 
     return number
+
+def remember_next_section_number(milestone):
+    """Remember the next automatic Section number for an existing milestone."""
+
+    milestone["_next_section_number"] = len(milestone.get("sections", [])) + 1
+
+def remember_next_feature_number(section):
+    """Remember the next automatic Feature number for an existing section."""
+
+    section["_next_feature_number"] = len(section.get("features", [])) + 1
+
+def remember_next_issue_number(parent):
+    """Remember the next automatic Issue number for an existing parent."""
+
+    parent["_next_issue_number"] = len(parent.get("issues", [])) + 1
+
+def remember_next_work_step_number(issue):
+    """Remember the next automatic Work Step number for an existing issue."""
+
+    issue["_next_work_step_number"] = len(issue.get("work_steps", [])) + 1
+
+def remember_numbering_state(roadmap):
+    """Restore automatic numbering state for an existing roadmap."""
+
+    for milestone in roadmap.get("milestones", []):
+        remember_next_section_number(milestone)
+        remember_next_issue_number(milestone)
+
+        for section in milestone.get("sections", []):
+            remember_next_feature_number(section)
+            remember_next_issue_number(section)
+
+            for feature in section.get("features", []):
+                remember_next_issue_number(feature)
+
+                for issue in feature.get("issues", []):
+                    remember_next_work_step_number(issue)
+
+            for issue in section.get("issues", []):
+                remember_next_work_step_number(issue)
+
+        for issue in milestone.get("issues", []):
+            remember_next_work_step_number(issue)

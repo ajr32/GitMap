@@ -2,6 +2,7 @@ from gitmap.builder.builder_add import add_item
 from gitmap.builder.builder_delete import delete_item
 from gitmap.builder.builder_edit import edit_item
 from gitmap.builder.builder_rename import rename_item
+from gitmap.roadmap_numbering import remember_numbering_state
 
 
 def render_work_steps(lines, work_steps, depth=0):
@@ -150,6 +151,8 @@ def render_roadmap_markdown(roadmap):
 
 def review_roadmap(roadmap):
     """Allow the user to review and revise the roadmap before saving."""
+
+    remember_numbering_state(roadmap)
 
     while True:
         print()
