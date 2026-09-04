@@ -64,3 +64,5 @@ class Roadmap:
     milestones: list[Milestone] = field(default_factory=list)
     github_representation: dict | None = None
     hierarchy_issue_title_style: str | None = None
+    numbering_mode: str | None = None
+    starting_series: str | None = None

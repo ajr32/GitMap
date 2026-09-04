@@ -24,13 +24,26 @@ from gitmap.parser import write_github_representation_to_roadmap
 from gitmap.roadmap_menus import choose_github_representation
 
 
-def get_existing_issues(repository):
+def get_existing_issues(repository, roadmap=None):
     """Retrieve GitMap-managed issues from a GitHub repository."""
 
-    return [
+    issues = [
         issue
         for issue in repository.get_issues(state="all")
         if is_gitmap_managed_issue(issue)
+    ]
+
+    if roadmap is None:
+        return issues
+
+    roadmap_label = f"GitMap: {roadmap.name}"
+
+    return [
+        issue
+        for issue in issues
+        if any(
+            label.name.casefold() == roadmap_label.casefold() for label in issue.labels
+        )
     ]
 
 
@@ -173,13 +186,14 @@ def build_hierarchy_issue_body(mapping):
     return body
 
 
-def create_hierarchy_issue(repository, mapping, milestone):
+def create_hierarchy_issue(repository, mapping, milestone, labels=None):
     """Create a GitHub Issue representing a Section or Feature."""
 
     return repository.create_issue(
         title=mapping.title,
         body=build_hierarchy_issue_body(mapping),
         milestone=milestone,
+        labels=labels or [],
     )
 
 
@@ -187,6 +201,7 @@ def sync_hierarchy_issue(
     repository,
     mapping,
     expected_operation=None,
+    roadmap=None,
 ):
     """Create or update a Section or Feature GitHub Issue."""
 
@@ -215,11 +230,17 @@ def sync_hierarchy_issue(
         milestones,
     )
 
+    labels = []
+
+    if roadmap is not None:
+        labels.append(f"GitMap: {roadmap.name}")
+
     if existing:
         existing.edit(
             title=mapping.title,
             body=build_hierarchy_issue_body(mapping),
             milestone=milestone,
+            labels=labels,
         )
         return existing, False
 
@@ -227,6 +248,7 @@ def sync_hierarchy_issue(
         repository,
         mapping,
         milestone,
+        labels=labels,
     )
 
     return issue, True
@@ -315,6 +337,57 @@ def sync_issue(repository, mapping, expected_operation=None):
     )
 
     return issue, True
+
+
+def apply_roadmap_label_to_existing_issues(repository, roadmap):
+    """Apply the roadmap-specific label to existing roadmap Issues."""
+
+    existing_issues = get_existing_issues(repository)
+
+    for milestone in roadmap.milestones:
+        issue_locations = [
+            (issue, None, None)
+            for issue in milestone.issues
+        ]
+
+        for section in milestone.sections:
+            issue_locations.extend(
+                (issue, section, None)
+                for issue in section.issues
+            )
+
+            for feature in section.features:
+                issue_locations.extend(
+                    (issue, section, feature)
+                    for issue in feature.issues
+                )
+
+        for issue, section, feature in issue_locations:
+            mapping = map_issue(
+                issue,
+                milestone,
+                section,
+                feature,
+                roadmap=roadmap,
+            )
+
+            existing = find_existing_issue(
+                mapping,
+                existing_issues,
+            )
+
+            if existing is None:
+                continue
+
+            roadmap_label = f"GitMap: {roadmap.name}"
+
+            if any(
+                label.name.casefold() == roadmap_label.casefold()
+                for label in existing.labels
+            ):
+                continue
+
+            existing.add_to_labels(roadmap_label)
 
 
 def sync_existing_roadmap_hierarchy_issues(
@@ -463,7 +536,13 @@ def sync_issues(
                     f"Processing {issue.number} {issue.title}"
                 )
 
-                mapping = map_issue(issue, milestone, section)
+                mapping = map_issue(
+                    issue,
+                    milestone,
+                    section,
+                    roadmap=roadmap,
+                )
+
                 try:
                     expected_operation = (
                         "update"
@@ -502,11 +581,9 @@ def sync_issues(
                     )
 
                     mapping = map_issue(
-                        issue,
-                        milestone,
-                        section,
-                        feature,
+                        issue, milestone, section, feature, roadmap=roadmap
                     )
+
                     try:
                         expected_operation = (
                             "update"
@@ -600,6 +677,7 @@ class SynchronizationError(Exception):
         self.remaining = remaining
         self.original_error = original_error
 
+
 def get_sub_issues(repository, parent_issue):
     """Return the existing GitHub sub-issues for an Issue."""
 
@@ -610,6 +688,7 @@ def get_sub_issues(repository, parent_issue):
 
     return data
 
+
 def add_sub_issue(repository, parent_issue, child_issue):
     """Add a GitHub Issue as a sub-issue of another Issue."""
 
@@ -618,10 +697,7 @@ def add_sub_issue(repository, parent_issue, child_issue):
         parent_issue,
     )
 
-    if any(
-        sub_issue["id"] == child_issue.id
-        for sub_issue in sub_issues
-    ):
+    if any(sub_issue["id"] == child_issue.id for sub_issue in sub_issues):
         return False
 
     repository._requester.requestJsonAndCheck(
@@ -645,6 +721,7 @@ def find_github_issue_by_gitmap_id(gitmap_id, existing_issues):
             return issue
 
     return None
+
 
 def resolve_issue_targets(repository, mapping):
     """Resolve the GitHub milestone and labels for an issue."""
@@ -672,6 +749,7 @@ def resolve_issue_targets(repository, mapping):
             issue_labels.append(label)
 
     return milestone, issue_labels
+
 
 def sync_section_feature_relationships(repository, roadmap, existing_issues):
     """Create Section-to-Feature GitHub sub-issue relationships."""
@@ -729,6 +807,7 @@ def resolve_issue_targets(repository, mapping):
 
     return milestone, issue_labels
 
+
 def sync_feature_issue_relationships(repository, roadmap, existing_issues):
     """Create Feature-to-Issue GitHub sub-issue relationships."""
 
@@ -749,8 +828,6 @@ def sync_feature_issue_relationships(repository, roadmap, existing_issues):
                         existing_issues,
                     )
 
-
-
                     if child_issue is None:
                         continue
 
@@ -759,6 +836,7 @@ def sync_feature_issue_relationships(repository, roadmap, existing_issues):
                         parent_issue,
                         child_issue,
                     )
+
 
 def sync_section_issue_relationships(repository, roadmap, existing_issues):
     """Create Section-to-Issue GitHub sub-issue relationships."""
@@ -788,13 +866,17 @@ def sync_section_issue_relationships(repository, roadmap, existing_issues):
                     child_issue,
                 )
 
+
 def sync_sub_issue_relationships(repository, roadmap):
     """Synchronize GitHub parent/child Issue relationships."""
 
     print()
     print("Synchronizing GitHub parent/child relationships...")
 
-    existing_issues = get_existing_issues(repository)
+    existing_issues = get_existing_issues(
+        repository,
+        roadmap=roadmap,
+    )
 
     sync_section_feature_relationships(
         repository,
@@ -813,6 +895,7 @@ def sync_sub_issue_relationships(repository, roadmap):
         roadmap,
         existing_issues,
     )
+
 
 def sync_hierarchy_issues(
     repository,
@@ -851,6 +934,7 @@ def sync_hierarchy_issues(
             repository,
             mapping,
             expected_operation=expected_operation,
+            roadmap=roadmap,
         )
         results.append((result, created))
 

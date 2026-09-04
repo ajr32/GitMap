@@ -196,6 +196,10 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
     hierarchy_issue_title_style = None
 
+    numbering_mode = None
+
+    starting_series = None
+
     current_milestone: Milestone | None = None
 
     current_section: Section | None = None
@@ -237,6 +241,14 @@ def parse_roadmap_text(text: str) -> Roadmap:
                 github_representation = {}
 
             github_representation["feature"] = value or None
+            continue
+
+        if stripped.startswith("Numbering-Mode:"):
+            numbering_mode = stripped.removeprefix("Numbering-Mode:").strip()
+            continue
+
+        if stripped.startswith("Starting-Series:"):
+            starting_series = stripped.removeprefix("Starting-Series:").strip()
             continue
 
         if stripped.startswith("Hierarchy-Issue-Title-Style:"):
@@ -410,6 +422,8 @@ def parse_roadmap_text(text: str) -> Roadmap:
         milestones=milestones,
         github_representation=github_representation,
         hierarchy_issue_title_style=hierarchy_issue_title_style,
+        numbering_mode=numbering_mode,
+        starting_series=starting_series,
     )
 
 

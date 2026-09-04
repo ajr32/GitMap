@@ -154,13 +154,19 @@ def detect_new_roadmap_items(roadmap, existing_issues):
 
     new_items = []
 
-    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
-        mapping = map_issue(
-            issue,
-            milestone,
-            section,
-            feature,
-        )
+    for milestone in roadmap.milestones:
+        issue_locations = [(issue, None, None) for issue in milestone.issues]
+
+        for section in milestone.sections:
+            issue_locations.extend((issue, section, None) for issue in section.issues)
+
+            for feature in section.features:
+                issue_locations.extend(
+                    (issue, section, feature) for issue in feature.issues
+                )
+
+        for issue, section, feature in issue_locations:
+            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
 
         existing = find_existing_issue(
             mapping,
@@ -189,39 +195,50 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
 
     changed = []
 
-    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
-        mapping = map_issue(
-            issue,
-            milestone,
-            section,
-            feature,
-        )
-        existing = find_existing_issue(mapping, existing_issues)
+    for milestone in roadmap.milestones:
+        issue_locations = [(issue, None, None) for issue in milestone.issues]
 
-        if existing is None:
-            continue
+        for section in milestone.sections:
+            issue_locations.extend((issue, section, None) for issue in section.issues)
 
-        expected_body = build_issue_body(mapping)
+            for feature in section.features:
+                issue_locations.extend(
+                    (issue, section, feature) for issue in feature.issues
+                )
 
-        changes = []
-
-        if existing.title != mapping.title:
-            changes.append("title")
-
-        existing_body = normalize_work_step_checkboxes(existing.body or "")
-        expected_body = normalize_work_step_checkboxes(expected_body)
-
-        if existing_body.strip() != expected_body.strip():
-            changes.append("body")
-
-        if changes:
-            changed.append(
-                {
-                    "issue": issue,
-                    "github_issue": existing,
-                    "changes": changes,
-                }
+        for issue, section, feature in issue_locations:
+            mapping = map_issue(
+                issue,
+                milestone,
+                section,
+                feature,
             )
+            existing = find_existing_issue(mapping, existing_issues)
+
+            if existing is None:
+                continue
+
+            expected_body = build_issue_body(mapping)
+
+            changes = []
+
+            if existing.title != mapping.title:
+                changes.append("title")
+
+            existing_body = normalize_work_step_checkboxes(existing.body or "")
+            expected_body = normalize_work_step_checkboxes(expected_body)
+
+            if existing_body.strip() != expected_body.strip():
+                changes.append("body")
+
+            if changes:
+                changed.append(
+                    {
+                        "issue": issue,
+                        "github_issue": existing,
+                        "changes": changes,
+                    }
+                )
 
     return changed
 
@@ -231,27 +248,41 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
 
     matching = []
 
-    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
-        mapping = map_issue(
-            issue,
-            milestone,
-            section,
-            feature,
-        )
-        existing = find_existing_issue(mapping, existing_issues)
+    for milestone in roadmap.milestones:
+        issue_locations = [
+            (issue, None, None)
+            for issue in milestone.issues
+        ]
 
-        if existing is None:
-            continue
+        for section in milestone.sections:
+            issue_locations.extend(
+                (issue, section, None)
+                for issue in section.issues
+            )
 
-        expected_body = build_issue_body(mapping)
-        existing_body = normalize_work_step_checkboxes(existing.body or "")
-        expected_body = normalize_work_step_checkboxes(expected_body)
+            for feature in section.features:
+                issue_locations.extend(
+                    (issue, section, feature)
+                    for issue in feature.issues
+                )
 
-        if (
-            existing.title == mapping.title
-            and existing_body.strip() == expected_body.strip()
-        ):
-            matching.append(issue)
+        for issue, section, feature in issue_locations:
+            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
+
+            existing = find_existing_issue(mapping, existing_issues)
+
+            if existing is None:
+                continue
+
+            expected_body = build_issue_body(mapping)
+            existing_body = normalize_work_step_checkboxes(existing.body or "")
+            expected_body = normalize_work_step_checkboxes(expected_body)
+
+            if (
+                existing.title == mapping.title
+                and existing_body.strip() == expected_body.strip()
+            ):
+                matching.append(issue)
 
     return matching
 
@@ -261,35 +292,48 @@ def detect_renumbered_roadmap_items(roadmap, existing_issues):
 
     renumbered = []
 
-    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
-        if not issue.gitmap_id:
-            continue
+    for milestone in roadmap.milestones:
+        issue_locations = [
+            (issue, None, None)
+            for issue in milestone.issues
+        ]
 
-        mapping = map_issue(
-            issue,
-            milestone,
-            section,
-            feature,
-        )
+        for section in milestone.sections:
+            issue_locations.extend(
+                (issue, section, None)
+                for issue in section.issues
+            )
 
-        existing = find_existing_issue_by_gitmap_id(
-            mapping,
-            existing_issues,
-        )
+            for feature in section.features:
+                issue_locations.extend(
+                    (issue, section, feature)
+                    for issue in feature.issues
+                )
 
-        if existing is None:
-            continue
+        for issue, section, feature in issue_locations:
+            if not issue.gitmap_id:
+                continue
 
-        body = existing.body or ""
-        old_number = None
+            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
 
-        for line in body.splitlines():
-            if line.startswith("GitMap:"):
-                old_number = line.removeprefix("GitMap:").strip()
-                break
+            existing = find_existing_issue_by_gitmap_id(
+                mapping,
+                existing_issues,
+            )
 
-        if old_number and old_number != issue.number:
-            renumbered.append((issue, old_number, issue.number))
+            if existing is None:
+                continue
+
+            body = existing.body or ""
+            old_number = None
+
+            for line in body.splitlines():
+                if line.startswith("GitMap:"):
+                    old_number = line.removeprefix("GitMap:").strip()
+                    break
+
+            if old_number and old_number != issue.number:
+                renumbered.append((issue, old_number, issue.number))
 
     return renumbered
 
@@ -359,8 +403,12 @@ if __name__ == "__main__":
     section = milestone.sections[0]
     issue = section.issues[0]
 
-    mapping = map_issue(issue, milestone, section)
-
+    mapping = map_issue(
+        issue,
+        milestone,
+        section,
+        roadmap=roadmap,
+    )
     print(f"Number: {mapping.number}")
     print(f"Title: {mapping.title}")
     print(f"Work steps: {len(mapping.work_steps)}")

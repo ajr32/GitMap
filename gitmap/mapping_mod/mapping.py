@@ -73,6 +73,14 @@ def map_feature_label(feature):
     )
 
 
+def map_roadmap_label(roadmap):
+    """Map a roadmap to its identifying GitHub label."""
+
+    return LabelMapping(
+        name=f"GitMap: {roadmap.name}",
+    )
+
+
 def has_explicit_github_representation(roadmap):
     """Return whether the roadmap has explicit GitHub representation settings."""
 
@@ -147,10 +155,13 @@ def map_milestone(milestone):
     )
 
 
-def map_issue(issue, milestone, section=None, feature=None):
+def map_issue(issue, milestone, section=None, feature=None, roadmap=None):
     """Map a roadmap issue to its GitHub representation."""
 
     labels = []
+
+    if roadmap is not None:
+        labels.append(f"GitMap: {roadmap.name}")
 
     if section is not None:
         labels.append(section.title.removesuffix(" (DONE)"))

@@ -4,6 +4,7 @@ from gitmap.mapping_mod.mapping import (
     LabelMapping,
     map_feature_label,
     map_issue_labels,
+    map_roadmap_label,
     map_section_label,
     should_use_feature_label,
     should_use_section_label,
@@ -81,7 +82,9 @@ def sync_labels(repository, roadmap):
 def collect_label_mappings(roadmap):
     """Collect the labels required by a roadmap."""
 
-    mappings = []
+    mappings = [
+        map_roadmap_label(roadmap),
+    ]
 
     for milestone in roadmap.milestones:
         for issue in milestone.issues:

@@ -8,6 +8,7 @@ from rich.console import Console
 from gitmap.builder.builder import (
     render_roadmap_markdown,
     review_roadmap,
+    roadmap_to_builder_dict,
 )
 from gitmap.github_mapping import (
     assign_missing_gitmap_ids,
@@ -20,6 +21,7 @@ from gitmap.github_setup import (
 )
 from gitmap.mapping_mod.mapping_issues import (
     SynchronizationError,
+    apply_roadmap_label_to_existing_issues,
     collect_hierarchy_issue_mappings,
     get_existing_issues,
     get_gitmap_id_from_github_issue,
@@ -27,6 +29,7 @@ from gitmap.mapping_mod.mapping_issues import (
     sync_removed_issues,
     sync_sub_issue_relationships,
 )
+from gitmap.mapping_mod.mapping_labels import sync_labels
 from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
 from gitmap.mapping_mod.mapping_validation import (
     validate_synchronization_plan,
@@ -491,6 +494,31 @@ def run_sync(roadmap_path):
         return True
 
 
+def run_roadmap_edit(roadmap_path):
+    """Edit an existing roadmap and save the changes."""
+
+    roadmap_path = Path(roadmap_path)
+
+    if not roadmap_path.exists():
+        print(f"Roadmap not found: {roadmap_path}")
+        return False
+
+    roadmap = parse_roadmap(roadmap_path)
+    builder_roadmap = roadmap_to_builder_dict(roadmap)
+    builder_roadmap = review_roadmap(builder_roadmap)
+
+    roadmap_text = render_roadmap_markdown(builder_roadmap)
+
+    roadmap_path.write_text(
+        roadmap_text,
+        encoding="utf-8",
+    )
+
+    print()
+    print(f"Roadmap saved: {roadmap_path}")
+    return True
+
+
 def main():
     """Run the gitmap command-line interface."""
     parser = argparse.ArgumentParser(
@@ -649,7 +677,10 @@ def main():
 
             if command == "update-sync":
                 roadmap_path = choose_roadmap_path()
-                run_update_sync(roadmap_path)
+
+                if run_roadmap_edit(roadmap_path):
+                    run_update_sync(roadmap_path)
+
                 continue
 
             if command == "exit":
@@ -695,7 +726,10 @@ def run_update_sync(roadmap_path):
     info = collect_repository_info()
     repository = verify_repository(info)
 
-    existing_issues = get_existing_issues(repository)
+    existing_issues = get_existing_issues(
+        repository,
+        roadmap=roadmap,
+    )
 
     conflicts = validate_synchronization_plan(
         roadmap,
@@ -828,6 +862,16 @@ def run_update_sync(roadmap_path):
             if total_changes == 0:
                 print()
                 print("No Issue changes to synchronize.")
+
+                sync_labels(
+                    repository,
+                    roadmap,
+                )
+
+                apply_roadmap_label_to_existing_issues(
+                    repository,
+                    roadmap,
+                )
 
                 sync_sub_issue_relationships(
                     repository,

@@ -1,7 +1,17 @@
-from gitmap.roadmap_preparation import collect_multiline, collect_requirements, collect_work_step
+from gitmap.roadmap_numbering import (
+    generate_milestone_number,
+    next_feature_number,
+    next_issue_number,
+    next_section_number,
+)
+from gitmap.roadmap_preparation import (
+    collect_multiline,
+    collect_requirements,
+    collect_work_step,
+)
 
 
-def add_item(roadmap):
+def add_item(roadmap, numbering_mode="manual"):
     """Choose which type of roadmap item to add."""
 
     print()
@@ -17,19 +27,19 @@ def add_item(roadmap):
     choice = input("Choose an item type: ").strip().lower()
 
     if choice in ("m", "milestone"):
-        add_milestone(roadmap)
+        add_milestone(roadmap, numbering_mode)
 
     elif choice in ("s", "section"):
-        add_section(roadmap)
+        add_section(roadmap, numbering_mode)
 
     elif choice in ("f", "feature"):
-        add_feature(roadmap)
+        add_feature(roadmap, numbering_mode)
 
     elif choice in ("i", "issue"):
-        add_issue(roadmap)
+        add_issue(roadmap, numbering_mode)
 
     elif choice in ("w", "work", "work step"):
-        add_work_step(roadmap)
+        add_work_step(roadmap, numbering_mode)
 
     elif choice in ("b", "back"):
         return
@@ -38,13 +48,21 @@ def add_item(roadmap):
         print("Invalid choice.")
 
 
-def add_milestone(roadmap):
+def add_milestone(roadmap, numbering_mode="manual"):
     """Add a milestone to the roadmap."""
 
-    number = input("Milestone number: ").strip()
+    if numbering_mode == "automatic":
+        sibling_index = len(roadmap["milestones"]) + 1
+        number = generate_milestone_number(
+            roadmap["starting_series"],
+            sibling_index,
+        )
+        print(f"Milestone number: {number}")
+    else:
+        number = input("Milestone number: ").strip()
 
-    if not number:
-        return
+        if not number:
+            return
 
     title = input("Milestone title: ").strip()
 
@@ -58,7 +76,7 @@ def add_milestone(roadmap):
     roadmap["milestones"].append(milestone)
 
 
-def add_section(roadmap):
+def add_section(roadmap, numbering_mode="manual"):
     """Add a section to a milestone."""
 
     print()
@@ -71,10 +89,14 @@ def add_section(roadmap):
 
     for milestone in roadmap["milestones"]:
         if milestone["number"] == milestone_number:
-            number = input("Section number: ").strip()
+            if numbering_mode == "automatic":
+                number = next_section_number(milestone)
+                print(f"Section number: {number}")
+            else:
+                number = input("Section number: ").strip()
 
-            if not number:
-                return
+                if not number:
+                    return
 
             title = input("Section title: ").strip()
             overview = collect_multiline("Section overview:")
@@ -95,7 +117,7 @@ def add_section(roadmap):
     print("Milestone not found.")
 
 
-def add_feature(roadmap):
+def add_feature(roadmap, numbering_mode="manual"):
     """Add a feature to a section."""
 
     sections = []
@@ -112,10 +134,14 @@ def add_feature(roadmap):
 
     for section in sections:
         if section["number"] == section_number:
-            number = input("Feature number: ").strip()
+            if numbering_mode == "automatic":
+                number = next_feature_number(section)
+                print(f"Feature number: {number}")
+            else:
+                number = input("Feature number: ").strip()
 
-            if not number:
-                return
+                if not number:
+                    return
 
             title = input("Feature title: ").strip()
             description = collect_multiline("Feature description:")
@@ -135,7 +161,7 @@ def add_feature(roadmap):
     print("Section not found.")
 
 
-def add_issue(roadmap):
+def add_issue(roadmap, numbering_mode="manual"):
     """Add an issue to a milestone, section, or feature."""
 
     parents = []
@@ -159,10 +185,14 @@ def add_issue(roadmap):
 
     for parent in parents:
         if parent["number"] == parent_number:
-            number = input("Issue number: ").strip()
+            if numbering_mode == "automatic":
+                number = next_issue_number(parent, parent["type"])
+                print(f"Issue number: {number}")
+            else:
+                number = input("Issue number: ").strip()
 
-            if not number:
-                return
+                if not number:
+                    return
 
             title = input("Issue title: ").strip()
             description = collect_multiline("Issue description:")

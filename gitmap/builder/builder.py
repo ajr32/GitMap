@@ -33,6 +33,12 @@ def render_roadmap_markdown(roadmap):
 
     lines.append(f"Title: {roadmap['name']}")
 
+    if roadmap.get("numbering_mode"):
+        lines.append(f"Numbering-Mode: {roadmap['numbering_mode']}")
+
+    if roadmap.get("starting_series") is not None:
+        lines.append(f"Starting-Series: {roadmap['starting_series']}")
+
     if roadmap["overview"]:
         lines.append(f"Sub-Title: {roadmap['overview']}")
 
@@ -46,6 +52,7 @@ def render_roadmap_markdown(roadmap):
         lines.append("")
         lines.append(f"# {milestone['number']} {milestone['title']}")
 
+        # Milestone-level issues
         for issue in milestone["issues"]:
             lines.append("")
             lines.append(f"#### {issue['number']} {issue['title']}")
@@ -69,9 +76,9 @@ def render_roadmap_markdown(roadmap):
             if issue["work_steps"]:
                 lines.append("")
                 lines.append("**Work Steps:**")
-
                 render_work_steps(lines, issue["work_steps"])
 
+        # Sections
         for section in milestone["sections"]:
             lines.append("")
             lines.append(f"## {section['number']} {section['title']}")
@@ -83,6 +90,7 @@ def render_roadmap_markdown(roadmap):
                 lines.append("")
                 lines.append(section["overview"])
 
+            # Features
             for feature in section["features"]:
                 lines.append("")
                 lines.append(f"### {feature['number']} {feature['title']}")
@@ -94,6 +102,7 @@ def render_roadmap_markdown(roadmap):
                     lines.append("")
                     lines.append(feature["description"])
 
+                # Feature-level issues
                 for issue in feature["issues"]:
                     lines.append("")
                     lines.append(f"#### {issue['number']} {issue['title']}")
@@ -117,40 +126,41 @@ def render_roadmap_markdown(roadmap):
                     if issue["work_steps"]:
                         lines.append("")
                         lines.append("**Work Steps:**")
-
                         render_work_steps(lines, issue["work_steps"])
 
-                for issue in section["issues"]:
+            # Section-level issues
+            for issue in section["issues"]:
+                lines.append("")
+                lines.append(f"#### {issue['number']} {issue['title']}")
+
+                if issue.get("gitmap_id"):
+                    lines.append(f"<!-- GitMap-ID: {issue['gitmap_id']} -->")
+
+                if issue["description"]:
                     lines.append("")
-                    lines.append(f"#### {issue['number']} {issue['title']}")
+                    lines.append(issue["description"])
 
-                    if issue.get("gitmap_id"):
-                        lines.append(f"<!-- GitMap-ID: {issue['gitmap_id']} -->")
+                if issue["requirements"]:
+                    lines.append("")
+                    lines.append("**Requirements:**")
 
-                    if issue["description"]:
-                        lines.append("")
-                        lines.append(issue["description"])
+                    for requirement in issue["requirements"]:
+                        lines.append(
+                            f"- {requirement.text if hasattr(requirement, 'text') else requirement}"
+                        )
 
-                    if issue["requirements"]:
-                        lines.append("")
-                        lines.append("**Requirements:**")
-
-                        for requirement in issue["requirements"]:
-                            lines.append(
-                                f"- {requirement.text if hasattr(requirement, 'text') else requirement}"
-                            )
-
-                    if issue["work_steps"]:
-                        lines.append("")
-                        lines.append("**Work Steps:**")
-
-                        render_work_steps(lines, issue["work_steps"])
+                if issue["work_steps"]:
+                    lines.append("")
+                    lines.append("**Work Steps:**")
+                    render_work_steps(lines, issue["work_steps"])
 
     return "\n".join(lines)
 
 
 def review_roadmap(roadmap):
     """Allow the user to review and revise the roadmap before saving."""
+
+    numbering_mode = roadmap.get("numbering_mode") or "manual"
 
     remember_numbering_state(roadmap)
 
@@ -178,7 +188,7 @@ def review_roadmap(roadmap):
             edit_item(roadmap)
 
         elif choice in ("a", "add"):
-            add_item(roadmap)
+            add_item(roadmap, numbering_mode)
 
         elif choice in ("d", "delete", "remove"):
             delete_item(roadmap)
@@ -218,6 +228,8 @@ def roadmap_to_builder_dict(roadmap):
     builder_roadmap = {
         "name": roadmap.name,
         "overview": roadmap.overview,
+        "numbering_mode": roadmap.numbering_mode,
+        "starting_series": roadmap.starting_series,
         "github_representation": roadmap.github_representation,
         "hierarchy_issue_title_style": roadmap.hierarchy_issue_title_style,
         "milestones": [],
@@ -225,6 +237,7 @@ def roadmap_to_builder_dict(roadmap):
 
     for milestone in roadmap.milestones:
         builder_milestone = {
+            "type": "milestone",
             "number": milestone.number,
             "title": milestone.title,
             "issues": [],
@@ -233,6 +246,7 @@ def roadmap_to_builder_dict(roadmap):
 
         for section in milestone.sections:
             builder_section = {
+                "type": "section",
                 "number": section.number,
                 "title": section.title,
                 "gitmap_id": section.gitmap_id,
@@ -257,6 +271,7 @@ def roadmap_to_builder_dict(roadmap):
 
             for feature in section.features:
                 builder_feature = {
+                    "type": "feature",
                     "number": feature.number,
                     "title": feature.title,
                     "gitmap_id": feature.gitmap_id,
