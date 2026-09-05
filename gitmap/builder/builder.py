@@ -11,13 +11,24 @@ def render_work_steps(lines, work_steps, depth=0):
     indent = "  " * depth
 
     for work_step in work_steps:
-        lines.append(f"{indent}- [ ] {work_step['number']} {work_step['title']}")
+        marker = work_step.get("work_step_marker", "")
+
+        lines.append(
+            f"{indent}- [ ] "
+            f"{work_step['number']} "
+            f"{marker} "
+            f"{work_step['title']}"
+        )
 
         if work_step["description"]:
-            lines.append(f"{indent}  {work_step['description']}")
+            lines.append(
+                f"{indent}  {work_step['description']}"
+            )
 
         for requirement in work_step["requirements"]:
-            lines.append(f"{indent}  - {requirement}")
+            lines.append(
+                f"{indent}  - {requirement}"
+            )
 
         render_work_steps(
             lines,
@@ -25,19 +36,21 @@ def render_work_steps(lines, work_steps, depth=0):
             depth + 1,
         )
 
-
 def render_roadmap_markdown(roadmap):
     """Render a completed roadmap as Markdown."""
 
     lines = []
 
     lines.append(f"Title: {roadmap['name']}")
+    lines.append("")
 
     if roadmap.get("numbering_mode"):
         lines.append(f"Numbering-Mode: {roadmap['numbering_mode']}")
+        lines.append("")
 
     if roadmap.get("starting_series") is not None:
         lines.append(f"Starting-Series: {roadmap['starting_series']}")
+        lines.append("")
 
     if roadmap["overview"]:
         lines.append(f"Sub-Title: {roadmap['overview']}")
@@ -209,9 +222,11 @@ def work_steps_to_builder_list(work_steps):
                 "title": work_step.title,
                 "description": work_step.description,
                 "requirements": work_step.requirements,
+                "work_step_marker": work_step.work_step_marker,
                 "work_steps": work_steps_to_builder_list(work_step.work_steps),
             }
         )
+
     return builder_work_steps
 
 

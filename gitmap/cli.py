@@ -507,6 +507,7 @@ def run_roadmap_edit(roadmap_path):
     builder_roadmap = roadmap_to_builder_dict(roadmap)
     builder_roadmap = review_roadmap(builder_roadmap)
 
+
     roadmap_text = render_roadmap_markdown(builder_roadmap)
 
     roadmap_path.write_text(
@@ -677,7 +678,7 @@ def main():
 
             if command == "update-sync":
                 roadmap_path = choose_roadmap_path()
-
+                # run_roadmap_edit(roadmap_path)
                 if run_roadmap_edit(roadmap_path):
                     run_update_sync(roadmap_path)
 

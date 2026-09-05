@@ -375,11 +375,10 @@ def collect_work_step(issue, numbering_mode):
 
     if numbering_mode == "automatic":
         title = input("Work step title: ").strip()
-
         if not title:
             return None
 
-        number = next_work_step_number(issue)
+        number = None
         print(f"Work step number: {number}")
 
     else:
@@ -400,6 +399,7 @@ def collect_work_step(issue, numbering_mode):
         "description": description,
         "requirements": requirements,
         "parent": issue["title"],
+        "work_step_marker": "",
         "work_steps": [],
     }
 

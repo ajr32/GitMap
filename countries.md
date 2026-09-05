@@ -1,4 +1,10 @@
-Title: Parts of the World Numbering-Mode: automatic Starting-Series: 0 Sub-Title: Different Parts of the World From
+Title: Parts of the World
+
+Numbering-Mode: automatic
+
+Starting-Series: 0
+
+Sub-Title: Different Parts of the World From Biggest to Smallest
 
 Hierarchy-Issue-Title-Style: type_prefix
 
@@ -31,57 +37,76 @@ Hierarchy-Issue-Title-Style: type_prefix
 #### 0.1.2.2.2 New Delhi
 <!-- GitMap-ID: ruredsim -->
 
-# 0.2 North America
+# 0.2 Antarctica
 
-## 0.2.1 Mexico
+# 0.3 North America
+
+## 0.3.1 Mexico
 <!-- GitMap-ID: ivredshv -->
 
-### 0.2.1.1 Virginia
+### 0.3.1.1 Virginia
 <!-- GitMap-ID: jvredshu -->
 
-### 0.2.1.2 Connecticut
+### 0.3.1.2 Connecticut
 <!-- GitMap-ID: kvredsht -->
 
-#### 0.2.1.2.1 Boston
+#### 0.3.1.2.1 Boston
 <!-- GitMap-ID: uuredsij -->
 
-#### 0.2.1.2.2 Westfield
+**Work Steps:**
+- [ ] 0.3.1.2.1 (a) Mass Pike
+- [ ] 0.3.1.2.1 (b) Boston Common
+
+#### 0.3.1.2.2 Westfield
 <!-- GitMap-ID: vuredsii -->
 
-#### 0.2.1.2.4 Worcester
+**Work Steps:**
+- [ ] 0.3.1.2.2 (a) High School
+- [ ] 0.3.1.2.2 (b) YMCA
+- [ ] 0.3.1.2.2 (c) house
+
+#### 0.3.1.2.3 Worcester
 <!-- GitMap-ID: goredsox -->
 
-## 0.2.2 Canada
+## 0.3.2 Canada
 <!-- GitMap-ID: lvredshs -->
 
-### 0.2.2.1 Quebec
+### 0.3.2.1 Quebec
 <!-- GitMap-ID: mvredshr -->
 
-#### 0.2.2.1.1 Quebec City
+#### 0.3.2.1.1 Quebec City
 <!-- GitMap-ID: horedsow -->
 
-### 0.2.2.2 Ontario
+### 0.3.2.2 Ontario
 <!-- GitMap-ID: nvredshq -->
 
-#### 0.2.2.2.1 Toronto
+#### 0.3.2.2.1 Toronto
 <!-- GitMap-ID: yuredsif -->
 
-#### 0.2.2.2.2 Ottawa
+#### 0.3.2.2.2 Ottawa
 <!-- GitMap-ID: zuredsie -->
 
-## 0.2.3 USA
+## 0.3.3 Hawaii
+<!-- GitMap-ID: qoredson -->
+
+## 0.3.4 USA
 <!-- GitMap-ID: ioredsov -->
 
-# 0.3 South America
+# 0.4 South America
 
-## 0.3.1 Argentina
+## 0.4.1 Argentina
 <!-- GitMap-ID: ovredshp -->
 
-### 0.3.1.1 Northern
+### 0.4.1.1 Northern
 <!-- GitMap-ID: pvredsho -->
 
-### 0.3.1.2 Southern
+### 0.4.1.2 Southern
 <!-- GitMap-ID: qvredshn -->
 
-#### 0.3.1.2.1 Ushuaia
+#### 0.4.1.2.1 Ushuaia
 <!-- GitMap-ID: buredsic -->
+
+# 0.5 testing
+
+#### 0.5.0.0.1 test
+<!-- GitMap-ID: poredsoo -->

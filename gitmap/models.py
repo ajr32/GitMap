@@ -20,6 +20,7 @@ class Issue:
     requirements: list[Requirement] = field(default_factory=list)
     work_steps: list["Issue"] = field(default_factory=list)
     gitmap_id: str = ""
+    work_step_marker: str = ""
 
 
 @dataclass

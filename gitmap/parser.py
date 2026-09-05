@@ -50,7 +50,6 @@ def write_gitmap_ids_to_roadmap(path: str | Path, roadmap: Roadmap) -> None:
 
     roadmap_path = Path(path)
     lines = roadmap_path.read_text(encoding="utf-8").splitlines()
-
     ids_by_number = {}
 
     for milestone in roadmap.milestones:
@@ -380,13 +379,19 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
         if current_issue is not None and stripped.startswith("[ ] "):
             work_step_text = stripped[4:].strip()
-            parts = work_step_text.split(maxsplit=1)
+            parts = work_step_text.split(maxsplit=2)
 
-            if len(parts) == 2:
+            if len(parts) == 3:
+                number = parts[0]
+                marker = parts[1]
+                title = parts[2]
+
                 work_step = Issue(
-                    number=parts[0],
-                    title=parts[1],
+                    number=number,
+                    title=title,
+                    work_step_marker=marker,
                 )
+
                 current_issue.work_steps.append(work_step)
 
             continue
