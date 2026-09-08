@@ -8,11 +8,11 @@ dependencies = [
     "rich",
 ]
 
+[project.scripts]
+gitmap = "gitmap.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest",
     "ruff",
 ]
-
-[project.scripts]
-gitmap = "gitmap.cli:main"
