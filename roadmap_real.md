@@ -1,8 +1,12 @@
 Title: GitMap Roadmap
 
+<!-- GitMap-Section-Representation: both -->
+<!-- GitMap-Feature-Representation: both -->
+
+
 Sub-Title: GitMap turns a project roadmap into a structured GitHub project.
 
-Hierarchy-Issue-Title-Style: type_prefix
+Hierarchy-Issue-Title-Style: plain
 
 # 0.1 Foundations (DONE)
 
@@ -1691,7 +1695,7 @@ Manage an Issue's Work Steps graphically.
 - [ ] 0.9.5.0.5.7  (g) Renumber Work Step markers when required
 - [ ] 0.9.5.0.5.8  (h) Refresh the roadmap tree
 
-### 0.9.6 Add, Insert and Delete Roadmap Items
+### 0.9.6 Add Insert and Delete Roadmap Items
 <!-- GitMap-ID: lwredsgs -->
 
 Expose GitMap's existing hierarchy and automatic numbering operations through graphical controls.

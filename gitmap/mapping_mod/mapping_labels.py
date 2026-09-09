@@ -52,7 +52,10 @@ def create_missing_labels(repository, mappings):
         if existing:
             continue
 
+
         try:
+            print(f"Creating label: {mapping.name!r} length={len(mapping.name)}")
+
             label = repository.create_label(
                 name=mapping.name,
                 color=DEFAULT_LABEL_COLOR,
