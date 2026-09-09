@@ -2012,10 +2012,6 @@ Replace technical failures with useful messages when possible.
 <!-- GitMap-ID: dqredsma -->
 
 
-
-
-
-
 Tell users what they can do after each major operation.
 
 **End Goal:**
@@ -2030,1275 +2026,1022 @@ Tell users what they can do after each major operation.
 
 ##### 0.8.2.0.2.4 (d) Provide guidance after synchronization
 
-# 0.9 Graphical User Interface
+## 0.9 GitMap Desktop GUI
 
-Create a graphical GitMap workspace for building, editing, reviewing, validating, and synchronizing roadmaps without
-requiring the user to work directly with Markdown or the command line.
+Create a graphical desktop interface for GitMap using PySide6 and Qt Designer.
 
-The graphical interface should use the same underlying roadmap, validation, numbering, GitHub, and synchronization logic
-as the command-line workflow rather than creating a separate implementation.
+The GUI will provide a visual workspace for creating, opening, viewing, editing, saving, previewing and synchronizing
+GitMap roadmaps while reusing the existing GitMap parser, model, numbering, validation and GitHub synchronization logic.
 
-## 0.9.1 GUI Foundation
+The GUI must act as an interface to the existing GitMap core rather than becoming a separate implementation of GitMap.
 
-<!-- GitMap-ID: mvredshr -->
+### 0.9.1 Main GitMap Workspace
 
-Create the application foundation for the GitMap graphical interface.
+#### 0.9.1.0.1 Load the Designer-Based Main Window
 
-#### 0.9.1.0.1 Create GUI Application
+**Requirements:**
 
-<!-- GitMap-ID: eqredsmz -->
+- [ ] Load the GitMap GUI from a Qt Designer interface while keeping application behavior in Python.
 
+**Work Steps:**
 
+- [ ] (a) Create `gitmap/gui/app.py`
+- [ ] (b) Create `gitmap/gui/main_window.ui`
+- [ ] (c) Create the GUI module entry point
+- [ ] (d) Create the `QApplication`
+- [ ] (e) Locate `main_window.ui` relative to `app.py`
+- [ ] (f) Open the `.ui` file using `QFile`
+- [ ] (g) Load the interface using `QUiLoader`
+- [ ] (h) Display the loaded main window
+- [ ] (i) Verify GitMap launches without UI loading errors
 
+#### 0.9.1.0.2 Create the Main Workspace Layout
 
+**Requirements:**
 
+- [ ] Provide a large roadmap workspace with a smaller navigation and action area that resizes correctly with the
+  application window.
 
-Create the primary graphical GitMap application.
+**Work Steps:**
 
-**End Goal:**
+- [ ] (a) Create the main central widget in Qt Designer
+- [ ] (b) Create the roadmap workspace area
+- [ ] (c) Create the navigation and action area
+- [ ] (d) Place the two areas inside a splitter
+- [ ] (e) Give the roadmap area the larger initial share of the window
+- [ ] (f) Configure layouts so controls resize with the window
+- [ ] (g) Test the interface at its normal startup size
+- [ ] (h) Test the interface maximized
+- [ ] (i) Verify the roadmap tree fills the available workspace
 
-- Provide a graphical application that can launch independently and use GitMap's existing core functionality.
+#### 0.9.1.0.3 Create the Empty Workspace State
 
-##### 0.9.1.0.1.1 (a) Create the main GUI application entry point
+**Requirements:**
 
-##### 0.9.1.0.1.2 (b) Create the main application window
+- [ ] When no roadmap is loaded, clearly provide Create Roadmap and Open Roadmap actions and transition to
+  roadmap-specific controls after a roadmap becomes active.
 
-##### 0.9.1.0.1.3 (c) Set the application title and GitMap identity
+**Work Steps:**
 
-##### 0.9.1.0.1.4 (d) Allow the application to close cleanly
+- [ ] (a) Add the Create Roadmap button
+- [ ] (b) Add the Open Roadmap button
+- [ ] (c) Assign stable Designer object names to both buttons
+- [ ] (d) Locate both buttons from Python using `findChild`
+- [ ] (e) Define the empty-workspace state
+- [ ] (f) Define the active-roadmap state
+- [ ] (g) Switch between the states when appropriate
 
-##### 0.9.1.0.1.5 (e) Keep GUI code separate from core roadmap logic
+#### 0.9.1.0.4 Create the Roadmap Tree
 
-##### 0.9.1.0.1.6 (f) Reuse existing GitMap builder, parser, validator, and GitHub functionality where appropriate
+**Requirements:**
 
-#### 0.9.1.0.2 Create Main Workspace
+- [ ] Display the active roadmap in a large expandable and scrollable tree without an unnecessary column heading.
 
-<!-- GitMap-ID: fqredsmy -->
+**Work Steps:**
 
+- [ ] (a) Add the roadmap tree in Qt Designer
+- [ ] (b) Assign the roadmap tree a stable object name
+- [ ] (c) Locate the tree using `findChild`
+- [ ] (d) Hide the tree header
+- [ ] (e) Verify vertical scrolling
+- [ ] (f) Verify long roadmap items remain usable
+- [ ] (g) Verify the tree resizes with the workspace
 
+#### 0.9.1.0.5 Display the Roadmap Name
 
+**Requirements:**
 
+- [ ] Display the name of the active roadmap from the Roadmap model and update it whenever the active roadmap changes.
 
+**Work Steps:**
 
-Create the primary workspace used while working with a roadmap.
+- [ ] (a) Read the roadmap name from the Roadmap model
+- [ ] (b) Display the roadmap name in the workspace
+- [ ] (c) Update the displayed name when another roadmap is opened
+- [ ] (d) Update the displayed name when the roadmap is renamed
+- [ ] (e) Support displaying the name of an unsaved roadmap
 
-**End Goal:**
+### 0.9.2 Open Existing Roadmaps
 
-- Provide a consistent workspace for navigating, editing, and previewing a roadmap.
+#### 0.9.2.0 Open Roadmap Workflow
 
-##### 0.9.1.0.2.1 (a) Create a roadmap navigation area
+##### 0.9.2.0.1 Open a Roadmap File
 
-##### 0.9.1.0.2.2 (b) Create an item editor area
+**Requirements:**
 
-##### 0.9.1.0.2.3 (c) Create a live preview area
+- The Open Roadmap button must open the operating system's file picker.
+- Markdown files must be the preferred file type.
+- Cancelling the dialog must leave the current application state unchanged.
 
-##### 0.9.1.0.2.4 (d) Create an application status area
+**Work Steps:**
 
-##### 0.9.1.0.2.5 (e) Keep the selected roadmap item synchronized between workspace areas
+- [ ] 0.9.2.0.1 (a) Locate the Open Roadmap button from the Designer UI.
+- [ ] 0.9.2.0.1 (b) Connect its clicked signal.
+- [ ] 0.9.2.0.1 (c) Open `QFileDialog`.
+- [ ] 0.9.2.0.1 (d) Configure the Markdown file filter.
+- [ ] 0.9.2.0.1 (e) Capture the selected path.
+- [ ] 0.9.2.0.1 (f) Handle cancellation without changing the workspace.
 
-##### 0.9.1.0.2.6 (f) Allow workspace areas to remain usable with large roadmaps
+##### 0.9.2.0.2 Parse an Opened Roadmap
 
-#### 0.9.1.0.3 Create Project Start Screen
+**Requirements:**
 
-<!-- GitMap-ID: grredslx -->
+- Existing roadmaps must be parsed using GitMap's existing parser.
+- The GUI must not have its own Markdown parser.
+- All model information available to the CLI must remain available to the GUI.
 
+**Work Steps:**
 
+- [ ] 0.9.2.0.2 (a) Import `parse_roadmap`.
+- [ ] 0.9.2.0.2 (b) Pass the selected path to `parse_roadmap`.
+- [ ] 0.9.2.0.2 (c) Store the resulting Roadmap model.
+- [ ] 0.9.2.0.2 (d) Verify the roadmap name.
+- [ ] 0.9.2.0.2 (e) Verify Milestones.
+- [ ] 0.9.2.0.2 (f) Verify Sections.
+- [ ] 0.9.2.0.2 (g) Verify Features.
+- [ ] 0.9.2.0.2 (h) Verify Issues.
+- [ ] 0.9.2.0.2 (i) Verify Requirements.
+- [ ] 0.9.2.0.2 (j) Verify Work Steps.
 
+##### 0.9.2.0.3 Populate the Workspace
 
+**Requirements:**
 
+- A successfully parsed roadmap must replace the previous tree contents.
+- The workspace must display the newly opened roadmap.
+- Opening a roadmap must not modify its Markdown file.
 
-Provide clear ways to begin working in GitMap.
+**Work Steps:**
 
-**End Goal:**
+- [ ] 0.9.2.0.3 (a) Clear the existing roadmap tree.
+- [ ] 0.9.2.0.3 (b) Display the roadmap name.
+- [ ] 0.9.2.0.3 (c) Populate the complete hierarchy.
+- [ ] 0.9.2.0.3 (d) Expand the tree.
+- [ ] 0.9.2.0.3 (e) Store the active roadmap path.
+- [ ] 0.9.2.0.3 (f) Change the GUI to its active-roadmap state.
+- [ ] 0.9.2.0.3 (g) Verify merely opening a roadmap causes no file changes.
 
-- Allow the user to create a new project or continue working with an existing roadmap.
+##### 0.9.2.0.4 Handle Roadmap Opening Errors
 
-##### 0.9.1.0.3.1 (a) Provide a New Roadmap option
+**Requirements:**
 
-##### 0.9.1.0.3.2 (b) Provide an Open Roadmap option
+- A bad or invalid roadmap must not crash the desktop application.
+- File and parser errors must eventually be presented graphically.
+- Diagnostic information must remain available for development.
 
-##### 0.9.1.0.3.3 (c) Allow an existing `roadmap.md` file to be selected
+**Work Steps:**
 
-##### 0.9.1.0.3.4 (d) Parse an opened roadmap into the GitMap data model
+- [ ] 0.9.2.0.4 (a) Catch file opening failures.
+- [ ] 0.9.2.0.4 (b) Catch parser failures.
+- [ ] 0.9.2.0.4 (c) Display a Qt error dialog.
+- [ ] 0.9.2.0.4 (d) Include useful error information.
+- [ ] 0.9.2.0.4 (e) Leave the existing roadmap intact after a failed open.
+- [ ] 0.9.2.0.4 (f) Preserve diagnostic output for debugging.
 
-##### 0.9.1.0.3.5 (e) Report roadmap loading errors clearly
+### 0.9.3 Create New Roadmaps
 
-##### 0.9.1.0.3.6 (f) Open a successfully loaded roadmap in the main workspace
+#### 0.9.3.0 Roadmap Structure Setup
 
-#### 0.9.1.0.4 Track Roadmap State
+##### 0.9.3.0.1 Create the Structure Dialog
 
-<!-- GitMap-ID: hrredslw -->
+**Requirements:**
 
+- Create Roadmap must open a separate structure configuration dialog.
+- Structure selection must occur before the new roadmap workspace is created.
+- Structure configuration must remain separate from saving.
+- The user must not be forced to select a file location before beginning work.
 
+**Work Steps:**
 
+- [ ] 0.9.3.0.1 (a) Create `structure_dialog.ui`.
+- [ ] 0.9.3.0.1 (b) Load the dialog from Python.
+- [ ] 0.9.3.0.1 (c) Connect Create Roadmap to the dialog.
+- [ ] 0.9.3.0.1 (d) Add confirmation and cancellation controls.
+- [ ] 0.9.3.0.1 (e) Return the selected structure configuration.
+- [ ] 0.9.3.0.1 (f) Verify cancelling returns to the existing workspace unchanged.
 
+##### 0.9.3.0.2 Configure Sections
 
+**Requirements:**
 
-Track whether the roadmap has changed while it is open.
+- The user must be able to enable or disable Sections.
+- Section-related options must be disabled when Sections are unavailable.
+- Controls should remain visible while disabled so the interface does not jump around.
 
-**End Goal:**
+**Work Steps:**
 
-- Prevent changes made in the GUI from being accidentally lost.
+- [ ] 0.9.3.0.2 (a) Add the Use Sections option.
+- [ ] 0.9.3.0.2 (b) Detect changes to the option.
+- [ ] 0.9.3.0.2 (c) Enable Section-dependent controls when Sections are enabled.
+- [ ] 0.9.3.0.2 (d) Grey out Section-dependent controls when Sections are disabled.
+- [ ] 0.9.3.0.2 (e) Update the live example immediately.
 
-##### 0.9.1.0.4.1 (a) Detect changes made in the editor
+##### 0.9.3.0.3 Configure Features
 
-##### 0.9.1.0.4.2 (b) Mark the roadmap as modified when appropriate
+**Requirements:**
 
-##### 0.9.1.0.4.3 (c) Clear the modified state after saving
+- The user must be able to enable or disable Features.
+- Feature-related controls must be disabled when Features are unavailable.
+- Feature controls should remain visible while disabled.
 
-##### 0.9.1.0.4.4 (d) Warn before closing a roadmap with unsaved changes
+**Work Steps:**
 
-##### 0.9.1.0.4.5 (e) Allow the user to save, discard, or cancel when unsaved changes exist
+- [ ] 0.9.3.0.3 (a) Add the Use Features option.
+- [ ] 0.9.3.0.3 (b) Detect changes to the option.
+- [ ] 0.9.3.0.3 (c) Enable Feature-dependent controls when appropriate.
+- [ ] 0.9.3.0.3 (d) Grey out unavailable Feature controls.
+- [ ] 0.9.3.0.3 (e) Update the live example immediately.
 
-## 0.9.2 Roadmap Navigation
+##### 0.9.3.0.4 Configure Issue Placement
 
-<!-- GitMap-ID: nvredshq -->
+**Requirements:**
 
-Allow users to move quickly through roadmaps of any practical size.
+- The structure dialog must control valid Issue locations.
+- It must support Issues under Sections when Sections are enabled.
+- It must support Issues under Features when Features are enabled.
+- Invalid combinations must not be selectable.
 
-#### 0.9.2.0.1 Create Roadmap Tree
+**Work Steps:**
 
-<!-- GitMap-ID: irredslv -->
+- [ ] 0.9.3.0.4 (a) Add Allow Issues under Sections.
+- [ ] 0.9.3.0.4 (b) Add Allow Issues under Features.
+- [ ] 0.9.3.0.4 (c) Disable Section Issue placement when Sections are disabled.
+- [ ] 0.9.3.0.4 (d) Disable Feature Issue placement when Features are disabled.
+- [ ] 0.9.3.0.4 (e) Validate the final configuration.
+- [ ] 0.9.3.0.4 (f) Update the live example after each change.
 
+#### 0.9.3.1 Live Structure Example
 
+##### 0.9.3.1.1 Create the Baseball Parks Example
 
+**Requirements:**
 
+- The structure dialog must contain a live visual hierarchy example.
+- The example must demonstrate organization rather than prescribe project structure.
+- The example must be rendered visually rather than shown as raw Markdown.
+- The example must change as structural options change.
 
+**Work Steps:**
 
-Display the roadmap as an expandable hierarchy.
+- [ ] 0.9.3.1.1 (a) Add a Live Example area.
+- [ ] 0.9.3.1.1 (b) Add `0.1 MLB Parks`.
+- [ ] 0.9.3.1.1 (c) Use American League and National League as Section examples.
+- [ ] 0.9.3.1.1 (d) Use baseball divisions such as AL East and NL East as Feature examples.
+- [ ] 0.9.3.1.1 (e) Use Camden Yards and Nationals Park as Issue examples.
+- [ ] 0.9.3.1.1 (f) Add a small `0.2 NFL Stadiums` example.
+- [ ] 0.9.3.1.1 (g) Include example Requirements.
+- [ ] 0.9.3.1.1 (h) Include example Work Steps.
+- [ ] 0.9.3.1.1 (i) Update the example when Sections are toggled.
+- [ ] 0.9.3.1.1 (j) Update the example when Features are toggled.
+- [ ] 0.9.3.1.1 (k) Update the example when Issue placement changes.
 
-**End Goal:**
+##### 0.9.3.1.2 Explain GitMap Hierarchy Levels
 
-- Make the complete roadmap structure understandable and navigable without displaying the entire roadmap at once.
+**Requirements:**
 
-##### 0.9.2.0.1.1 (a) Display milestones
+- The structure dialog must explain what each level can represent.
+- Explanations must be examples rather than restrictions.
+- Requirements must be described as what should be done.
+- Work Steps must be described as steps for doing it.
 
-##### 0.9.2.0.1.2 (b) Display Sections beneath milestones
+**Work Steps:**
 
-##### 0.9.2.0.1.3 (c) Display features beneath Sections
+- [ ] 0.9.3.1.2 (a) Explain Milestone as a major phase.
+- [ ] 0.9.3.1.2 (b) Explain Section as an area or subsystem.
+- [ ] 0.9.3.1.2 (c) Explain Feature as a feature or capability.
+- [ ] 0.9.3.1.2 (d) Explain Issue as a specific task.
+- [ ] 0.9.3.1.2 (e) Explain Requirements as what should be done.
+- [ ] 0.9.3.1.2 (f) Explain Work Steps as steps for doing it.
+- [ ] 0.9.3.1.2 (g) State that the Baseball Parks example demonstrates organization rather than a prescribed project
+  structure.
 
-##### 0.9.2.0.1.4 (d) Display issues beneath their actual parents
+#### 0.9.3.2 Unsaved Roadmaps
 
-##### 0.9.2.0.1.5 (e) Display Work Steps beneath issues
+##### 0.9.3.2.1 Create an Unsaved Roadmap Workspace
 
-##### 0.9.2.0.1.6 (f) Display nested Work Steps recursively
+**Requirements:**
 
-##### 0.9.2.0.1.7 (g) Allow branches to be expanded and collapsed
+- Finishing structure setup must create an in-memory Roadmap.
+- The user must immediately be able to work with it.
+- A file path must not be required yet.
+- The GUI must identify the roadmap as unsaved.
 
-##### 0.9.2.0.1.8 (h) Clearly indicate the currently selected item
+**Work Steps:**
 
-##### 0.9.2.0.1.9 (i) Preserve the roadmap's actual hierarchy when optional levels are absent
+- [ ] 0.9.3.2.1 (a) Create the Roadmap model.
+- [ ] 0.9.3.2.1 (b) Apply the selected structure settings.
+- [ ] 0.9.3.2.1 (c) Populate the empty main workspace.
+- [ ] 0.9.3.2.1 (d) Mark the roadmap as unsaved.
+- [ ] 0.9.3.2.1 (e) Enable roadmap editing controls.
+- [ ] 0.9.3.2.1 (f) Verify no file is created automatically.
 
-#### 0.9.2.0.2 Select Roadmap Items
+### 0.9.4 Roadmap Navigation
 
-<!-- GitMap-ID: jrredslu -->
+#### 0.9.4.0 Interactive Tree Navigation
 
+##### 0.9.4.0.1 Associate Tree Items With Model Objects
 
+**Requirements:**
 
+- A tree item must identify its underlying GitMap object.
+- The GUI must not identify an object solely by displayed text.
+- Permanent GitMap IDs should be used where available.
+- Renumbering must not destroy GUI identity.
 
+**Work Steps:**
 
+- [ ] 0.9.4.0.1 (a) Store model information on each tree item.
+- [ ] 0.9.4.0.1 (b) Store the item type.
+- [ ] 0.9.4.0.1 (c) Store the permanent GitMap ID where available.
+- [ ] 0.9.4.0.1 (d) Resolve selections back to their model objects.
+- [ ] 0.9.4.0.1 (e) Test object lookup after renumbering.
 
-Allow an item in the roadmap tree to be opened for editing.
+##### 0.9.4.0.2 Select Roadmap Items
 
-**End Goal:**
+**Requirements:**
 
-- Make navigating to any roadmap item a direct operation.
+- Users must be able to select roadmap items.
+- Selection must provide the context needed for roadmap actions.
+- Available actions must reflect the selected item type.
 
-##### 0.9.2.0.2.1 (a) Select an item from the roadmap tree
+**Work Steps:**
 
-##### 0.9.2.0.2.2 (b) Load the selected item into the editor
+- [ ] 0.9.4.0.2 (a) Detect tree selection changes.
+- [ ] 0.9.4.0.2 (b) Resolve the selected model object.
+- [ ] 0.9.4.0.2 (c) Determine the selected item type.
+- [ ] 0.9.4.0.2 (d) Update available navigation actions.
 
-##### 0.9.2.0.2.3 (c) Update the live preview for the selected item
+##### 0.9.4.0.3 Open Items From the Tree
 
-##### 0.9.2.0.2.4 (d) Keep tree, editor, and preview selection synchronized
+**Requirements:**
 
-#### 0.9.2.0.3 Add Go To Navigation
+- Editable roadmap items must be openable from the roadmap tree.
+- Double-clicking an editable item should open its Item Editor.
+- Opening an editor must not replace the main roadmap workspace.
 
-<!-- GitMap-ID: krredslt -->
+**Work Steps:**
 
+- [ ] 0.9.4.0.3 (a) Detect tree double-clicks.
+- [ ] 0.9.4.0.3 (b) Resolve the clicked model object.
+- [ ] 0.9.4.0.3 (c) Determine whether the item is editable.
+- [ ] 0.9.4.0.3 (d) Open the appropriate Item Editor.
+- [ ] 0.9.4.0.3 (e) Leave the main workspace open.
 
+### 0.9.5 Item Editors
 
+#### 0.9.5.0 Pop-Out Item Editor
 
+##### 0.9.5.0.1 Create the Item Editor Window
 
+**Requirements:**
 
-Allow users to jump directly to a roadmap item.
+- Roadmap editing must occur in a separate window.
+- The main roadmap must remain visible while an editor is open.
+- Multiple editor windows should be able to remain open simultaneously.
+- The editor interface should be defined using Qt Designer.
 
-**End Goal:**
+**Work Steps:**
 
-- Make individual items easy to locate even in very large roadmaps.
+- [ ] 0.9.5.0.1 (a) Create `item_editor.ui`.
+- [ ] 0.9.5.0.1 (b) Create the Python controller for Item Editors.
+- [ ] 0.9.5.0.1 (c) Pass the selected model object into the editor.
+- [ ] 0.9.5.0.1 (d) Populate the editor from the selected item.
+- [ ] 0.9.5.0.1 (e) Keep the main workspace available.
+- [ ] 0.9.5.0.1 (f) Support more than one editor window.
+- [ ] 0.9.5.0.1 (g) Verify closing an editor does not close GitMap.
 
-##### 0.9.2.0.3.1 (a) Provide a Go To control
+##### 0.9.5.0.2 Adapt the Editor to Item Type
 
-##### 0.9.2.0.3.2 (b) Search by roadmap number
+**Requirements:**
 
-##### 0.9.2.0.3.3 (c) Search by item title
+- The editor must adapt to Milestones, Sections, Features, Issues, Requirements and Work Steps.
+- Controls that do not apply to the selected type must not be editable.
+- Common editing behavior should be shared where practical.
 
-##### 0.9.2.0.3.4 (d) Display matching roadmap items while searching
+**Work Steps:**
 
-##### 0.9.2.0.3.5 (e) Distinguish similar titles using their roadmap numbers and hierarchy
+- [ ] 0.9.5.0.2 (a) Detect the model object type.
+- [ ] 0.9.5.0.2 (b) Configure the editor for Milestones.
+- [ ] 0.9.5.0.2 (c) Configure the editor for Sections.
+- [ ] 0.9.5.0.2 (d) Configure the editor for Features.
+- [ ] 0.9.5.0.2 (e) Configure the editor for Issues.
+- [ ] 0.9.5.0.2 (f) Configure the editor for Requirements.
+- [ ] 0.9.5.0.2 (g) Configure the editor for Work Steps.
 
-##### 0.9.2.0.3.6 (f) Select the chosen item in the roadmap tree
+##### 0.9.5.0.3 Edit Item Content
 
-##### 0.9.2.0.3.7 (g) Expand collapsed parents when jumping to an item
+**Requirements:**
 
-##### 0.9.2.0.3.8 (h) Open the selected item in the editor
+- Titles must be editable where supported.
+- Descriptions must be editable where supported.
+- Changes must first affect the in-memory roadmap.
+- Editing must not automatically synchronize GitHub.
 
-##### 0.9.2.0.3.9 (i) Move the live preview to the selected context
+**Work Steps:**
 
-#### 0.9.2.0.4 Preserve Navigation Context
+- [ ] 0.9.5.0.3 (a) Populate the title control.
+- [ ] 0.9.5.0.3 (b) Populate the description control.
+- [ ] 0.9.5.0.3 (c) Validate edited values.
+- [ ] 0.9.5.0.3 (d) Apply approved changes to the model.
+- [ ] 0.9.5.0.3 (e) Refresh the roadmap tree.
+- [ ] 0.9.5.0.3 (f) Mark the roadmap as modified.
 
-<!-- GitMap-ID: lrredsls -->
+#### 0.9.5.1 Issue Contents
 
+##### 0.9.5.1.1 Edit Requirements
 
+**Requirements:**
 
+- Requirements must be manageable without editing Markdown manually.
+- Users must be able to add, edit, remove and check Requirements.
 
+**Work Steps:**
 
+- [ ] 0.9.5.1.1 (a) Display existing Requirements.
+- [ ] 0.9.5.1.1 (b) Add a Requirement.
+- [ ] 0.9.5.1.1 (c) Edit Requirement text.
+- [ ] 0.9.5.1.1 (d) Change Requirement completion state.
+- [ ] 0.9.5.1.1 (e) Remove a Requirement.
+- [ ] 0.9.5.1.1 (f) Refresh the roadmap tree after changes.
 
-Avoid forcing the user to repeatedly find their place.
+##### 0.9.5.1.2 Edit Work Steps
 
-**End Goal:**
+**Requirements:**
 
-- Keep navigation predictable while the roadmap is being edited.
+- Work Steps must be manageable without manually editing Markdown.
+- Users must be able to add, edit, remove and check Work Steps.
+- Work Step markers must remain consistent.
 
-##### 0.9.2.0.4.1 (a) Preserve expanded and collapsed tree branches during normal editing
+**Work Steps:**
 
-##### 0.9.2.0.4.2 (b) Preserve the selected item after edits
+- [ ] 0.9.5.1.2 (a) Display existing Work Steps.
+- [ ] 0.9.5.1.2 (b) Add a Work Step.
+- [ ] 0.9.5.1.2 (c) Assign the next Work Step marker.
+- [ ] 0.9.5.1.2 (d) Edit Work Step text.
+- [ ] 0.9.5.1.2 (e) Change Work Step completion state.
+- [ ] 0.9.5.1.2 (f) Remove a Work Step.
+- [ ] 0.9.5.1.2 (g) Renumber Work Step markers when required.
+- [ ] 0.9.5.1.2 (h) Refresh the roadmap tree.
 
-##### 0.9.2.0.4.3 (c) Move selection appropriately after an item is added
+### 0.9.6 Add, Insert and Delete Roadmap Items
 
-##### 0.9.2.0.4.4 (d) Move selection to an appropriate parent or sibling after an item is removed
+#### 0.9.6.0 Add Items
 
-##### 0.9.2.0.4.5 (e) Preserve useful navigation context after renumbering
+##### 0.9.6.0.1 Add Valid Child Items
 
-## 0.9.3 Roadmap Editor
+**Requirements:**
 
-<!-- GitMap-ID: ovredshp -->
+- The GUI must determine which child types are valid for the selected parent.
+- Available child types must respect the roadmap's structure configuration.
+- The GUI must not allow invalid hierarchy relationships.
 
-Allow the roadmap to be changed directly through graphical controls.
+**Work Steps:**
 
-#### 0.9.3.0.1 Display Item Editor
+- [ ] 0.9.6.0.1 (a) Determine the selected parent type.
+- [ ] 0.9.6.0.1 (b) Determine the roadmap structure configuration.
+- [ ] 0.9.6.0.1 (c) Build the list of valid child types.
+- [ ] 0.9.6.0.1 (d) Disable invalid choices.
+- [ ] 0.9.6.0.1 (e) Create the selected child.
+- [ ] 0.9.6.0.1 (f) Assign its GitMap identity.
+- [ ] 0.9.6.0.1 (g) Refresh the roadmap tree.
 
-<!-- GitMap-ID: mrredslr -->
+##### 0.9.6.0.2 Insert Items Between Existing Siblings
 
+**Requirements:**
 
+- The GUI must support insertion between existing siblings.
+- Users must not need to manually calculate the new roadmap number.
+- Existing GitMap automatic numbering logic must be used.
 
+**Work Steps:**
 
+- [ ] 0.9.6.0.2 (a) Display valid insertion positions.
+- [ ] 0.9.6.0.2 (b) Let the user choose a position.
+- [ ] 0.9.6.0.2 (c) Use GitMap's sibling numbering logic.
+- [ ] 0.9.6.0.2 (d) Determine affected descendants.
+- [ ] 0.9.6.0.2 (e) Generate the numbering preview.
+- [ ] 0.9.6.0.2 (f) Apply the insertion only after approval.
 
+#### 0.9.6.1 Delete Items
 
-Display fields appropriate to the selected roadmap item.
+##### 0.9.6.1.1 Delete Roadmap Items Safely
 
-**End Goal:**
+**Requirements:**
 
-- Provide a clear editing interface based on the type of item being edited.
+- Users must be able to delete supported roadmap items.
+- Descendant effects must be made clear.
+- Renumbering caused by deletion must use existing GitMap logic.
+- Destructive changes must require appropriate confirmation.
 
-##### 0.9.3.0.1.1 (a) Display the item type
+**Work Steps:**
 
-##### 0.9.3.0.1.2 (b) Display the roadmap number
+- [ ] 0.9.6.1.1 (a) Select the item to delete.
+- [ ] 0.9.6.1.1 (b) Determine its descendants.
+- [ ] 0.9.6.1.1 (c) Determine resulting numbering changes.
+- [ ] 0.9.6.1.1 (d) Display the proposed deletion.
+- [ ] 0.9.6.1.1 (e) Display numbering changes.
+- [ ] 0.9.6.1.1 (f) Allow approval or cancellation.
+- [ ] 0.9.6.1.1 (g) Apply only the approved deletion.
+- [ ] 0.9.6.1.1 (h) Refresh the roadmap tree.
 
-##### 0.9.3.0.1.3 (c) Display the title
+### 0.9.7 Graphical Change Preview
 
-##### 0.9.3.0.1.4 (d) Display descriptions or overviews where supported
+#### 0.9.7.0 Preview Window
 
-##### 0.9.3.0.1.5 (e) Display requirements where supported
+##### 0.9.7.0.1 Create the Roadmap Preview Window
 
-##### 0.9.3.0.1.6 (f) Display the item's parent relationship
+**Requirements:**
 
-##### 0.9.3.0.1.7 (g) Hide fields that do not apply to the selected item type
+- Changes that require approval must have a dedicated graphical preview.
+- The preview must not replace the main workspace.
+- The preview should be implemented as a separate Designer interface.
 
-#### 0.9.3.0.2 Edit Roadmap Items
+**Work Steps:**
 
-<!-- GitMap-ID: nrredslq -->
+- [ ] 0.9.7.0.1 (a) Create `preview_dialog.ui`.
+- [ ] 0.9.7.0.1 (b) Create the preview controller.
+- [ ] 0.9.7.0.1 (c) Pass proposed changes to the preview.
+- [ ] 0.9.7.0.1 (d) Display the preview as a separate window.
+- [ ] 0.9.7.0.1 (e) Provide Approve and Cancel actions.
 
+##### 0.9.7.0.2 Display Before and After Changes
 
+**Requirements:**
 
+- The preview must make changed values understandable.
+- Number changes must clearly identify both the old and proposed number.
+- The user must be able to determine which roadmap items are affected before approval.
 
+**Work Steps:**
 
+- [ ] 0.9.7.0.2 (a) Collect the original values.
+- [ ] 0.9.7.0.2 (b) Collect the proposed values.
+- [ ] 0.9.7.0.2 (c) Display Before information.
+- [ ] 0.9.7.0.2 (d) Display After information.
+- [ ] 0.9.7.0.2 (e) Highlight affected roadmap items.
+- [ ] 0.9.7.0.2 (f) Make large previews scrollable.
 
-Allow roadmap content to be changed directly.
+##### 0.9.7.0.3 Cancel Previewed Changes
 
-**End Goal:**
+**Requirements:**
 
-- Allow normal roadmap editing without requiring Markdown editing.
+- Cancelling must leave the roadmap exactly as it was before the proposed operation.
+- Existing GitMap rollback behavior should be reused where applicable.
 
-##### 0.9.3.0.2.1 (a) Rename items
+**Work Steps:**
 
-##### 0.9.3.0.2.2 (b) Edit descriptions and overviews
+- [ ] 0.9.7.0.3 (a) Preserve the original state before generating changes.
+- [ ] 0.9.7.0.3 (b) Detect cancellation.
+- [ ] 0.9.7.0.3 (c) Restore original numbering.
+- [ ] 0.9.7.0.3 (d) Restore original hierarchy.
+- [ ] 0.9.7.0.3 (e) Refresh the tree.
+- [ ] 0.9.7.0.3 (f) Verify cancellation produces no saved changes.
 
-##### 0.9.3.0.2.3 (c) Add requirements
+### 0.9.8 Save Roadmaps
 
-##### 0.9.3.0.2.4 (d) Edit requirements
+#### 0.9.8.0 Save and Save As
 
-##### 0.9.3.0.2.5 (e) Remove requirements
+##### 0.9.8.0.1 Save an Existing Roadmap
 
-##### 0.9.3.0.2.6 (f) Preserve multiline content
+**Requirements:**
 
-##### 0.9.3.0.2.7 (g) Update the roadmap data model when changes are accepted
+- Save must write the current roadmap to its existing file.
+- Only the current approved model state may be saved.
+- Save must not require another file-selection dialog when a path is already known.
 
-#### 0.9.3.0.3 Add Roadmap Items
+**Work Steps:**
 
-<!-- GitMap-ID: orredslp -->
+- [ ] 0.9.8.0.1 (a) Track the active roadmap path.
+- [ ] 0.9.8.0.1 (b) Serialize the current Roadmap model.
+- [ ] 0.9.8.0.1 (c) Write the roadmap to its existing path.
+- [ ] 0.9.8.0.1 (d) Clear the unsaved-change state.
+- [ ] 0.9.8.0.1 (e) Report successful saving.
 
+##### 0.9.8.0.2 Save a New Roadmap
 
+**Requirements:**
 
+- A new roadmap must remain usable before it has a file path.
+- Its first Save must prompt for a location.
+- The selected location becomes the active roadmap path.
 
+**Work Steps:**
 
+- [ ] 0.9.8.0.2 (a) Detect that the roadmap has no saved path.
+- [ ] 0.9.8.0.2 (b) Open the Save dialog.
+- [ ] 0.9.8.0.2 (c) Suggest a Markdown file.
+- [ ] 0.9.8.0.2 (d) Save the roadmap.
+- [ ] 0.9.8.0.2 (e) Store the selected path.
+- [ ] 0.9.8.0.2 (f) Clear the unsaved state.
 
-Allow new items to be added from anywhere appropriate in the roadmap.
+##### 0.9.8.0.3 Save As
 
-**End Goal:**
+**Requirements:**
 
-- Make it easy to add newly discovered work to an existing roadmap.
+- Save As must allow a roadmap to be written to a different file.
+- The new file must become the active roadmap file after success.
 
-##### 0.9.3.0.3.1 (a) Add milestones
+**Work Steps:**
 
-##### 0.9.3.0.3.2 (b) Add Sections to milestones
+- [ ] 0.9.8.0.3 (a) Add Save As.
+- [ ] 0.9.8.0.3 (b) Open the Save As dialog.
+- [ ] 0.9.8.0.3 (c) Write the current roadmap to the selected path.
+- [ ] 0.9.8.0.3 (d) Update the active roadmap path.
+- [ ] 0.9.8.0.3 (e) Update the window state.
 
-##### 0.9.3.0.3.3 (c) Add features to Sections
+#### 0.9.8.1 Unsaved Changes
 
-##### 0.9.3.0.3.4 (d) Add issues to milestones
+##### 0.9.8.1.1 Track Modified Roadmaps
 
-##### 0.9.3.0.3.5 (e) Add issues to Sections
+**Requirements:**
 
-##### 0.9.3.0.3.6 (f) Add issues to features
+- GitMap must know when the in-memory roadmap differs from its last saved version.
+- The GUI must visibly indicate unsaved changes.
 
-##### 0.9.3.0.3.7 (g) Add Work Steps to issues
+**Work Steps:**
 
-##### 0.9.3.0.3.8 (h) Add nested Work Steps
+- [ ] 0.9.8.1.1 (a) Add a modified-state flag.
+- [ ] 0.9.8.1.1 (b) Set it after approved edits.
+- [ ] 0.9.8.1.1 (c) Set it after additions.
+- [ ] 0.9.8.1.1 (d) Set it after deletions.
+- [ ] 0.9.8.1.1 (e) Clear it after successful Save.
+- [ ] 0.9.8.1.1 (f) Display the modified state in the GUI.
 
-##### 0.9.3.0.3.9 (i) Select the newly added item for editing
+##### 0.9.8.1.2 Protect Unsaved Work
 
-#### 0.9.3.0.4 Insert Roadmap Items
+**Requirements:**
 
-<!-- GitMap-ID: prredslo -->
+- Unsaved work must not be silently destroyed.
+- Protection must apply when closing GitMap, opening another roadmap or creating a replacement roadmap.
 
+**Work Steps:**
 
+- [ ] 0.9.8.1.2 (a) Detect unsaved changes before replacement.
+- [ ] 0.9.8.1.2 (b) Offer Save.
+- [ ] 0.9.8.1.2 (c) Offer Discard.
+- [ ] 0.9.8.1.2 (d) Offer Cancel.
+- [ ] 0.9.8.1.2 (e) Stop the requested operation when Cancel is selected.
+- [ ] 0.9.8.1.2 (f) Verify closing the application protects unsaved work.
 
+### 0.9.9 Roadmap Settings
 
+#### 0.9.9.0 Roadmap Configuration
 
+##### 0.9.9.0.1 Create Roadmap Settings
 
-Allow new work to be inserted at a specific location in the roadmap.
+**Requirements:**
 
-**End Goal:**
+- Roadmap-wide configuration must be separate from individual item editing.
+- Existing roadmap settings must be viewable graphically.
 
-- Allow newly discovered roadmap items to be placed where they logically belong rather than only appended.
+**Work Steps:**
 
-##### 0.9.3.0.4.1 (a) Insert an item before a sibling
+- [ ] 0.9.9.0.1 (a) Create the Roadmap Settings interface.
+- [ ] 0.9.9.0.1 (b) Display the roadmap name.
+- [ ] 0.9.9.0.1 (c) Display numbering mode.
+- [ ] 0.9.9.0.1 (d) Display starting series.
+- [ ] 0.9.9.0.1 (e) Display GitHub representation.
+- [ ] 0.9.9.0.1 (f) Display hierarchy Issue title style.
+- [ ] 0.9.9.0.1 (g) Display GUI structure configuration.
 
-##### 0.9.3.0.4.2 (b) Insert an item after a sibling
+##### 0.9.9.0.2 Safely Modify Roadmap Settings
 
-##### 0.9.3.0.4.3 (c) Preserve the selected parent relationship
+**Requirements:**
 
-##### 0.9.3.0.4.4 (d) Detect when insertion creates a numbering conflict
+- Supported settings must be editable.
+- Changes that affect existing numbering or hierarchy must be previewed before application.
+- Invalid structural changes must be rejected.
 
-##### 0.9.3.0.4.5 (e) Use the Roadmap Numbering workflow to resolve numbering conflicts
+**Work Steps:**
 
-##### 0.9.3.0.4.6 (f) Never silently renumber existing roadmap items
+- [ ] 0.9.9.0.2 (a) Determine editable settings.
+- [ ] 0.9.9.0.2 (b) Validate proposed settings.
+- [ ] 0.9.9.0.2 (c) Determine whether existing items are affected.
+- [ ] 0.9.9.0.2 (d) Generate a preview when required.
+- [ ] 0.9.9.0.2 (e) Apply only approved changes.
+- [ ] 0.9.9.0.2 (f) Refresh the workspace.
 
-#### 0.9.3.0.5 Remove Roadmap Items
+### 0.9.10 GitHub Synchronization
 
-<!-- GitMap-ID: qrredsln -->
+#### 0.9.10.0 GUI Synchronization Workflow
 
+##### 0.9.10.0.1 Start Synchronization From the GUI
 
+**Requirements:**
 
+- The GUI must expose GitMap's existing GitHub synchronization.
+- Synchronization must use existing GitMap GitHub logic.
+- The GUI must not implement a second synchronization engine.
 
+**Work Steps:**
 
+- [ ] 0.9.10.0.1 (a) Add the synchronization action.
+- [ ] 0.9.10.0.1 (b) Validate the current roadmap.
+- [ ] 0.9.10.0.1 (c) Call the existing synchronization preview logic.
+- [ ] 0.9.10.0.1 (d) Display the synchronization preview.
+- [ ] 0.9.10.0.1 (e) Continue only after approval.
 
-Allow items to be removed safely.
+##### 0.9.10.0.2 Display the Synchronization Preview
 
-**End Goal:**
+**Requirements:**
 
-- Allow unwanted roadmap content to be removed without accidentally deleting additional work.
+- The GUI must display Added, Changed, Unchanged and Removed items.
+- Existing GitHub modifications must remain protected by GitMap's approval system.
+- A modification not included in the approved plan must not be performed.
 
-##### 0.9.3.0.5.1 (a) Remove individual roadmap items
+**Work Steps:**
 
-##### 0.9.3.0.5.2 (b) Warn when an item contains children
+- [ ] 0.9.10.0.2 (a) Display Added items.
+- [ ] 0.9.10.0.2 (b) Display Changed items.
+- [ ] 0.9.10.0.2 (c) Display Unchanged items.
+- [ ] 0.9.10.0.2 (d) Display Removed items.
+- [ ] 0.9.10.0.2 (e) Allow detailed review.
+- [ ] 0.9.10.0.2 (f) Require approval.
+- [ ] 0.9.10.0.2 (g) Preserve the approved synchronization plan.
 
-##### 0.9.3.0.5.3 (c) Show which descendants would also be removed
+##### 0.9.10.0.3 Apply Only Approved GitHub Changes
 
-##### 0.9.3.0.5.4 (d) Require confirmation before removing an item with descendants
+**Requirements:**
 
-##### 0.9.3.0.5.5 (e) Allow removal to be cancelled
+- Existing GitHub items must not be modified unless their modification was shown in the synchronization preview and
+  approved.
+- The GUI must preserve the protections introduced by GitMap 0.7.7.0.2.
 
-##### 0.9.3.0.5.6 (f) Revalidate the roadmap after removal
+**Work Steps:**
 
-## 0.9.4 Graphical Numbering
+- [ ] 0.9.10.0.3 (a) Pass the approved plan to synchronization.
+- [ ] 0.9.10.0.3 (b) Create approved new GitHub items.
+- [ ] 0.9.10.0.3 (c) Modify approved existing GitHub items.
+- [ ] 0.9.10.0.3 (d) Close approved removed GitHub items.
+- [ ] 0.9.10.0.3 (e) Block operations absent from the approved plan.
+- [ ] 0.9.10.0.3 (f) Verify GitMap IDs remain intact.
 
-<!-- GitMap-ID: pvredsho -->
+##### 0.9.10.0.4 Display Synchronization Results
 
-Expose GitMap's roadmap-numbering system through the GUI.
+**Requirements:**
 
-#### 0.9.4.0.1 Select Numbering Mode
+- Users must not need the development console to determine synchronization results.
+- Successes, skipped operations and errors must be visible in the GUI.
 
-<!-- GitMap-ID: rrredslm -->
+**Work Steps:**
 
+- [ ] 0.9.10.0.4 (a) Collect synchronization results.
+- [ ] 0.9.10.0.4 (b) Display created items.
+- [ ] 0.9.10.0.4 (c) Display updated items.
+- [ ] 0.9.10.0.4 (d) Display closed items.
+- [ ] 0.9.10.0.4 (e) Display skipped operations.
+- [ ] 0.9.10.0.4 (f) Display failures.
+- [ ] 0.9.10.0.4 (g) Refresh the roadmap workspace after synchronization.
 
+### 0.9.11 User Feedback and Error Handling
 
+#### 0.9.11.0 Application Feedback
 
+##### 0.9.11.0.1 Use the Status Bar
 
+**Requirements:**
 
-Allow the user to control how roadmap numbers are assigned.
+- Normal application state must be visible without inspecting the console.
+- Short-lived status information should use the main window status bar.
 
-**End Goal:**
+**Work Steps:**
 
-- Make automatic numbering easy to use while retaining complete manual control.
+- [ ] 0.9.11.0.1 (a) Initialize the status bar.
+- [ ] 0.9.11.0.1 (b) Display Ready.
+- [ ] 0.9.11.0.1 (c) Display Roadmap opened.
+- [ ] 0.9.11.0.1 (d) Display Roadmap saved.
+- [ ] 0.9.11.0.1 (e) Display Unsaved changes.
+- [ ] 0.9.11.0.1 (f) Display Synchronizing.
+- [ ] 0.9.11.0.1 (g) Display Synchronization complete.
+- [ ] 0.9.11.0.1 (h) Display Operation cancelled when appropriate.
 
-##### 0.9.4.0.1.1 (a) Provide an Auto numbering option
+##### 0.9.11.0.2 Display User-Friendly Errors
 
-##### 0.9.4.0.1.2 (b) Provide a Manual numbering option
+**Requirements:**
 
-##### 0.9.4.0.1.3 (c) Clearly display the current numbering mode
+- Expected application errors must be presented graphically.
+- Errors must explain what failed without exposing unnecessary implementation details.
+- Developer diagnostics may still be logged separately.
 
-##### 0.9.4.0.1.4 (d) Allow manual numbering for an individual item when appropriate
+**Work Steps:**
 
-#### 0.9.4.0.2 Display Automatic Numbers
+- [ ] 0.9.11.0.2 (a) Create a common GUI error-display helper.
+- [ ] 0.9.11.0.2 (b) Handle roadmap file errors.
+- [ ] 0.9.11.0.2 (c) Handle parser errors.
+- [ ] 0.9.11.0.2 (d) Handle validation errors.
+- [ ] 0.9.11.0.2 (e) Handle save errors.
+- [ ] 0.9.11.0.2 (f) Handle GitHub errors.
+- [ ] 0.9.11.0.2 (g) Preserve useful diagnostic logging.
 
-<!-- GitMap-ID: srredsll -->
+### 0.9.12 Desktop Application Behavior
 
+#### 0.9.12.0 Keyboard and Window Behavior
 
+##### 0.9.12.0.1 Add Standard Keyboard Shortcuts
 
+**Requirements:**
 
+- Common desktop actions should have familiar keyboard shortcuts.
+- Shortcuts must call the same application actions as their GUI controls.
 
+**Work Steps:**
 
-Show numbers GitMap will assign before an item is created.
+- [ ] 0.9.12.0.1 (a) Add Ctrl+O for Open Roadmap.
+- [ ] 0.9.12.0.1 (b) Add Ctrl+S for Save.
+- [ ] 0.9.12.0.1 (c) Add Ctrl+Shift+S for Save As.
+- [ ] 0.9.12.0.1 (d) Add appropriate shortcuts for additional common actions.
+- [ ] 0.9.12.0.1 (e) Verify shortcuts do not conflict with text editing.
 
-**End Goal:**
+##### 0.9.12.0.2 Support Normal Desktop Window Behavior
 
-- Let users understand automatic numbering without needing to calculate numbers themselves.
+**Requirements:**
 
-##### 0.9.4.0.2.1 (a) Display the next automatically generated number
+- The main workspace must remain independent from pop-out editors and previews.
+- Closing a child window must not close GitMap.
+- Closing GitMap must close its child windows appropriately.
+- Window resizing must remain functional.
 
-##### 0.9.4.0.2.2 (b) Update the proposed number when the parent changes
+**Work Steps:**
 
-##### 0.9.4.0.2.3 (c) Account for optional Section and feature levels
+- [ ] 0.9.12.0.2 (a) Establish ownership for dialogs.
+- [ ] 0.9.12.0.2 (b) Establish ownership for Item Editors.
+- [ ] 0.9.12.0.2 (c) Establish ownership for Preview windows.
+- [ ] 0.9.12.0.2 (d) Test multiple simultaneous Item Editors.
+- [ ] 0.9.12.0.2 (e) Test closing individual child windows.
+- [ ] 0.9.12.0.2 (f) Test closing the main application.
 
-##### 0.9.4.0.2.4 (d) Account for nested Work Steps
+### 0.9.13 Preserve the GitMap Core Architecture
 
-##### 0.9.4.0.2.5 (e) Display generated letter sequences where applicable
+#### 0.9.13.0 Reuse Existing GitMap Logic
 
-#### 0.9.4.0.3 Handle Numbering Conflicts
+##### 0.9.13.0.1 Reuse the Existing Parser
 
-<!-- GitMap-ID: trredslk -->
+**Requirements:**
 
+- The GUI must use the existing GitMap roadmap parser.
+- GUI-specific parsing behavior must not duplicate the parser.
 
+**Work Steps:**
 
+- [ ] 0.9.13.0.1 (a) Route roadmap opening through `parse_roadmap`.
+- [ ] 0.9.13.0.1 (b) Remove any temporary GUI parsing logic.
+- [ ] 0.9.13.0.1 (c) Add parser regression tests discovered during GUI development.
 
+##### 0.9.13.0.2 Reuse the Existing Model
 
+**Requirements:**
 
-Provide a graphical workflow when an automatic or manual number conflicts with the roadmap.
+- The GUI must operate on GitMap's existing model objects.
+- GUI-only duplicate roadmap models must not be introduced.
 
-**End Goal:**
+**Work Steps:**
 
-- Prevent duplicate numbers without making unusual roadmap structures impossible.
+- [ ] 0.9.13.0.2 (a) Use the existing Roadmap model.
+- [ ] 0.9.13.0.2 (b) Use the existing Milestone model.
+- [ ] 0.9.13.0.2 (c) Use the existing Section model.
+- [ ] 0.9.13.0.2 (d) Use the existing Feature model.
+- [ ] 0.9.13.0.2 (e) Use the existing Issue model.
+- [ ] 0.9.13.0.2 (f) Use the existing Requirement model.
+- [ ] 0.9.13.0.2 (g) Use the existing Work Step representation.
 
-##### 0.9.4.0.3.1 (a) Clearly identify the conflicting number
+##### 0.9.13.0.3 Reuse Automatic Numbering
 
-##### 0.9.4.0.3.2 (b) Identify the existing item using the number
+**Requirements:**
 
-##### 0.9.4.0.3.3 (c) Offer to renumber affected items
+- The GUI must use GitMap's existing automatic numbering system.
+- GUI code must not independently calculate roadmap numbering.
+- Existing insertion and sibling-renumbering behavior must remain authoritative.
 
-##### 0.9.4.0.3.4 (d) Offer to switch the new item to manual numbering
+**Work Steps:**
 
-##### 0.9.4.0.3.5 (e) Allow the operation to be cancelled
+- [ ] 0.9.13.0.3 (a) Route GUI insertion through existing numbering functions.
+- [ ] 0.9.13.0.3 (b) Route GUI deletion through existing renumbering functions.
+- [ ] 0.9.13.0.3 (c) Route Work Step numbering through existing Work Step logic.
+- [ ] 0.9.13.0.3 (d) Verify descendant numbering after GUI operations.
+- [ ] 0.9.13.0.3 (e) Verify manual GUI calculations are not used.
 
-#### 0.9.4.0.4 Preview Renumbering
+##### 0.9.13.0.4 Reuse Validation
 
-<!-- GitMap-ID: urredslj -->
+**Requirements:**
 
+- GUI-created and GUI-edited roadmaps must obey the same validation rules as CLI-created roadmaps.
+- The GUI must not permit invalid roadmaps merely because an operation originated graphically.
 
+**Work Steps:**
 
+- [ ] 0.9.13.0.4 (a) Validate newly created roadmap items.
+- [ ] 0.9.13.0.4 (b) Validate edited roadmap items.
+- [ ] 0.9.13.0.4 (c) Validate structural changes.
+- [ ] 0.9.13.0.4 (d) Display validation failures graphically.
+- [ ] 0.9.13.0.4 (e) Prevent invalid changes from being committed.
 
+##### 0.9.13.0.5 Reuse GitHub Mapping
 
+**Requirements:**
 
-Show the impact of renumbering before changing the roadmap.
+- The GUI must use existing GitMap GitHub mapping and synchronization logic.
+- Permanent GitMap IDs must remain authoritative.
+- Roadmap-specific GitHub searching must remain in effect.
+- Existing synchronization approval protections must remain in effect.
 
-**End Goal:**
+**Work Steps:**
 
-- Ensure the user understands every existing roadmap number that will change.
+- [ ] 0.9.13.0.5 (a) Route GUI synchronization through existing GitHub mapping.
+- [ ] 0.9.13.0.5 (b) Preserve permanent GitMap IDs.
+- [ ] 0.9.13.0.5 (c) Preserve roadmap-specific searching.
+- [ ] 0.9.13.0.5 (d) Preserve parent/child GitHub relationships.
+- [ ] 0.9.13.0.5 (e) Preserve Issue identity during renumbering.
+- [ ] 0.9.13.0.5 (f) Preserve approval before modifying existing GitHub items.
 
-##### 0.9.4.0.4.1 (a) List affected roadmap items
+### 0.9.14 GUI Integration Testing
 
-##### 0.9.4.0.4.2 (b) Display each old number
+#### 0.9.14.0 End-to-End GUI Testing
 
-##### 0.9.4.0.4.3 (c) Display each proposed new number
+##### 0.9.14.0.1 Test Existing Roadmaps
 
-##### 0.9.4.0.4.4 (d) Include affected descendants
+**Requirements:**
 
-##### 0.9.4.0.4.5 (e) Require explicit confirmation
+- Existing GitMap roadmaps must open without losing supported information.
+- Different hierarchy configurations must be tested.
 
-##### 0.9.4.0.4.6 (f) Apply the renumbering only after confirmation
+**Work Steps:**
 
-##### 0.9.4.0.4.7 (g) Refresh navigation and preview after renumbering
+- [ ] 0.9.14.0.1 (a) Open a roadmap using Milestones, Sections, Features and Issues.
+- [ ] 0.9.14.0.1 (b) Open a roadmap containing direct Section Issues.
+- [ ] 0.9.14.0.1 (c) Open a roadmap containing direct Milestone Issues.
+- [ ] 0.9.14.0.1 (d) Open a roadmap containing Requirements.
+- [ ] 0.9.14.0.1 (e) Open a roadmap containing Work Steps.
+- [ ] 0.9.14.0.1 (f) Open a roadmap containing both Requirements and Work Steps.
+- [ ] 0.9.14.0.1 (g) Verify all hierarchy levels render correctly.
 
-## 0.9.5 Live Roadmap Preview
+##### 0.9.14.0.2 Test New Roadmap Creation
 
-<!-- GitMap-ID: qvredshn -->
+**Requirements:**
 
-Provide a useful live representation of the roadmap without overwhelming the user with the complete document.
+- Every supported structure configuration must produce a usable roadmap workspace.
 
-#### 0.9.5.0.1 Create Contextual Live Preview
+**Work Steps:**
 
-<!-- GitMap-ID: vrredsli -->
+- [ ] 0.9.14.0.2 (a) Create a roadmap with Sections and Features.
+- [ ] 0.9.14.0.2 (b) Create a roadmap with Sections but without Features.
+- [ ] 0.9.14.0.2 (c) Create a roadmap without Sections.
+- [ ] 0.9.14.0.2 (d) Test each supported Issue placement.
+- [ ] 0.9.14.0.2 (e) Add items to each structure.
+- [ ] 0.9.14.0.2 (f) Save each structure.
+- [ ] 0.9.14.0.2 (g) Reopen each saved roadmap.
+- [ ] 0.9.14.0.2 (h) Verify the reopened structure matches the created structure.
 
+##### 0.9.14.0.3 Test Editing and Numbering
 
+**Requirements:**
 
+- GUI editing must preserve GitMap numbering, identity and approval behavior.
 
+**Work Steps:**
 
+- [ ] 0.9.14.0.3 (a) Add an item at the end of a sibling list.
+- [ ] 0.9.14.0.3 (b) Insert an item between siblings.
+- [ ] 0.9.14.0.3 (c) Preview resulting number changes.
+- [ ] 0.9.14.0.3 (d) Cancel the insertion and verify rollback.
+- [ ] 0.9.14.0.3 (e) Approve the insertion and verify numbering.
+- [ ] 0.9.14.0.3 (f) Delete an item.
+- [ ] 0.9.14.0.3 (g) Verify descendant numbering.
+- [ ] 0.9.14.0.3 (h) Verify permanent GitMap IDs do not change.
 
-Display the part of the roadmap relevant to the item currently being edited.
+##### 0.9.14.0.4 Test Saving and Unsaved Changes
 
-**End Goal:**
+**Requirements:**
 
-- Let users see the effect of their work immediately while keeping the preview manageable.
+- Saving and unsaved-work protection must operate reliably.
 
-##### 0.9.5.0.1.1 (a) Show the currently selected item
+**Work Steps:**
 
-##### 0.9.5.0.1.2 (b) Show enough parent hierarchy to establish context
+- [ ] 0.9.14.0.4 (a) Modify an existing roadmap.
+- [ ] 0.9.14.0.4 (b) Verify the unsaved indicator appears.
+- [ ] 0.9.14.0.4 (c) Save the roadmap.
+- [ ] 0.9.14.0.4 (d) Verify the indicator clears.
+- [ ] 0.9.14.0.4 (e) Modify the roadmap again.
+- [ ] 0.9.14.0.4 (f) Attempt to close GitMap.
+- [ ] 0.9.14.0.4 (g) Test Save.
+- [ ] 0.9.14.0.4 (h) Test Discard.
+- [ ] 0.9.14.0.4 (i) Test Cancel.
 
-##### 0.9.5.0.1.3 (c) Show immediate children where useful
+##### 0.9.14.0.5 Test GitHub Synchronization
 
-##### 0.9.5.0.1.4 (d) Avoid displaying the entire roadmap by default
+**Requirements:**
 
-##### 0.9.5.0.1.5 (e) Update the preview when selection changes
+- GUI synchronization must produce the same protected results as CLI synchronization.
 
-#### 0.9.5.0.2 Update Preview While Editing
+**Work Steps:**
 
-<!-- GitMap-ID: wrredslh -->
-
-
-
-
-
-
-Refresh the contextual preview as roadmap content changes.
-
-**End Goal:**
-
-- Make the preview reflect what the user is currently creating or editing.
-
-##### 0.9.5.0.2.1 (a) Update titles while they are edited
-
-##### 0.9.5.0.2.2 (b) Update descriptions and overviews while they are edited
-
-##### 0.9.5.0.2.3 (c) Update requirements while they are edited
-
-##### 0.9.5.0.2.4 (d) Update hierarchy after items are added or removed
-
-##### 0.9.5.0.2.5 (e) Update displayed numbers after numbering changes
-
-##### 0.9.5.0.2.6 (f) Avoid unnecessary full-roadmap rendering during normal editing
-
-#### 0.9.5.0.3 Navigate From Preview
-
-<!-- GitMap-ID: xrredslg -->
-
-
-
-
-
-
-Allow the preview itself to act as a roadmap navigation tool.
-
-**End Goal:**
-
-- Let users move directly from something they see in the preview to editing that item.
-
-##### 0.9.5.0.3.1 (a) Make roadmap items in the preview selectable
-
-##### 0.9.5.0.3.2 (b) Select the corresponding item in the roadmap tree
-
-##### 0.9.5.0.3.3 (c) Open the corresponding item in the editor
-
-##### 0.9.5.0.3.4 (d) Update preview context around the newly selected item
-
-#### 0.9.5.0.4 View Full Roadmap
-
-<!-- GitMap-ID: yrredslf -->
-
-
-
-
-
-
-Allow the complete roadmap to be inspected when requested.
-
-**End Goal:**
-
-- Provide full-roadmap review without making it the default editing view.
-
-##### 0.9.5.0.4.1 (a) Provide a View Full Roadmap action
-
-##### 0.9.5.0.4.2 (b) Display the complete hierarchy
-
-##### 0.9.5.0.4.3 (c) Display descriptions and requirements
-
-##### 0.9.5.0.4.4 (d) Display Work Steps and nested Work Steps
-
-##### 0.9.5.0.4.5 (e) Allow the user to return to contextual preview
-
-#### 0.9.5.0.5 Provide Preview Formats
-
-<!-- GitMap-ID: zrredsle -->
-
-
-
-
-
-
-Allow users to inspect both the readable roadmap and the Markdown GitMap will save.
-
-**End Goal:**
-
-- Make the roadmap understandable while still allowing the generated Markdown to be inspected.
-
-##### 0.9.5.0.5.1 (a) Provide a rendered roadmap preview
-
-##### 0.9.5.0.5.2 (b) Provide a Markdown preview
-
-##### 0.9.5.0.5.3 (c) Use GitMap's roadmap Markdown renderer for Markdown preview
-
-##### 0.9.5.0.5.4 (d) Keep rendered and Markdown previews synchronized
-
-## 0.9.6 Validation and Feedback
-
-<!-- GitMap-ID: rvredshm -->
-
-Make roadmap problems visible while the user is working.
-
-#### 0.9.6.0.1 Validate During Editing
-
-<!-- GitMap-ID: arredsld -->
-
-
-
-
-
-
-Run appropriate validation as roadmap content changes.
-
-**End Goal:**
-
-- Identify problems before the user reaches save or synchronization.
-
-##### 0.9.6.0.1.1 (a) Detect missing required values
-
-##### 0.9.6.0.1.2 (b) Detect duplicate numbers
-
-##### 0.9.6.0.1.3 (c) Detect malformed hierarchy
-
-##### 0.9.6.0.1.4 (d) Detect invalid parent relationships
-
-##### 0.9.6.0.1.5 (e) Reuse the core GitMap validator
-
-#### 0.9.6.0.2 Display Validation Status
-
-<!-- GitMap-ID: brredslc -->
-
-
-
-
-
-
-Show whether the current roadmap is valid.
-
-**End Goal:**
-
-- Make roadmap health visible without requiring a separate validation command.
-
-##### 0.9.6.0.2.1 (a) Display a valid roadmap status
-
-##### 0.9.6.0.2.2 (b) Display a warning or error status when problems exist
-
-##### 0.9.6.0.2.3 (c) Display the number of validation problems
-
-##### 0.9.6.0.2.4 (d) Avoid interrupting normal typing for non-critical validation feedback
-
-#### 0.9.6.0.3 Navigate Validation Problems
-
-<!-- GitMap-ID: crredslb -->
-
-
-
-
-
-
-Allow validation errors to be used as navigation.
-
-**End Goal:**
-
-- Make detected roadmap problems quick to locate and repair.
-
-##### 0.9.6.0.3.1 (a) Display a list of validation problems
-
-##### 0.9.6.0.3.2 (b) Identify the affected roadmap item
-
-##### 0.9.6.0.3.3 (c) Select a validation problem to navigate to the affected item
-
-##### 0.9.6.0.3.4 (d) Open the affected item in the editor
-
-##### 0.9.6.0.3.5 (e) Revalidate after the problem is corrected
-
-## 0.9.7 Roadmap File Operations
-
-<!-- GitMap-ID: svredshl -->
-
-Allow roadmaps to be safely opened and saved from the GUI.
-
-#### 0.9.7.0.1 Save Roadmap
-
-<!-- GitMap-ID: drredsla -->
-
-
-
-
-
-
-Save changes to the roadmap file.
-
-**End Goal:**
-
-- Produce valid GitMap Markdown from the graphical editor.
-
-##### 0.9.7.0.1.1 (a) Render the current roadmap as GitMap Markdown
-
-##### 0.9.7.0.1.2 (b) Save to `roadmap.md`
-
-##### 0.9.7.0.1.3 (c) Preserve the complete hierarchy
-
-##### 0.9.7.0.1.4 (d) Preserve descriptions and requirements
-
-##### 0.9.7.0.1.5 (e) Preserve Work Steps and nested Work Steps
-
-##### 0.9.7.0.1.6 (f) Confirm successful saving
-
-#### 0.9.7.0.2 Save Roadmap As
-
-<!-- GitMap-ID: erredslz -->
-
-
-
-
-
-
-Allow the roadmap to be saved to another location when appropriate.
-
-**End Goal:**
-
-- Give the user control over where a roadmap is stored.
-
-##### 0.9.7.0.2.1 (a) Provide Save As
-
-##### 0.9.7.0.2.2 (b) Allow a destination to be selected
-
-##### 0.9.7.0.2.3 (c) Use an appropriate default filename
-
-##### 0.9.7.0.2.4 (d) Update the active roadmap path after Save As
-
-#### 0.9.7.0.3 Protect Existing Files
-
-<!-- GitMap-ID: frredsly -->
-
-
-
-
-
-
-Avoid accidentally destroying valid roadmap data.
-
-**End Goal:**
-
-- Make roadmap file operations safe and predictable.
-
-##### 0.9.7.0.3.1 (a) Validate before saving when appropriate
-
-##### 0.9.7.0.3.2 (b) Report file-writing failures
-
-##### 0.9.7.0.3.3 (c) Avoid replacing a valid roadmap with incomplete output after a failed save
-
-##### 0.9.7.0.3.4 (d) Preserve unsaved GUI state when saving fails
-
-## 0.9.8 GitHub Repository Integration
-
-<!-- GitMap-ID: tvredshk -->
-
-Allow GitHub repository setup to be performed from the graphical workflow.
-
-#### 0.9.8.0.1 Display Repository Status
-
-<!-- GitMap-ID: gsredskx -->
-
-
-
-
-
-
-Show the GitHub repository associated with the current roadmap.
-
-**End Goal:**
-
-- Make it immediately clear whether and where the roadmap is connected.
-
-##### 0.9.8.0.1.1 (a) Display when no repository is connected
-
-##### 0.9.8.0.1.2 (b) Display the connected repository when available
-
-##### 0.9.8.0.1.3 (c) Display repository access status
-
-##### 0.9.8.0.1.4 (d) Provide access to repository setup
-
-#### 0.9.8.0.2 Connect Existing Repository
-
-<!-- GitMap-ID: hsredskw -->
-
-
-
-
-
-
-Allow an existing GitHub repository to be selected.
-
-**End Goal:**
-
-- Connect the current roadmap to an existing repository without leaving the GUI.
-
-##### 0.9.8.0.2.1 (a) Enter or select a GitHub repository
-
-##### 0.9.8.0.2.2 (b) Verify repository access
-
-##### 0.9.8.0.2.3 (c) Report authentication or access problems
-
-##### 0.9.8.0.2.4 (d) Store non-sensitive repository configuration
-
-##### 0.9.8.0.2.5 (e) Update repository status after connection
-
-#### 0.9.8.0.3 Create GitHub Repository
-
-<!-- GitMap-ID: isredskv -->
-
-
-
-
-
-
-Expose GitMap's repository-creation workflow through the GUI.
-
-**End Goal:**
-
-- Allow a new GitHub project to be created directly from the roadmap workspace.
-
-##### 0.9.8.0.3.1 (a) Enter a repository name
-
-##### 0.9.8.0.3.2 (b) Enter a repository description
-
-##### 0.9.8.0.3.3 (c) Choose public or private visibility
-
-##### 0.9.8.0.3.4 (d) Validate repository settings before creation
-
-##### 0.9.8.0.3.5 (e) Require confirmation before creating the repository
-
-##### 0.9.8.0.3.6 (f) Create the repository through GitMap's GitHub integration
-
-##### 0.9.8.0.3.7 (g) Connect the roadmap to the newly created repository
-
-##### 0.9.8.0.3.8 (h) Report successful repository creation
-
-## 0.9.9 GitHub Synchronization
-
-<!-- GitMap-ID: uvredshj -->
-
-Provide the existing GitMap synchronization workflow through the GUI.
-
-#### 0.9.9.0.1 Prepare Synchronization
-
-<!-- GitMap-ID: jsredsku -->
-
-
-
-
-
-
-Verify that the roadmap is ready to synchronize.
-
-**End Goal:**
-
-- Prevent synchronization when required roadmap or repository conditions are not satisfied.
-
-##### 0.9.9.0.1.1 (a) Validate the roadmap
-
-##### 0.9.9.0.1.2 (b) Verify repository configuration
-
-##### 0.9.9.0.1.3 (c) Verify repository access
-
-##### 0.9.9.0.1.4 (d) Report anything preventing synchronization
-
-#### 0.9.9.0.2 Preview GitHub Changes
-
-<!-- GitMap-ID: ksredskt -->
-
-
-
-
-
-
-Show what GitMap intends to change before synchronization.
-
-**End Goal:**
-
-- Preserve GitMap's safe preview-before-sync workflow in the graphical interface.
-
-##### 0.9.9.0.2.1 (a) Display newly added items
-
-##### 0.9.9.0.2.2 (b) Display changed items
-
-##### 0.9.9.0.2.3 (c) Display unchanged items
-
-##### 0.9.9.0.2.4 (d) Display removed roadmap items
-
-##### 0.9.9.0.2.5 (e) Display a summary of planned changes
-
-##### 0.9.9.0.2.6 (f) Distinguish roadmap preview from GitHub change preview
-
-#### 0.9.9.0.3 Review Planned Changes
-
-<!-- GitMap-ID: lsredsks -->
-
-
-
-
-
-
-Allow the synchronization preview to be inspected before proceeding.
-
-**End Goal:**
-
-- Make significant GitHub changes understandable before they occur.
-
-##### 0.9.9.0.3.1 (a) Inspect added items
-
-##### 0.9.9.0.3.2 (b) Inspect changed items
-
-##### 0.9.9.0.3.3 (c) Inspect removed roadmap items
-
-##### 0.9.9.0.3.4 (d) Navigate from a planned change to the corresponding roadmap item where possible
-
-##### 0.9.9.0.3.5 (e) Return to roadmap editing without synchronizing
-
-#### 0.9.9.0.4 Confirm Synchronization
-
-<!-- GitMap-ID: msredskr -->
-
-
-
-
-
-
-Require explicit approval before changing GitHub.
-
-**End Goal:**
-
-- Ensure synchronization never begins merely because the user opened a preview.
-
-##### 0.9.9.0.4.1 (a) Provide an explicit synchronization action
-
-##### 0.9.9.0.4.2 (b) Clearly identify the target repository
-
-##### 0.9.9.0.4.3 (c) Summarize the planned changes
-
-##### 0.9.9.0.4.4 (d) Require confirmation before applying changes
-
-##### 0.9.9.0.4.5 (e) Allow synchronization to be cancelled
-
-#### 0.9.9.0.5 Display Synchronization Progress
-
-<!-- GitMap-ID: nsredskq -->
-
-
-
-
-
-
-Provide useful feedback while synchronization is running.
-
-**End Goal:**
-
-- Keep the user informed without exposing unnecessary implementation details.
-
-##### 0.9.9.0.5.1 (a) Indicate that synchronization is in progress
-
-##### 0.9.9.0.5.2 (b) Display the current synchronization operation where useful
-
-##### 0.9.9.0.5.3 (c) Keep the interface responsive during synchronization
-
-##### 0.9.9.0.5.4 (d) Prevent conflicting synchronization operations from starting simultaneously
-
-#### 0.9.9.0.6 Display Synchronization Results
-
-<!-- GitMap-ID: osredskp -->
-
-
-
-
-
-
-Show what happened after synchronization completes.
-
-**End Goal:**
-
-- Make the final state of the GitHub synchronization clear.
-
-##### 0.9.9.0.6.1 (a) Report successful synchronization
-
-##### 0.9.9.0.6.2 (b) Report the number of created items
-
-##### 0.9.9.0.6.3 (c) Report the number of updated items
-
-##### 0.9.9.0.6.4 (d) Report unchanged items where useful
-
-##### 0.9.9.0.6.5 (e) Report failures clearly
-
-##### 0.9.9.0.6.6 (f) Preserve useful error information for troubleshooting
-
-## 0.9.10 GUI Usability
-
-<!-- GitMap-ID: vvredshi -->
-
-Make the graphical interface practical for regular use rather than only functionally complete.
-
-#### 0.9.10.0.1 Add Keyboard Navigation
-
-<!-- GitMap-ID: psredsko -->
-
-
-
-
-
-
-Support efficient keyboard use throughout the roadmap workspace.
-
-**End Goal:**
-
-- Allow common GitMap operations without requiring constant mouse use.
-
-##### 0.9.10.0.1.1 (a) Support normal keyboard traversal between controls
-
-##### 0.9.10.0.1.2 (b) Provide a shortcut for saving
-
-##### 0.9.10.0.1.3 (c) Provide a shortcut for Go To
-
-##### 0.9.10.0.1.4 (d) Provide a shortcut for finding roadmap items
-
-##### 0.9.10.0.1.5 (e) Avoid shortcuts that interfere with normal text editing
-
-#### 0.9.10.0.2 Preserve Editing Focus
-
-<!-- GitMap-ID: qsredskn -->
-
-
-
-
-
-
-Avoid unnecessary disruption while the user is entering roadmap content.
-
-**End Goal:**
-
-- Keep live updates and validation from making editing frustrating.
-
-##### 0.9.10.0.2.1 (a) Keep keyboard focus in the active editor while preview updates
-
-##### 0.9.10.0.2.2 (b) Avoid moving the cursor while content is being edited
-
-##### 0.9.10.0.2.3 (c) Avoid unnecessary dialogs during normal editing
-
-##### 0.9.10.0.2.4 (d) Reserve blocking dialogs for destructive or significant operations
-
-#### 0.9.10.0.3 Handle Large Roadmaps
-
-<!-- GitMap-ID: rsredskm -->
-
-
-
-
-
-
-Keep the interface practical as roadmap size increases.
-
-**End Goal:**
-
-- Allow GitMap roadmaps with many milestones and issues to remain manageable.
-
-##### 0.9.10.0.3.1 (a) Avoid rendering the entire roadmap during every edit
-
-##### 0.9.10.0.3.2 (b) Keep tree navigation responsive
-
-##### 0.9.10.0.3.3 (c) Keep Go To search responsive
-
-##### 0.9.10.0.3.4 (d) Keep contextual preview updates responsive
-
-##### 0.9.10.0.3.5 (e) Avoid losing the user's current location during refreshes
-
-#### 0.9.10.0.4 Add Clear User Feedback
-
-<!-- GitMap-ID: ssredskl -->
-
-
-
-
-
-
-Provide useful confirmation for important operations.
-
-**End Goal:**
-
-- Make it clear what GitMap has done without filling the interface with unnecessary messages.
-
-##### 0.9.10.0.4.1 (a) Confirm successful saves
-
-##### 0.9.10.0.4.2 (b) Confirm repository connection
-
-##### 0.9.10.0.4.3 (c) Confirm repository creation
-
-##### 0.9.10.0.4.4 (d) Confirm completed synchronization
-
-##### 0.9.10.0.4.5 (e) Clearly report failed operations
-
-##### 0.9.10.0.4.6 (f) Keep routine feedback unobtrusive
-
-## 0.9.11 GUI Testing
-
-<!-- GitMap-ID: wvredshh -->
-
-Protect the graphical workflow from regressions.
-
-#### 0.9.11.0.1 Test GUI Roadmap Operations
-
-<!-- GitMap-ID: tsredskk -->
-
-
-
-
-
-
-Test roadmap operations invoked through the graphical interface.
-
-**End Goal:**
-
-- Verify that GUI operations produce the same valid roadmap structures as the core GitMap workflow.
-
-##### 0.9.11.0.1.1 (a) Test opening a roadmap
-
-##### 0.9.11.0.1.2 (b) Test selecting roadmap items
-
-##### 0.9.11.0.1.3 (c) Test editing roadmap items
-
-##### 0.9.11.0.1.4 (d) Test adding roadmap items
-
-##### 0.9.11.0.1.5 (e) Test inserting roadmap items
-
-##### 0.9.11.0.1.6 (f) Test removing roadmap items
-
-##### 0.9.11.0.1.7 (g) Test nested Work Steps
-
-#### 0.9.11.0.2 Test GUI Numbering
-
-<!-- GitMap-ID: usredskj -->
-
-
-
-
-
-
-Test numbering behavior exposed through the graphical interface.
-
-**End Goal:**
-
-- Verify that graphical numbering controls use the same numbering rules as the core roadmap workflow.
-
-##### 0.9.11.0.2.1 (a) Test automatic numbering
-
-##### 0.9.11.0.2.2 (b) Test manual numbering
-
-##### 0.9.11.0.2.3 (c) Test numbering conflicts
-
-##### 0.9.11.0.2.4 (d) Test renumber previews
-
-##### 0.9.11.0.2.5 (e) Test cancellation before renumbering
-
-#### 0.9.11.0.3 Test Live Preview
-
-<!-- GitMap-ID: vsredski -->
-
-
-
-
-
-
-Verify that roadmap preview remains synchronized with editing.
-
-**End Goal:**
-
-- Ensure the preview accurately represents the roadmap without changing roadmap data itself.
-
-##### 0.9.11.0.3.1 (a) Test preview after selection changes
-
-##### 0.9.11.0.3.2 (b) Test preview after title changes
-
-##### 0.9.11.0.3.3 (c) Test preview after description changes
-
-##### 0.9.11.0.3.4 (d) Test preview after hierarchy changes
-
-##### 0.9.11.0.3.5 (e) Test preview after renumbering
-
-#### 0.9.11.0.4 Test Navigation
-
-<!-- GitMap-ID: wsredskh -->
-
-
-
-
-
-
-Test navigation across representative large roadmaps.
-
-**End Goal:**
-
-- Verify that users can reliably locate and open roadmap items.
-
-##### 0.9.11.0.4.1 (a) Test tree navigation
-
-##### 0.9.11.0.4.2 (b) Test Go To by number
-
-##### 0.9.11.0.4.3 (c) Test Go To by title
-
-##### 0.9.11.0.4.4 (d) Test navigation from live preview
-
-##### 0.9.11.0.4.5 (e) Test navigation from validation problems
-
-#### 0.9.11.0.5 Test GUI GitHub Workflow
-
-<!-- GitMap-ID: xsredskg -->
-
-
-
-
-
-
-Test GitHub operations without depending on a user's production repository.
-
-**End Goal:**
-
-- Verify that the GUI correctly drives GitMap's existing GitHub workflow.
-
-##### 0.9.11.0.5.1 (a) Test repository connection workflow
-
-##### 0.9.11.0.5.2 (b) Test repository creation workflow
-
-##### 0.9.11.0.5.3 (c) Test synchronization preview
-
-##### 0.9.11.0.5.4 (d) Test synchronization confirmation
-
-##### 0.9.11.0.5.5 (e) Test synchronization result handling
-
-##### 0.9.11.0.5.6 (f) Mock GitHub operations where appropriate
+- [ ] 0.9.14.0.5 (a) Preview a synchronization containing new items.
+- [ ] 0.9.14.0.5 (b) Preview a synchronization containing changed items.
+- [ ] 0.9.14.0.5 (c) Preview a synchronization containing removed items.
+- [ ] 0.9.14.0.5 (d) Cancel synchronization and verify GitHub remains unchanged.
+- [ ] 0.9.14.0.5 (e) Approve synchronization.
+- [ ] 0.9.14.0.5 (f) Verify only approved operations occurred.
+- [ ] 0.9.14.0.5 (g) Verify GitMap IDs remain associated with the correct GitHub Issues.
+- [ ] 0.9.14.0.5 (h) Verify GitHub parent/child relationships remain correct.
 
 # 0.10 Testing and Reliability
 
@@ -3311,11 +3054,6 @@ Build a test suite that protects GitMap's roadmap and synchronization behavior.
 #### 0.10.1.0.1 Test Roadmap Parsing
 
 <!-- GitMap-ID: ysredskf -->
-
-
-
-
-
 
 Test conversion of Markdown roadmaps into GitMap project data.
 

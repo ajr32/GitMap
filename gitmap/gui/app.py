@@ -1,369 +1,163 @@
-import tkinter as tk
-
-from gitmap.roadmap_creation import start_new_roadmap
-from tkinter import filedialog
-
 # ============================================================
-# APPLICATION STATUS
-# Creates the bottom status bar used for messages and feedback.
+# MAIN GITMAP WINDOW
+# Loads the GitMap interface created in Qt Designer.
 # ============================================================
 
-def create_status_bar(root):
-    """Create the application status area."""
+import sys
+from pathlib import Path
 
-    # --- Status Label ---
-    # Displays the current application status at the bottom.
-    status_label = tk.Label(
-        root,
-        text="Ready",
-        anchor="w",
-        relief="sunken",
-        borderwidth=1,
-    )
+from PySide6.QtCore import QFile, Qt
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
+    QPushButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
 
-    # --- Status Bar Layout ---
-    # Stretches the status bar across the bottom of the window.
-    status_label.pack(
-        side="bottom",
-        fill="x",
-    )
-
-    # --- Status Bar Result ---
-    # Returns the label so other GUI areas can change its text.
-    return status_label
+from gitmap.parser import parse_roadmap
 
 
-# ============================================================
-# ROADMAP NAVIGATION
-# Creates the left workspace used to browse roadmap items.
-# ============================================================
+def add_issue_to_tree(parent_item, issue):
+    """Add an issue and its contents to the roadmap tree."""
 
-def create_navigation_area(root):
-    """Create the roadmap navigation area."""
+    issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
+    parent_item.addChild(issue_item)
 
-    # --- Navigation Panel ---
-    # Creates the fixed-width panel on the left side.
-    navigation_frame = tk.Frame(
-        root,
-        width=250,
-        relief="sunken",
-        borderwidth=1,
-    )
+    # --- Requirements ---
+    for requirement in issue.requirements:
+        requirement_text = requirement.text
 
-    # --- Navigation Panel Layout ---
-    # Places the navigation panel along the left side.
-    navigation_frame.pack(
-        side="left",
-        fill="y",
-    )
+        if requirement_text.startswith("[ ] "):
+            requirement_text = requirement_text[4:]
 
-    # --- Preserve Navigation Width ---
-    # Prevents child widgets from changing the panel width.
-    navigation_frame.pack_propagate(False)
+        requirement_item = QTreeWidgetItem([requirement_text])
+        requirement_item.setCheckState(0, Qt.CheckState.Unchecked)
 
-    # --- Open Roadmap Button ---
-    # Opens a roadmap and later displays the loaded roadmap's name.
-    roadmap_button = tk.Button(
-        navigation_frame,
-        text="Open Roadmap",
-    )
+        issue_item.addChild(requirement_item)
 
-    # --- Countries Roadmap Button Layout ---
-    # Places the roadmap button at the top of navigation.
-    roadmap_button.pack(
-        padx=10,
-        pady=10,
-        fill="x",
-    )
-
-    # --- Roadmap List Container ---
-    # Groups the roadmap list and scrollbar together.
-    list_frame = tk.Frame(
-        navigation_frame,
-    )
-
-    # --- Roadmap List Container Layout ---
-    # Allows the list container to use the remaining panel space.
-    list_frame.pack(
-        fill="both",
-        expand=True,
-        padx=10,
-        pady=5,
-    )
-
-    # --- Roadmap List ---
-    # Displays roadmap items that the user can select.
-    roadmap_list = tk.Listbox(
-        list_frame,
-    )
-
-    # --- Roadmap Scrollbar ---
-    # Allows large roadmaps to be scrolled vertically.
-    roadmap_scrollbar = tk.Scrollbar(
-        list_frame,
-        command=roadmap_list.yview,
-    )
-
-    # --- Connect List and Scrollbar ---
-    # Keeps the scrollbar synchronized with the roadmap list.
-    roadmap_list.config(
-        yscrollcommand=roadmap_scrollbar.set,
-    )
-
-    # --- Scrollbar Layout ---
-    # Places the scrollbar on the right edge of the list.
-    roadmap_scrollbar.pack(
-        side="right",
-        fill="y",
-    )
-
-    # --- Roadmap List Layout ---
-    # Allows the roadmap list to fill all remaining space.
-    roadmap_list.pack(
-        side="left",
-        fill="both",
-        expand=True,
-    )
-
-    # --- Navigation Result ---
-    # Returns the roadmap button and list so other GUI code
-    # can control the opened roadmap and its contents.
-    return roadmap_button, roadmap_list
+    # --- Work Steps ---
+    for work_step in issue.work_steps:
+        work_step_item = QTreeWidgetItem(
+            [f"({work_step.work_step_marker}) {work_step.title}"]
+        )
+        issue_item.addChild(work_step_item)
 
 
-# ============================================================
-# ITEM EDITOR
-# Creates the center workspace used to edit roadmap items.
-# ============================================================
+def main():
+    """Launch the GitMap desktop application."""
 
-def create_editor_area(root):
-    """Create the roadmap item editor area."""
+    app = QApplication(sys.argv)
 
-    # --- Editor Panel ---
-    # Creates the main center portion of the workspace.
-    editor_frame = tk.Frame(
-        root,
-        relief="sunken",
-        borderwidth=1,
-    )
+    ui_path = Path(__file__).with_name("main_window.ui")
 
-    # --- Editor Panel Layout ---
-    # Allows the editor to consume available workspace space.
-    editor_frame.pack(
-        side="left",
-        fill="both",
-        expand=True,
-    )
+    ui_file = QFile(str(ui_path))
+    ui_file.open(QFile.OpenModeFlag.ReadOnly)
 
-    # --- Editor Heading ---
-    # Identifies the item editor workspace.
-    editor_label = tk.Label(
-        editor_frame,
-        text="Item Editor",
-    )
+    loader = QUiLoader()
+    window = loader.load(ui_file)
 
-    # --- Editor Heading Layout ---
-    # Places the editor heading near the top.
-    editor_label.pack(
-        padx=10,
-        pady=10,
-    )
+    # --- Roadmap Tree ---
+    # Finds the roadmap display created in Qt Designer.
+    roadmap_tree = window.findChild(QTreeWidget, "roadmap_Tree")
+    roadmap_tree.setHeaderHidden(True)
 
-    # --- Editor Result ---
-    # Returns the label so selection changes can update it.
-    return editor_label
-
-
-# ============================================================
-# LIVE PREVIEW
-# Creates the right workspace used to preview roadmap changes.
-# ============================================================
-
-def create_preview_area(root):
-    """Create the live roadmap preview area."""
-
-    # --- Preview Panel ---
-    # Creates the fixed-width panel on the right side.
-    preview_frame = tk.Frame(
-        root,
-        width=300,
-        relief="sunken",
-        borderwidth=1,
-    )
-
-    # --- Preview Panel Layout ---
-    # Places the preview along the right side of the workspace.
-    preview_frame.pack(
-        side="right",
-        fill="y",
-    )
-
-    # --- Preserve Preview Width ---
-    # Prevents child widgets from changing the panel width.
-    preview_frame.pack_propagate(False)
-
-    # --- Preview Heading ---
-    # Identifies the live preview workspace.
-    preview_label = tk.Label(
-        preview_frame,
-        text="Live Preview",
-    )
-
-    # --- Preview Heading Layout ---
-    # Places the heading at the top of the preview panel.
-    preview_label.pack(
-        padx=10,
-        pady=10,
-    )
-
-    # --- Preview Result ---
-    # Returns the label so selection changes can update it.
-    return preview_label
-
-
-# ============================================================
-# COUNTRIES ROADMAP
-# Temporary entry point for opening the Countries roadmap
-# while the real roadmap-opening system is being built.
-# ============================================================
-
-def configure_roadmap_opener(
-    root,
-    roadmap_button,
-    roadmap_list,
-    editor_label,
-    preview_label,
-    status_label,
-):
-    """Create the temporary Countries roadmap button."""
-
-    # --- Open Countries Roadmap ---
-    # Opens the Countries roadmap when its button is clicked.
-    def open_countries_roadmap():
-
-        # --- Choose Countries Roadmap ---
-        # Opens a file picker so the Countries roadmap.md can be selected.
-        roadmap_path = filedialog.askopenfilename(
-            title="Open Countries Roadmap",
-            filetypes=[
-                ("Markdown Roadmaps", "*.md"),
-                ("All Files", "*.*"),
-            ],
+    # --- Open Roadmap ---
+    # Lets the user choose an existing GitMap Markdown roadmap.
+    def open_roadmap():
+        roadmap_path, _ = QFileDialog.getOpenFileName(
+            window,
+            "Open Roadmap",
+            "",
+            "Markdown Roadmaps (*.md);;All Files (*.*)",
         )
 
-        # --- Cancel Open ---
-        # Stops if no roadmap file was selected.
         if not roadmap_path:
             return
 
-        # --- Update Roadmap Button ---
-        # Changes the Open Roadmap button to the opened roadmap's name.
-        roadmap_button.config(text="Countries")
+        print(f"Selected roadmap: {roadmap_path}")
 
-        # --- Update Editor ---
-        # Shows which roadmap is currently open.
-        editor_label.config(
-            text="Item Editor — Countries"
-        )
+        roadmap = parse_roadmap(roadmap_path)
+        print(vars(roadmap))
 
-        # --- Update Preview ---
-        # Shows which roadmap is currently being previewed.
-        preview_label.config(
-            text="Live Preview — Countries"
-        )
+        # --- Display Roadmap ---
+        # Temporary test to prove we can write to the Designer tree.
+        roadmap_tree.clear()
 
-        # --- Update Status ---
-        # Shows the path of the roadmap that was opened.
-        status_label.config(
-            text=f"Opened: {roadmap_path}"
-        )
+        test_item = QTreeWidgetItem([roadmap.name])
+        roadmap_tree.addTopLevelItem(test_item)
 
-    # --- Connect Open Roadmap Button ---
-    # Connects the navigation button to the roadmap file picker.
-    roadmap_button.config(
-        command=open_countries_roadmap,
-    )
+        for milestone in roadmap.milestones:
+            milestone_item = QTreeWidgetItem([f"{milestone.number} {milestone.title}"])
 
+            test_item.addChild(milestone_item)
 
-# ============================================================
-# APPLICATION SHUTDOWN
-# Handles closing the GitMap graphical application.
-# ============================================================
+            for section in milestone.sections:
+                section_item = QTreeWidgetItem([f"{section.number} {section.title}"])
 
-def close_app(root):
-    """Close the GitMap GUI cleanly."""
+                milestone_item.addChild(section_item)
 
-    # --- Destroy Main Window ---
-    # Ends the Tkinter application and closes the window.
-    root.destroy()
+                for feature in section.features:
+                    feature_item = QTreeWidgetItem(
+                        [f"{feature.number} {feature.title}"]
+                    )
 
+                    section_item.addChild(feature_item)
 
-# ============================================================
-# MAIN APPLICATION
-# Creates the GitMap window and assembles the GUI workspace.
-# ============================================================
+                    for issue in feature.issues:
+                        add_issue_to_tree(feature_item, issue)
 
-def main():
-    """Launch the GitMap graphical application."""
+                    # for issue in feature.issues:
+                    #     issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
+                    #
+                    #     feature_item.addChild(issue_item)
+                    #
+                    #     # --- Issue Requirements ---
+                    #     for requirement in issue.requirements:
+                    #         requirement_item = QTreeWidgetItem([requirement.text])
+                    #
+                    #         issue_item.addChild(requirement_item)
+                    #
+                    #     # --- Issue Work Steps ---
+                    #     for work_step in issue.work_steps:
+                    #         work_step_item = QTreeWidgetItem(
+                    #             [f"({work_step.work_step_marker}) {work_step.title}"]
+                    #         )
+                    #
+                    #         issue_item.addChild(work_step_item)
 
-    # --- Main Window ---
-    # Creates the root Tkinter application window.
-    root = tk.Tk()
+                # --- Issues Directly Under Section ---
+                for issue in section.issues:
+                    add_issue_to_tree(section_item, issue)
 
-    # --- Application Identity ---
-    # Sets the name displayed in the window title bar.
-    root.title("GitMap")
+            # --- Issues Directly Under Milestone ---
+            for issue in milestone.issues:
+                add_issue_to_tree(milestone_item, issue)
 
-    # --- Initial Window Size ---
-    # Starts GitMap maximized on Windows.
-    root.state("zoomed")
+        roadmap_tree.expandAll()
 
-    # --- Status Area ---
-    # Creates the status bar before the main workspace.
-    status_label = create_status_bar(root)
+        test_item.addChild(milestone_item)
+        test_item.setExpanded(True)
 
-    # --- Navigation Area ---
-    # Creates the roadmap opener and browser on the left.
-    roadmap_button, roadmap_list = create_navigation_area(root)
+        print(f"Parsed roadmap: {roadmap}")
 
-    # --- Editor Area ---
-    # Creates the selected-item editor in the center.
-    editor_label = create_editor_area(root)
+    # --- Open Roadmap Button ---
+    # Connects the Designer button to the roadmap file picker.
+    open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
 
-    # --- Preview Area ---
-    # Creates the live roadmap preview on the right.
-    preview_label = create_preview_area(root)
+    open_roadmap_button.clicked.connect(open_roadmap)
 
-    # --- Countries Roadmap ---
-    # Adds the temporary Countries roadmap opener.
-    configure_roadmap_opener(
-        root,
-        roadmap_button,
-        roadmap_list,
-        editor_label,
-        preview_label,
-        status_label,
-    )
+    ui_file.close()
 
-    # --- Window Close Handler ---
-    # Routes the window X button through GitMap's shutdown function.
-    root.protocol(
-        "WM_DELETE_WINDOW",
-        lambda: close_app(root),
-    )
+    window.show()
 
-    # --- Application Event Loop ---
-    # Keeps the GUI running and responding to user interaction.
-    root.mainloop()
+    sys.exit(app.exec())
 
 
 # ============================================================
 # MODULE ENTRY POINT
-# Allows this file to launch directly when executed.
 # ============================================================
 
 if __name__ == "__main__":
-
-    # --- Launch GitMap ---
-    # Starts the graphical application.
     main()
