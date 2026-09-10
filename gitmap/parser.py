@@ -377,8 +377,36 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             continue
 
-        if current_issue is not None and stripped.startswith("[ ] "):
-            work_step_text = stripped[4:].strip()
+        if current_issue is not None and stripped.startswith(
+            (
+                "[ ] ",
+                "- [ ] ",
+                "* [ ] ",
+                "[x] ",
+                "- [x] ",
+                "* [x] ",
+                "[X] ",
+                "- [X] ",
+                "* [X] ",
+            )
+        ):
+            work_step_text = stripped
+
+            for prefix in (
+                "- [ ] ",
+                "* [ ] ",
+                "[ ] ",
+                "- [x] ",
+                "* [x] ",
+                "[x] ",
+                "- [X] ",
+                "* [X] ",
+                "[X] ",
+            ):
+                if work_step_text.startswith(prefix):
+                    work_step_text = work_step_text[len(prefix) :].strip()
+                    break
+
             parts = work_step_text.split(maxsplit=2)
 
             if len(parts) == 3:

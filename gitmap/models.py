@@ -21,6 +21,7 @@ class Issue:
     work_steps: list["Issue"] = field(default_factory=list)
     gitmap_id: str = ""
     work_step_marker: str = ""
+    work_step_completed: bool = False
 
 
 @dataclass
