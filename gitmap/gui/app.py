@@ -5,21 +5,21 @@
 
 import sys
 import traceback
-
 from pathlib import Path
 
 from PySide6.QtCore import QFile, Qt
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QColor, QFont
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
-    QMessageBox,
     QApplication,
     QFileDialog,
-    QTextEdit,
+    QMessageBox,
     QPushButton,
+    QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
 )
+from structure_questions import QUESTIONS
 
 from gitmap.parser import parse_roadmap
 
@@ -66,7 +66,7 @@ def add_issue_to_tree(parent_item, issue):
         requirement_font.setItalic(True)
         requirement_item.setFont(0, requirement_font)
         requirement_item.setForeground(0, QColor("#808080"))
-        
+
         issue_item.addChild(requirement_item)
 
     # --- Work Steps ---
@@ -79,6 +79,7 @@ def add_issue_to_tree(parent_item, issue):
 
         issue_item.addChild(work_step_item)
 
+
 def load_structure_dialog():
     """Load the new-roadmap structure dialog."""
 
@@ -89,10 +90,71 @@ def load_structure_dialog():
 
     loader = QUiLoader()
     dialog = loader.load(ui_file)
+    current_question = 0
+    question = QUESTIONS[current_question]
+    dialog.structure_subject.setText(question["subject"])
+    dialog.structure_subject.adjustSize()
+    dialog.structure_question.setPlainText(question["question"])
+    # dialog.structure_question.adjustSize()
+    buttons = [
+        dialog.Button1,
+        dialog.Button2,
+        dialog.Button3,
+        dialog.Button4,
+    ]
+
+    for index, button in enumerate(buttons):
+        if index < len(question["options"]):
+            button.setText(question["options"][index]["text"])
+            button.show()
+        else:
+            button.hide()
+
+    def update_details():
+        for index, button in enumerate(buttons):
+            if button.isChecked() and index < len(question["options"]):
+                option = question["options"][index]
+                dialog.structure_example.setPlainText(option["example"])
+                dialog.structure_explain.setPlainText(option["explanation"])
+                break
+
+    def show_question(index):
+        nonlocal question
+        question = QUESTIONS[index]
+
+        dialog.structure_subject.setText(question["subject"])
+        dialog.structure_subject.adjustSize()
+
+        dialog.structure_question.setPlainText(question["question"])
+
+        for button in buttons:
+            button.setAutoExclusive(False)
+            button.setChecked(False)
+            button.setAutoExclusive(True)
+
+        for index, button in enumerate(buttons):
+            if index < len(question["options"]):
+                button.setText(question["options"][index]["text"])
+                button.show()
+            else:
+                button.hide()
+
+    def go_forward():
+        nonlocal current_question
+        current_question += 1
+        show_question(current_question)
+
+    def go_back():
+        nonlocal current_question
+        current_question -= 1
+        show_question(current_question)
+
+    dialog.button_forward.clicked.connect(go_forward)
 
     ui_file.close()
 
     return dialog
+
 
 def main():
     """Launch the GitMap desktop application."""
@@ -133,7 +195,7 @@ def main():
     # Lets the user choose an existing GitMap Markdown roadmap.
     def open_roadmap():
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
-        
+
         roadmap_path, _ = QFileDialog.getOpenFileName(
             window,
             "Open Roadmap",

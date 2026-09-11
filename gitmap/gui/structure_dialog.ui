@@ -16,7 +16,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>340</x>
      <y>10</y>
      <width>200</width>
      <height>41</height>
@@ -39,13 +39,18 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>40</y>
+     <y>60</y>
      <width>841</width>
      <height>591</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QGroupBox {
+    border: none;
+}</string>
+   </property>
    <property name="title">
-    <string>Milestones</string>
+    <string/>
    </property>
    <widget class="QGroupBox" name="example_group">
     <property name="geometry">
@@ -57,15 +62,15 @@
      </rect>
     </property>
     <property name="title">
-     <string>Live Example</string>
+     <string/>
     </property>
     <widget class="QPlainTextEdit" name="structure_example">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>10</y>
+       <y>0</y>
        <width>391</width>
-       <height>391</height>
+       <height>401</height>
       </rect>
      </property>
      <property name="font">
@@ -105,11 +110,14 @@ color: rgb(255, 255, 255);</string>
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 0, 0, 30);</string>
+    </property>
     <property name="text">
      <string>Cancel</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="create_Button">
+   <widget class="QPushButton" name="button_back">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -127,7 +135,7 @@ color: rgb(255, 255, 255);</string>
      <string>Previous</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="create_Button_2">
+   <widget class="QPushButton" name="button_forward">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -145,7 +153,7 @@ color: rgb(255, 255, 255);</string>
      <string>Next</string>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="structure_example_2">
+   <widget class="QPlainTextEdit" name="structure_explain">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -172,8 +180,8 @@ color: rgb(255, 255, 255);</string>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>70</y>
+      <x>170</x>
+      <y>60</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -188,11 +196,11 @@ color: rgb(255, 255, 255);</string>
      <string>Example</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="structure_subject">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>-10</y>
+      <x>290</x>
+      <y>0</y>
       <width>241</width>
       <height>81</height>
      </rect>
@@ -209,7 +217,7 @@ color: rgb(255, 255, 255);</string>
      <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="structure_example_3">
+   <widget class="QPlainTextEdit" name="structure_question">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -223,7 +231,7 @@ color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>11</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -245,39 +253,136 @@ color: rgb(255, 255, 255);</string>
      <string>The Question</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>180</y>
-      <width>100</width>
-      <height>116</height>
+      <x>509</x>
+      <y>175</y>
+      <width>251</width>
+      <height>121</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="Buttons">
+     <property name="sizeConstraint">
+      <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
+     </property>
      <item>
-      <widget class="QRadioButton" name="radioButton_2">
+      <widget class="QRadioButton" name="Button1">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QRadioButton::indicator:unchecked {
+    background-color: #ffffff;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #000000;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}</string>
+       </property>
        <property name="text">
         <string>RadioButton</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton">
+      <widget class="QRadioButton" name="Button2">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QRadioButton::indicator:unchecked {
+    background-color: #ffffff;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #000000;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}</string>
+       </property>
        <property name="text">
         <string>RadioButton</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_4">
+      <widget class="QRadioButton" name="Button3">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QRadioButton::indicator:unchecked {
+    background-color: #ffffff;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #000000;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}</string>
+       </property>
        <property name="text">
         <string>RadioButton</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_3">
+      <widget class="QRadioButton" name="Button4">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QRadioButton::indicator:unchecked {
+    background-color: #ffffff;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #000000;
+    border: 2px solid #808080;
+    border-radius: 7px;
+    width: 14px;
+    height: 14px;
+}</string>
+       </property>
        <property name="text">
         <string>RadioButton</string>
        </property>
@@ -332,7 +437,7 @@ color: rgb(255, 255, 255);</string>
    </hints>
   </connection>
   <connection>
-   <sender>create_Button</sender>
+   <sender>button_back</sender>
    <signal>clicked()</signal>
    <receiver>StructureDialog</receiver>
    <slot>accept()</slot>
