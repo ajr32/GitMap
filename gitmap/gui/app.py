@@ -79,10 +79,30 @@ def add_issue_to_tree(parent_item, issue):
 
         issue_item.addChild(work_step_item)
 
+def load_structure_dialog():
+    """Load the new-roadmap structure dialog."""
+
+    ui_path = Path(__file__).with_name("structure_dialog.ui")
+
+    ui_file = QFile(str(ui_path))
+    ui_file.open(QFile.OpenModeFlag.ReadOnly)
+
+    loader = QUiLoader()
+    dialog = loader.load(ui_file)
+
+    ui_file.close()
+
+    return dialog
+
 def main():
     """Launch the GitMap desktop application."""
 
     app = QApplication(sys.argv)
+
+    if "--structure-dialog" in sys.argv:
+        dialog = load_structure_dialog()
+        dialog.exec()
+        return
 
     active_roadmap_path = None
     active_roadmap = None
@@ -235,6 +255,14 @@ def main():
     open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
 
     open_roadmap_button.clicked.connect(open_roadmap)
+
+    new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
+
+    def create_new_roadmap():
+        structure_dialog = load_structure_dialog()
+        result = structure_dialog.exec()
+
+    new_roadmap_button.clicked.connect(create_new_roadmap)
 
     ui_file.close()
 
