@@ -80,6 +80,21 @@ def add_issue_to_tree(parent_item, issue):
         issue_item.addChild(work_step_item)
 
 
+def load_item_editor():
+    """Load the roadmap item editor."""
+
+    ui_path = Path(__file__).with_name("item_editor.ui")
+
+    ui_file = QFile(str(ui_path))
+    ui_file.open(QFile.OpenModeFlag.ReadOnly)
+
+    loader = QUiLoader()
+    editor = loader.load(ui_file)
+
+    ui_file.close()
+    return editor
+
+
 def load_structure_dialog():
     """Load the new-roadmap structure dialog."""
 
@@ -246,6 +261,11 @@ def main():
     if "--structure-dialog" in sys.argv:
         dialog = load_structure_dialog()
         dialog.exec()
+        return
+
+    if "--item-editor" in sys.argv:
+        editor = load_item_editor()
+        editor.exec()
         return
 
     active_roadmap_path = None

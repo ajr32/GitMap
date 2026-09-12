@@ -44,7 +44,7 @@
     <string>Editor</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="save_button">
    <property name="geometry">
     <rect>
      <x>800</x>
@@ -76,7 +76,7 @@
     <string>Continue</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="apply_button">
    <property name="geometry">
     <rect>
      <x>770</x>
@@ -129,6 +129,22 @@ color: rgb(255, 255, 255);</string>
      <string>Preview</string>
     </property>
    </widget>
+   <widget class="QPlainTextEdit" name="preview_text">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>50</y>
+      <width>471</width>
+      <height>651</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">
@@ -149,8 +165,24 @@ color: rgb(255, 255, 255);</string>
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
+   <widget class="QPlainTextEdit" name="context_preview">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>421</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
-  <widget class="QFrame" name="frame_3">
+  <widget class="QFrame" name="description_box">
    <property name="geometry">
     <rect>
      <x>480</x>
@@ -168,7 +200,7 @@ color: rgb(255, 255, 255);</string>
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="save_exit_button">
     <property name="geometry">
      <rect>
       <x>310</x>
@@ -187,18 +219,21 @@ color: rgb(255, 255, 255);</string>
    <widget class="QLabel" name="item_type">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>60</x>
       <y>50</y>
-      <width>71</width>
+      <width>111</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
      <string>Type</string>
     </property>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>500</x>
@@ -216,7 +251,11 @@ color: rgb(255, 255, 255);</string>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="item_title"/>
+     <widget class="QLineEdit" name="item_title">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -230,7 +269,7 @@ color: rgb(255, 255, 255);</string>
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>500</x>
@@ -248,22 +287,23 @@ color: rgb(255, 255, 255);</string>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="item_number"/>
+     <widget class="QLineEdit" name="item_number">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
-  <zorder>frame_3</zorder>
-  <zorder>label</zorder>
-  <zorder>item_title</zorder>
-  <zorder>label_3</zorder>
-  <zorder>item_number</zorder>
-  <zorder>label_3</zorder>
-  <zorder>item_number</zorder>
+  <zorder>description_box</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>item_description</zorder>
+  <zorder>layoutWidget</zorder>
   <zorder>label_2</zorder>
   <zorder>label_4</zorder>
-  <zorder>pushButton</zorder>
+  <zorder>save_button</zorder>
   <zorder>continue_button</zorder>
-  <zorder>pushButton_4</zorder>
+  <zorder>apply_button</zorder>
   <zorder>frame</zorder>
   <zorder>frame_2</zorder>
  </widget>
