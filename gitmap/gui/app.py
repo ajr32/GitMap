@@ -92,6 +92,11 @@ def load_structure_dialog():
     dialog = loader.load(ui_file)
     current_question = 0
     question = QUESTIONS[current_question]
+
+    dialog.starting_series_number.hide()
+
+    answers = {}
+
     dialog.structure_subject.setText(question["subject"])
     dialog.structure_subject.adjustSize()
     dialog.structure_question.setPlainText(question["question"])
@@ -114,6 +119,18 @@ def load_structure_dialog():
         for index, button in enumerate(buttons):
             if button.isChecked() and index < len(question["options"]):
                 option = question["options"][index]
+
+                answers[question["id"]] = option["value"]
+
+                if question["id"] == "starting_point":
+                    dialog.starting_series_number.setVisible(
+                        option["value"] == "re-production"
+                    )
+
+                dialog.structure_status.setText(
+                    "  |  ".join(f"{key}: {value}" for key, value in answers.items())
+                )
+
                 dialog.structure_example.setPlainText(option["example"])
                 dialog.structure_explain.setPlainText(option["explanation"])
                 break
@@ -122,34 +139,99 @@ def load_structure_dialog():
         nonlocal question
         question = QUESTIONS[index]
 
+        answers.pop(question["id"], None)
+
         dialog.structure_subject.setText(question["subject"])
         dialog.structure_subject.adjustSize()
 
         dialog.structure_question.setPlainText(question["question"])
+
+        dialog.structure_example.clear()
+        dialog.structure_explain.clear()
 
         for button in buttons:
             button.setAutoExclusive(False)
             button.setChecked(False)
             button.setAutoExclusive(True)
 
-        for index, button in enumerate(buttons):
-            if index < len(question["options"]):
-                button.setText(question["options"][index]["text"])
+        for button_index, button in enumerate(buttons):
+            if button_index < len(question["options"]):
+                button.setText(question["options"][button_index]["text"])
                 button.show()
             else:
                 button.hide()
 
+    def question_applies(question_id):
+        if question_id == "starting_point":
+            return answers.get("numbering") == "automatic"
+
+        if question_id == "section_tracking":
+            return answers.get("structure") in ("sections", "sections_and_features")
+
+        if question_id == "feature_tracking":
+            return answers.get("structure") == "sections_and_features"
+
+        if question_id == "hierarchy":
+            issue_values = ("issues", "issues_and_labels")
+
+            return (
+                answers.get("section_tracking") in issue_values
+                or answers.get("feature_tracking") in issue_values
+            )
+
+        return True
+
     def go_forward():
         nonlocal current_question
+
+        if question["id"] == "starting_point":
+            if answers.get("starting_point") == "pre-production":
+                answers["starting_series"] = 0
+            elif answers.get("starting_point") == "production":
+                answers["starting_series"] = 1
+            elif answers.get("starting_point") == "re-production":
+                answers["starting_series"] = dialog.starting_series_number.value()
+
+        if question["id"] not in answers:
+            return
+
         current_question += 1
-        show_question(current_question)
+
+        while current_question < len(QUESTIONS):
+            next_question = QUESTIONS[current_question]
+
+            if question_applies(next_question["id"]):
+                break
+
+            current_question += 1
+
+        if current_question < len(QUESTIONS):
+            show_question(current_question)
+        else:
+            print("Configuration complete:", answers)
+            dialog.accept()
 
     def go_back():
         nonlocal current_question
+
         current_question -= 1
-        show_question(current_question)
+
+        while current_question >= 0:
+            previous_question = QUESTIONS[current_question]
+
+            if question_applies(previous_question["id"]):
+                break
+
+            current_question -= 1
+
+        if current_question >= 0:
+            show_question(current_question)
+
+    for button in buttons:
+        button.toggled.connect(update_details)
 
     dialog.button_forward.clicked.connect(go_forward)
+    dialog.button_back.clicked.connect(go_back)
 
     ui_file.close()
 
@@ -210,7 +292,7 @@ def main():
 
         try:
             roadmap = parse_roadmap(roadmap_path)
-        except Exception as error:
+        except (OSError, UnicodeError) as error:
             print(f"Failed to open roadmap: {roadmap_path}")
             print(f"Error: {error}")
             traceback.print_exc()
@@ -322,7 +404,7 @@ def main():
 
     def create_new_roadmap():
         structure_dialog = load_structure_dialog()
-        result = structure_dialog.exec()
+        structure_dialog.exec()
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
 

@@ -514,17 +514,6 @@ def sync_issues(
                     original_error=error,
                 ) from error
 
-            except Exception as error:
-                remaining = progress_total - progress
-
-                raise SynchronizationError(
-                    message=f"Failed to synchronize {issue.number} {issue.title}",
-                    completed=len(results),
-                    failed=issue,
-                    remaining=remaining,
-                    original_error=error,
-                ) from error
-
         for section in milestone.sections:
             for issue in section.issues:
                 if issues_to_sync is not None and id(issue) not in issues_to_sync:
