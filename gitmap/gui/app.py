@@ -13,7 +13,9 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
+    QLineEdit,
     QMessageBox,
+    QPlainTextEdit,
     QPushButton,
     QTextEdit,
     QTreeWidget,
@@ -90,6 +92,27 @@ def load_item_editor():
 
     loader = QUiLoader()
     editor = loader.load(ui_file)
+
+    def apply_item():
+        title = editor.findChild(QLineEdit, "item_title")
+        number = editor.findChild(QLineEdit, "item_number")
+        description = editor.findChild(QPlainTextEdit, "item_description")
+        preview = editor.findChild(QPlainTextEdit, "preview_text")
+        print("Title:", title.text())
+        print("Number:", number.text())
+        print("Description:", description.toPlainText())
+        preview.setPlainText(
+            f"{number.text()} {title.text()}\n\n"
+            f"{description.toPlainText()}"
+        )
+
+    apply_button = editor.findChild(QPushButton, "apply_button")
+    apply_button.clicked.connect(apply_item)
+    title = editor.findChild(QLineEdit, "item_title")
+    number = editor.findChild(QLineEdit, "item_number")
+
+    title.returnPressed.connect(apply_button.click)
+    number.returnPressed.connect(apply_button.click)
 
     ui_file.close()
     return editor
