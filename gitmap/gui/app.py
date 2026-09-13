@@ -21,8 +21,9 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
 )
-from structure_questions import QUESTIONS
 
+from gitmap.gui.structure_questions import QUESTIONS
+from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
 
 
@@ -32,8 +33,23 @@ def add_issue_to_tree(parent_item, issue):
     issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
     parent_item.addChild(issue_item)
 
+    issue_item.setForeground(0, QColor("#FFFFFF"))
+
+    if issue.description:
+        description_item = QTreeWidgetItem([issue.description])
+
+        description_font = QFont()
+        description_font.setItalic(True)
+        # description_font.setPointSize(description_font.pointSize() - 1)
+
+        description_item.setFont(0, description_font)
+        description_item.setForeground(0, QColor("#808080"))
+
+        issue_item.addChild(description_item)
+
     print("\nISSUE:", issue.number, issue.title)
 
+    print("  DESCRIPTION:", repr(issue.description))
     for requirement in issue.requirements:
         print("  REQUIREMENT:", repr(requirement.text))
 
@@ -43,6 +59,9 @@ def add_issue_to_tree(parent_item, issue):
     # --- Requirements ---
     for requirement in issue.requirements:
         requirement_text = requirement.text
+
+        if requirement_text.strip() == issue.description.strip():
+            continue
 
         # Remove legacy Markdown checkbox syntax.
         for prefix in (
@@ -60,14 +79,9 @@ def add_issue_to_tree(parent_item, issue):
                 requirement_text = requirement_text[len(prefix) :]
                 break
 
-        requirement_item = QTreeWidgetItem([requirement_text])
+        requirement_item = QTreeWidgetItem([f"• {requirement_text}"])
 
-        issue_item.setForeground(0, QColor("#707070"))
-
-        requirement_font = QFont()
-        requirement_font.setItalic(True)
-        requirement_item.setFont(0, requirement_font)
-        requirement_item.setForeground(0, QColor("#808080"))
+        requirement_item.setForeground(0, QColor("#B08CC6"))
 
         issue_item.addChild(requirement_item)
 
@@ -102,8 +116,7 @@ def load_item_editor():
         print("Number:", number.text())
         print("Description:", description.toPlainText())
         preview.setPlainText(
-            f"{number.text()} {title.text()}\n\n"
-            f"{description.toPlainText()}"
+            f"{number.text()} {title.text()}\n\n{description.toPlainText()}"
         )
 
     apply_button = editor.findChild(QPushButton, "apply_button")
@@ -132,13 +145,16 @@ def load_structure_dialog():
     question = QUESTIONS[current_question]
 
     dialog.starting_series_number.hide()
+    dialog.project_name.hide()
 
     answers = {}
+
+    dialog.answers = answers
 
     dialog.structure_subject.setText(question["subject"])
     dialog.structure_subject.adjustSize()
     dialog.structure_question.setPlainText(question["question"])
-    # dialog.structure_question.adjustSize()
+
     buttons = [
         dialog.Button1,
         dialog.Button2,
@@ -153,6 +169,22 @@ def load_structure_dialog():
         else:
             button.hide()
 
+    def validate_configuration():
+        if answers.get("use_features") and not answers.get("use_sections"):
+            return False
+
+        if answers.get("allow_issues_under_sections") and not answers.get(
+            "use_sections"
+        ):
+            return False
+
+        if answers.get("allow_issues_under_features") and not answers.get(
+            "use_features"
+        ):
+            return False
+
+        return True
+
     def update_details():
         for index, button in enumerate(buttons):
             if button.isChecked() and index < len(question["options"]):
@@ -160,9 +192,37 @@ def load_structure_dialog():
 
                 answers[question["id"]] = option["value"]
 
+                if question["id"] == "structure":
+                    structure = option["value"]
+
+                    answers["use_sections"] = structure in (
+                        "sections",
+                        "sections_and_features",
+                    )
+
+                    answers["use_features"] = structure == "sections_and_features"
+
+                    if not answers["use_sections"]:
+                        answers["allow_issues_under_sections"] = False
+
+                    if not answers["use_features"]:
+                        answers["allow_issues_under_features"] = False
+
+                if question["id"] == "section_tracking":
+                    answers["allow_issues_under_sections"] = option["value"] in (
+                        "issues",
+                        "issues_and_labels",
+                    )
+
                 if question["id"] == "starting_point":
                     dialog.starting_series_number.setVisible(
                         option["value"] == "re-production"
+                    )
+
+                if question["id"] == "feature_tracking":
+                    answers["allow_issues_under_features"] = option["value"] in (
+                        "issues",
+                        "issues_and_labels",
                     )
 
                 dialog.structure_status.setText(
@@ -176,6 +236,8 @@ def load_structure_dialog():
     def show_question(index):
         nonlocal question
         question = QUESTIONS[index]
+        dialog.project_name.setVisible(question["id"] == "project_name")
+        dialog.starting_series_number.setVisible(False)
 
         answers.pop(question["id"], None)
 
@@ -204,10 +266,10 @@ def load_structure_dialog():
             return answers.get("numbering") == "automatic"
 
         if question_id == "section_tracking":
-            return answers.get("structure") in ("sections", "sections_and_features")
+            return answers.get("use_sections", False)
 
         if question_id == "feature_tracking":
-            return answers.get("structure") == "sections_and_features"
+            return answers.get("use_features", False)
 
         if question_id == "hierarchy":
             issue_values = ("issues", "issues_and_labels")
@@ -230,6 +292,14 @@ def load_structure_dialog():
             elif answers.get("starting_point") == "re-production":
                 answers["starting_series"] = dialog.starting_series_number.value()
 
+        if question["id"] == "project_name":
+            name = dialog.project_name.text().strip()
+
+            if not name:
+                return
+
+            answers["project_name"] = name
+
         if question["id"] not in answers:
             return
 
@@ -246,8 +316,12 @@ def load_structure_dialog():
         if current_question < len(QUESTIONS):
             show_question(current_question)
         else:
-            print("Configuration complete:", answers)
-            dialog.accept()
+            if validate_configuration():
+                print("Configuration complete:", answers)
+                print("ABOUT TO ACCEPT DIALOG")
+                dialog.accept()
+            else:
+                print("Invalid configuration:", answers)
 
     def go_back():
         nonlocal current_question
@@ -309,7 +383,7 @@ def main():
     roadmap_tree.setHeaderHidden(True)
     roadmap_tree.setStyleSheet("""
         QTreeWidget {
-            background-color: white;
+            background-color: black;
             color: black;
         }
     """)
@@ -398,6 +472,7 @@ def main():
                     feature_font = QFont()
                     feature_font.setBold(True)
                     feature_item.setFont(0, feature_font)
+                    feature_item.setForeground(0, QColor("#C05050"))
 
                     for issue in feature.issues:
                         add_issue_to_tree(feature_item, issue)
@@ -446,8 +521,49 @@ def main():
     new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
 
     def create_new_roadmap():
+        print("CREATE NEW ROADMAP CALLED")
+        nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
+
         structure_dialog = load_structure_dialog()
-        structure_dialog.exec()
+
+        result = structure_dialog.exec()
+        print("STRUCTURE DIALOG RESULT:", result)
+
+        if not result:
+            return
+
+        answers = structure_dialog.answers
+        active_roadmap = Roadmap(
+            name=answers["project_name"],
+        )
+        active_roadmap.numbering_mode = answers["numbering"]
+        active_roadmap.starting_series = str(answers["starting_series"])
+        active_roadmap.use_sections = answers["use_sections"]
+        active_roadmap.use_features = answers["use_features"]
+        active_roadmap.allow_issues_under_sections = answers[
+            "allow_issues_under_sections"
+        ]
+        active_roadmap.allow_issues_under_features = answers[
+            "allow_issues_under_features"
+        ]
+
+        if answers.get("hierarchy") == "labeling":
+            active_roadmap.hierarchy_issue_title_style = "type_prefix"
+        else:
+            active_roadmap.hierarchy_issue_title_style = "plain"
+
+        representation_values = {
+            "issues": "issue",
+            "labeling": "label",
+            "issues_and_labels": "both",
+            "blank": None,
+        }
+        active_roadmap.github_representation = {
+            "section": representation_values.get(answers.get("section_tracking")),
+            "feature": representation_values.get(answers.get("feature_tracking")),
+        }
+        roadmap_name.setText(active_roadmap.name)
+        print("Created Roadmap model:", active_roadmap)
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
 

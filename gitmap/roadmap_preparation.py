@@ -1,5 +1,10 @@
-from gitmap.roadmap_numbering import generate_milestone_number, next_section_number, next_feature_number, \
-    next_issue_number, next_work_step_number
+from gitmap.roadmap_numbering import (
+    generate_milestone_number,
+    next_feature_number,
+    next_issue_number,
+    next_section_number,
+    next_work_step_number,
+)
 
 
 def ask_project_name():
@@ -30,9 +35,7 @@ def collect_milestones(
 
     while True:
         if numbering_mode == "automatic":
-            title = input(
-                "Milestone title (or press Enter when finished): "
-            ).strip()
+            title = input("Milestone title (or press Enter when finished): ").strip()
 
             if not title:
                 break
@@ -45,9 +48,7 @@ def collect_milestones(
             print(f"Milestone number: {number}")
 
         else:
-            number = input(
-                "Milestone number (or press Enter when finished): "
-            ).strip()
+            number = input("Milestone number (or press Enter when finished): ").strip()
 
             if not number:
                 break
@@ -116,6 +117,7 @@ def collect_milestones(
 #             print("Please choose one of the available options.")
 #
 
+
 def collect_sections(
     milestone,
     numbering_mode,
@@ -160,7 +162,6 @@ def collect_sections(
             "issues": [],
             "features": [],
         }
-
 
         sections.append(section)
 
@@ -256,6 +257,7 @@ def collect_features(section, numbering_mode):
 
     return features
 
+
 def collect_issues(parent, numbering_mode):
     """Guide the user through defining issues for a parent."""
 
@@ -280,8 +282,7 @@ def collect_issues(parent, numbering_mode):
 
         else:
             number = input(
-                f"Issue number for {parent['title']} "
-                "(or press Enter when finished): "
+                f"Issue number for {parent['title']} (or press Enter when finished): "
             ).strip()
 
             if not number:
@@ -307,6 +308,7 @@ def collect_issues(parent, numbering_mode):
 
     return issues
 
+
 def collect_issue_details(issue, numbering_mode):
     """Collect requirements and work steps for an existing issue."""
 
@@ -314,22 +316,16 @@ def collect_issue_details(issue, numbering_mode):
     print(f"Issue: {issue['number']} {issue['title']}")
     print()
     print("Issue options:")
-    print(
-        "  (r)equirement — something that must be true or completed for this issue"
-    )
+    print("  (r)equirement — something that must be true or completed for this issue")
     print("  (w)ork step   — a smaller piece of work inside this issue")
     print("  (d)one        — finish this issue and move on to the next issue")
     print()
 
     while True:
-        choice = input(
-            "[(r)equirement / (w)ork step / (d)one]: "
-        ).strip().lower()
+        choice = input("[(r)equirement / (w)ork step / (d)one]: ").strip().lower()
 
         if choice in ("r", "requirement"):
-            issue["requirements"].extend(
-                collect_requirements()
-            )
+            issue["requirements"].extend(collect_requirements())
 
         elif choice in ("w", "work", "work step"):
             work_step = collect_work_step(
@@ -345,6 +341,7 @@ def collect_issue_details(issue, numbering_mode):
 
         else:
             print("Invalid choice.")
+
 
 def collect_requirements():
     """Collect issue requirements one at a time or from pasted text."""
@@ -366,8 +363,6 @@ def collect_requirements():
         requirements.append(requirement)
 
     return requirements
-
-
 
 
 def collect_work_step(issue, numbering_mode):

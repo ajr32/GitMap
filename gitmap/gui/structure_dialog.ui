@@ -250,10 +250,10 @@ color: rgb(255, 255, 255);</string>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>509</x>
-      <y>175</y>
+      <x>510</x>
+      <y>170</y>
       <width>301</width>
-      <height>128</height>
+      <height>132</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="Buttons">
@@ -388,13 +388,23 @@ QRadioButton::indicator:checked {
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>300</y>
+      <y>290</y>
       <width>71</width>
       <height>22</height>
      </rect>
     </property>
     <property name="minimum">
      <number>2</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="project_name">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>210</y>
+      <width>299</width>
+      <height>41</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -428,13 +438,16 @@ QRadioButton::indicator:checked {
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>680</y>
+     <y>649</y>
      <width>891</width>
-     <height>20</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
     <string>No selections yet.</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

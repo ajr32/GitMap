@@ -68,3 +68,7 @@ class Roadmap:
     hierarchy_issue_title_style: str | None = None
     numbering_mode: str | None = None
     starting_series: str | None = None
+    use_sections: bool = False
+    use_features: bool = False
+    allow_issues_under_sections: bool = False
+    allow_issues_under_features: bool = False

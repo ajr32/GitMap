@@ -167,4 +167,10 @@ QUESTIONS = [
             },
         ],
     },
+    {
+        "id": "project_name",
+        "subject": "Roadmap Name",
+        "question": "What is the name of your project?",
+        "options": [],
+    },
 ]
