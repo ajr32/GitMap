@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 
+from gitmap.mapping_mod.mapping_issues import collect_hierarchy_issue_mappings
 from gitmap.models import Roadmap
 
 
@@ -31,6 +32,11 @@ class SyncEngine:
         """Create a synchronization plan without changing GitHub."""
 
         result = SyncResult()
+
+        hierarchy_mappings = collect_hierarchy_issue_mappings(self.roadmap)
+
+        for mapping in hierarchy_mappings:
+            print("HIERARCHY PREVIEW:", mapping.hierarchy_type, mapping.title)
 
         for milestone in self.roadmap.milestones:
             result.created.append(f"Milestone: {milestone.number} {milestone.title}")

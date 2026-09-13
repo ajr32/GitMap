@@ -438,6 +438,7 @@ def run_sync(roadmap_path):
     print("-------------------------------")
     print(f"Repository: {repository_name}")
     print(f"Roadmap: {roadmap.name}")
+    print(f"Hierarchy Issue Title Style: {roadmap.hierarchy_issue_title_style}")
     print()
     print(f"Roadmap Issues: {issue_count}")
     print(f"Section Issues: {section_issue_count}")

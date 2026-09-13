@@ -26,11 +26,13 @@ from gitmap.gui.structure_questions import QUESTIONS
 from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
 
+MODEL_ROLE = Qt.ItemDataRole.UserRole
 
 def add_issue_to_tree(parent_item, issue):
     """Add an issue and its contents to the roadmap tree."""
 
     issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
+    issue_item.setData(0, MODEL_ROLE, issue)
     parent_item.addChild(issue_item)
 
     issue_item.setForeground(0, QColor("#FFFFFF"))
@@ -96,6 +98,41 @@ def add_issue_to_tree(parent_item, issue):
         issue_item.addChild(work_step_item)
 
 
+# def load_item_editor():
+#     """Load the roadmap item editor."""
+#
+#     ui_path = Path(__file__).with_name("item_editor.ui")
+#
+#     ui_file = QFile(str(ui_path))
+#     ui_file.open(QFile.OpenModeFlag.ReadOnly)
+#
+#     loader = QUiLoader()
+#     editor = loader.load(ui_file)
+#
+#     def apply_item():
+#         title = editor.findChild(QLineEdit, "item_title")
+#         number = editor.findChild(QLineEdit, "item_number")
+#         description = editor.findChild(QPlainTextEdit, "item_description")
+#         preview = editor.findChild(QPlainTextEdit, "preview_text")
+#         print("Title:", title.text())
+#         print("Number:", number.text())
+#         print("Description:", description.toPlainText())
+#         preview.setPlainText(
+#             f"{number.text()} {title.text()}\n\n{description.toPlainText()}"
+#         )
+#
+#     apply_button = editor.findChild(QPushButton, "apply_button")
+#     apply_button.clicked.connect(apply_item)
+#     title = editor.findChild(QLineEdit, "item_title")
+#     number = editor.findChild(QLineEdit, "item_number")
+#
+#     title.returnPressed.connect(apply_button.click)
+#     number.returnPressed.connect(apply_button.click)
+#
+#     ui_file.close()
+#     return editor
+
+
 def load_item_editor():
     """Load the roadmap item editor."""
 
@@ -107,29 +144,9 @@ def load_item_editor():
     loader = QUiLoader()
     editor = loader.load(ui_file)
 
-    def apply_item():
-        title = editor.findChild(QLineEdit, "item_title")
-        number = editor.findChild(QLineEdit, "item_number")
-        description = editor.findChild(QPlainTextEdit, "item_description")
-        preview = editor.findChild(QPlainTextEdit, "preview_text")
-        print("Title:", title.text())
-        print("Number:", number.text())
-        print("Description:", description.toPlainText())
-        preview.setPlainText(
-            f"{number.text()} {title.text()}\n\n{description.toPlainText()}"
-        )
-
-    apply_button = editor.findChild(QPushButton, "apply_button")
-    apply_button.clicked.connect(apply_item)
-    title = editor.findChild(QLineEdit, "item_title")
-    number = editor.findChild(QLineEdit, "item_number")
-
-    title.returnPressed.connect(apply_button.click)
-    number.returnPressed.connect(apply_button.click)
-
     ui_file.close()
-    return editor
 
+    return editor
 
 def load_structure_dialog():
     """Load the new-roadmap structure dialog."""
@@ -318,7 +335,6 @@ def load_structure_dialog():
         else:
             if validate_configuration():
                 print("Configuration complete:", answers)
-                print("ABOUT TO ACCEPT DIALOG")
                 dialog.accept()
             else:
                 print("Invalid configuration:", answers)
@@ -368,6 +384,8 @@ def main():
     active_roadmap_path = None
     active_roadmap = None
     roadmap_is_active = False
+    selected_roadmap_object = None
+    item_editor_window = None
 
     ui_path = Path(__file__).with_name("main_window.ui")
 
@@ -439,6 +457,7 @@ def main():
 
         for milestone in roadmap.milestones:
             milestone_item = QTreeWidgetItem([f"{milestone.number} {milestone.title}"])
+            milestone_item.setData(0, MODEL_ROLE, milestone)
             milestone_font = QFont()
             milestone_font.setBold(True)
             milestone_item.setFont(0, milestone_font)
@@ -453,7 +472,7 @@ def main():
 
             for section in milestone.sections:
                 section_item = QTreeWidgetItem([f"{section.number} {section.title}"])
-
+                section_item.setData(0, MODEL_ROLE, section)
                 section_font = QFont()
                 section_font.setBold(True)
                 section_item.setFont(0, section_font)
@@ -463,9 +482,8 @@ def main():
                 milestone_item.addChild(section_item)
 
                 for feature in section.features:
-                    feature_item = QTreeWidgetItem(
-                        [f"{feature.number} {feature.title}"]
-                    )
+                    feature_item = QTreeWidgetItem([f"{feature.number} {feature.title}"])
+                    feature_item.setData(0, MODEL_ROLE, feature)
 
                     section_item.addChild(feature_item)
 
@@ -512,6 +530,40 @@ def main():
 
         print(f"Parsed roadmap: {roadmap}")
 
+    def selection_changed(item, previous_item):
+        nonlocal selected_roadmap_object
+
+        model = item.data(0, MODEL_ROLE)
+        selected_roadmap_object = model
+        is_editable = model is not None
+        edit_roadmap_button.setEnabled(is_editable)
+
+        if model is not None:
+            print("TREE MODEL:", type(model).__name__, model.number, model.title)
+
+    roadmap_tree.currentItemChanged.connect(selection_changed)
+
+    def open_selected_item_editor():
+        nonlocal item_editor_window
+
+        if selected_roadmap_object is None:
+            return
+
+        item_editor_window = load_item_editor()
+        item_editor_window.show()
+
+    def roadmap_item_double_clicked(item, column):
+        model = item.data(0, MODEL_ROLE)
+
+        if model is None:
+            return
+
+        open_selected_item_editor()
+
+    roadmap_tree.itemDoubleClicked.connect(roadmap_item_double_clicked)
+    roadmap_tree.setExpandsOnDoubleClick(False)
+
+
     # --- Open Roadmap Button ---
     # Connects the Designer button to the roadmap file picker.
     open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
@@ -519,33 +571,32 @@ def main():
     open_roadmap_button.clicked.connect(open_roadmap)
 
     new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
+    edit_roadmap_button = window.findChild(QPushButton, "edit_roadmap_button")
+    edit_roadmap_button.setEnabled(False)
+
+    edit_roadmap_button.clicked.connect(open_selected_item_editor)
 
     def create_new_roadmap():
-        print("CREATE NEW ROADMAP CALLED")
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
 
         structure_dialog = load_structure_dialog()
 
         result = structure_dialog.exec()
-        print("STRUCTURE DIALOG RESULT:", result)
 
         if not result:
             return
 
+        active_roadmap_path = None
+    
         answers = structure_dialog.answers
-        active_roadmap = Roadmap(
-            name=answers["project_name"],
-        )
+
+        active_roadmap = Roadmap(name=answers["project_name"],)
         active_roadmap.numbering_mode = answers["numbering"]
-        active_roadmap.starting_series = str(answers["starting_series"])
+        active_roadmap.starting_series = str(answers.get("starting_series", 0))
         active_roadmap.use_sections = answers["use_sections"]
         active_roadmap.use_features = answers["use_features"]
-        active_roadmap.allow_issues_under_sections = answers[
-            "allow_issues_under_sections"
-        ]
-        active_roadmap.allow_issues_under_features = answers[
-            "allow_issues_under_features"
-        ]
+        active_roadmap.allow_issues_under_sections = answers["allow_issues_under_sections"]
+        active_roadmap.allow_issues_under_features = answers["allow_issues_under_features"]
 
         if answers.get("hierarchy") == "labeling":
             active_roadmap.hierarchy_issue_title_style = "type_prefix"
@@ -563,7 +614,7 @@ def main():
             "feature": representation_values.get(answers.get("feature_tracking")),
         }
         roadmap_name.setText(active_roadmap.name)
-        print("Created Roadmap model:", active_roadmap)
+        roadmap_is_active = True
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
 
