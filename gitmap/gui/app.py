@@ -24,11 +24,18 @@ from PySide6.QtWidgets import (
     QTreeWidgetItemIterator,
 )
 
+from gitmap.gui.item_editor import (
+    configure_editor,
+    get_item_type,
+    load_item_editor,
+)
 from gitmap.gui.structure_questions import QUESTIONS
-from gitmap.models import Roadmap
+from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
 from gitmap.parser import parse_roadmap
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
+DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
+DETAIL_KIND_ROLE = Qt.ItemDataRole.UserRole + 2
 
 
 def add_issue_to_tree(parent_item, issue):
@@ -42,6 +49,7 @@ def add_issue_to_tree(parent_item, issue):
 
     if issue.description:
         description_item = QTreeWidgetItem([issue.description])
+        description_item.setData(0, MODEL_ROLE, issue)
 
         description_font = QFont()
         description_font.setItalic(True)
@@ -65,6 +73,8 @@ def add_issue_to_tree(parent_item, issue):
     for requirement in issue.requirements:
         requirement_text = requirement.text
 
+        print("TREE REQUIREMENT:", id(requirement), requirement.text)
+
         if requirement_text.strip() == issue.description.strip():
             continue
 
@@ -85,6 +95,9 @@ def add_issue_to_tree(parent_item, issue):
                 break
 
         requirement_item = QTreeWidgetItem([f"• {requirement_text}"])
+        requirement_item.setData(0, MODEL_ROLE, issue)
+        requirement_item.setData(0, DETAIL_ROLE, requirement)
+        requirement_item.setData(0, DETAIL_KIND_ROLE, "requirement")
 
         requirement_item.setForeground(0, QColor("#B08CC6"))
 
@@ -95,68 +108,13 @@ def add_issue_to_tree(parent_item, issue):
         work_step_item = QTreeWidgetItem(
             [f"{work_step.work_step_marker} {work_step.title}"]
         )
+        work_step_item.setData(0, MODEL_ROLE, issue)
+        work_step_item.setData(0, DETAIL_ROLE, work_step)
+        work_step_item.setData(0, DETAIL_KIND_ROLE, "work_step")
 
         work_step_item.setForeground(0, QColor("#4F8A5B"))
 
         issue_item.addChild(work_step_item)
-
-
-# def load_item_editor():
-#     """Load the roadmap item editor."""
-#
-#     ui_path = Path(__file__).with_name("item_editor.ui")
-#
-#     ui_file = QFile(str(ui_path))
-#     ui_file.open(QFile.OpenModeFlag.ReadOnly)
-#
-#     loader = QUiLoader()
-#     editor = loader.load(ui_file)
-#
-#     def apply_item():
-#         title = editor.findChild(QLineEdit, "item_title")
-#         number = editor.findChild(QLineEdit, "item_number")
-#         description = editor.findChild(QPlainTextEdit, "item_description")
-#         preview = editor.findChild(QPlainTextEdit, "preview_text")
-#         print("Title:", title.text())
-#         print("Number:", number.text())
-#         print("Description:", description.toPlainText())
-#         preview.setPlainText(
-#             f"{number.text()} {title.text()}\n\n{description.toPlainText()}"
-#         )
-#
-#     apply_button = editor.findChild(QPushButton, "apply_button")
-#     apply_button.clicked.connect(apply_item)
-#     title = editor.findChild(QLineEdit, "item_title")
-#     number = editor.findChild(QLineEdit, "item_number")
-#
-#     title.returnPressed.connect(apply_button.click)
-#     number.returnPressed.connect(apply_button.click)
-#
-#     ui_file.close()
-#     return editor
-
-
-def load_item_editor():
-    """Load the roadmap item editor."""
-
-    ui_path = Path(__file__).with_name("item_editor.ui")
-
-    ui_file = QFile(str(ui_path))
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
-
-    loader = QUiLoader()
-    editor = loader.load(ui_file)
-
-    preview_text = editor.findChild(QTreeWidget, "preview_text")
-    ui_file.close()
-
-    apply_button = editor.findChild(QPushButton, "apply_button")
-    apply_button.clicked.connect(
-        lambda: print("APPLY MODEL:", type(editor.roadmap_object).__name__)
-    )
-    cancel_button = editor.findChild(QPushButton, "cancel_button")
-    cancel_button.clicked.connect(editor.close)
-    return editor
 
 
 def load_structure_dialog():
@@ -517,6 +475,7 @@ def main():
         populate_roadmap_tree(roadmap_tree, roadmap)
 
         roadmap_is_active = True
+        edit_roadmap_button.setEnabled(True)
 
     def selection_changed(item, previous_item):
         nonlocal selected_roadmap_object
@@ -524,18 +483,33 @@ def main():
         model = item.data(0, MODEL_ROLE)
         selected_roadmap_object = model
 
-        edit_roadmap_button.setEnabled(model is not None)
+        # edit_roadmap_button.setEnabled(model is not None)
 
     roadmap_tree.currentItemChanged.connect(selection_changed)
 
     def open_selected_item_editor():
         nonlocal item_editor_window
 
-        if selected_roadmap_object is None:
-            return
+        # if selected_roadmap_object is None:
+        #     return
+
+        # selected_detail = roadmap_tree.currentItem().data(0, DETAIL_ROLE)
+        selected_detail = None
 
         item_editor_window = load_item_editor()
-        item_editor_window.roadmap_object = selected_roadmap_object
+        # item_editor_window.roadmap_object = selected_roadmap_object
+        item_editor_window.roadmap_detail = selected_detail
+
+        if selected_detail is not None:
+            print("EDITOR DETAIL:", selected_detail.title)
+
+        # configure_editor(
+        #     item_editor_window,
+        #     selected_roadmap_object,
+        #     selected_detail,
+        # )
+        item_type = get_item_type(selected_roadmap_object)
+
         item_editor_window.roadmap = active_roadmap
 
         preview_text = item_editor_window.findChild(QTreeWidget, "preview_text")
@@ -544,6 +518,15 @@ def main():
 
         populate_roadmap_tree(preview_text, active_roadmap)
 
+        def refresh_editor_preview():
+            print(
+                "BEFORE REFRESH:",
+                getattr(item_editor_window.roadmap_detail, "text", None),
+            )
+            populate_roadmap_tree(preview_text, active_roadmap)
+
+        item_editor_window.refresh_preview = refresh_editor_preview
+
         def preview_selection_changed(current, previous):
             if previous is not None:
                 previous.setBackground(0, QBrush())
@@ -551,18 +534,33 @@ def main():
             if current is not None:
                 current.setBackground(0, QColor("#3A4A5A"))
 
+                model = current.data(0, MODEL_ROLE)
+                detail = current.data(0, DETAIL_ROLE)
+                detail_kind = current.data(0, DETAIL_KIND_ROLE)
+
+                if model is not None:
+                    item_editor_window.roadmap_object = model
+                    item_editor_window.roadmap_detail = detail
+
+                    configure_editor(
+                        item_editor_window,
+                        model,
+                        detail,
+                        detail_kind,
+                    )
+
         preview_text.currentItemChanged.connect(preview_selection_changed)
 
-        iterator = QTreeWidgetItemIterator(preview_text)
-
-        while iterator.value():
-            item = iterator.value()
-
-            if item.data(0, MODEL_ROLE) is selected_roadmap_object:
-                preview_text.setCurrentItem(item)
-                break
-
-            iterator += 1
+        # iterator = QTreeWidgetItemIterator(preview_text)
+        #
+        # while iterator.value():
+        #     item = iterator.value()
+        #
+        #     if item.data(0, MODEL_ROLE) is selected_roadmap_object:
+        #         preview_text.setCurrentItem(item)
+        #         break
+        #
+        #     iterator += 1
 
         item_editor_window.show()
 
