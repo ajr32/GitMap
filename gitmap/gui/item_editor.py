@@ -3,7 +3,13 @@ from pathlib import Path
 
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QLabel, QLineEdit, QPlainTextEdit, QPushButton
+from PySide6.QtWidgets import (
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPlainTextEdit,
+    QPushButton,
+)
 
 from gitmap.models import Feature, Issue, Milestone, Section
 
@@ -18,18 +24,39 @@ def apply_editor_changes(editor):
     )
 
     title_field = editor.findChild(QLineEdit, "item_title")
+    new_title = title_field.text().strip()
+
+    if not new_title:
+        QMessageBox.warning(
+            editor,
+            "Invalid Title",
+            "Title cannot be blank.",
+        )
+        return
 
     description_field = editor.findChild(QPlainTextEdit, "item_description")
 
     requirement_field = editor.findChild(QPlainTextEdit, "item_require")
 
-    roadmap_object.title = title_field.text()
+    work_step_field = editor.findChild(QPlainTextEdit, "item_work_step")
+
+    roadmap_object.title = new_title
 
     if roadmap_detail is not None and hasattr(roadmap_detail, "text"):
         roadmap_detail.text = requirement_field.toPlainText()
 
         print("AFTER CHANGE:", roadmap_detail.text)
         print("DETAIL OBJECT ID:", id(roadmap_detail))
+
+    if roadmap_detail is not None and hasattr(roadmap_detail, "work_step_marker"):
+        work_step_text = work_step_field.toPlainText()
+
+        marker = roadmap_detail.work_step_marker
+
+        if work_step_text.startswith(marker):
+            work_step_text = work_step_text[len(marker) :].strip()
+
+        roadmap_detail.title = work_step_text
 
     if isinstance(roadmap_object, Issue):
         roadmap_object.description = description_field.toPlainText()
@@ -91,6 +118,7 @@ def configure_editor(
     work_step_field = editor.findChild(QPlainTextEdit, "item_work_step")
     title_field = editor.findChild(QLineEdit, "item_title")
     number_field = editor.findChild(QLineEdit, "item_number")
+    number_field.setReadOnly(True)
     description_field = editor.findChild(QPlainTextEdit, "item_description")
     description_label = editor.findChild(QLabel, "description_label")
     require_label = editor.findChild(QLabel, "require_label")
@@ -163,6 +191,4 @@ def configure_editor(
         if detail_kind == "requirement" and selected_detail is not None:
             requirement_field.setPlainText(selected_detail.text)
         if detail_kind == "work_step" and selected_detail is not None:
-            work_step_field.setPlainText(
-                f"{selected_detail.work_step_marker} {selected_detail.title}"
-            )
+            work_step_field.setPlainText(selected_detail.title)
