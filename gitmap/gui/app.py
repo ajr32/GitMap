@@ -8,9 +8,10 @@ import traceback
 from pathlib import Path
 
 from PySide6.QtCore import QFile, Qt
-from PySide6.QtGui import QColor, QFont
+from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
     QFileDialog,
     QLineEdit,
@@ -20,6 +21,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
+    QTreeWidgetItemIterator,
 )
 
 from gitmap.gui.structure_questions import QUESTIONS
@@ -27,6 +29,7 @@ from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
+
 
 def add_issue_to_tree(parent_item, issue):
     """Add an issue and its contents to the roadmap tree."""
@@ -144,9 +147,17 @@ def load_item_editor():
     loader = QUiLoader()
     editor = loader.load(ui_file)
 
+    preview_text = editor.findChild(QTreeWidget, "preview_text")
     ui_file.close()
 
+    apply_button = editor.findChild(QPushButton, "apply_button")
+    apply_button.clicked.connect(
+        lambda: print("APPLY MODEL:", type(editor.roadmap_object).__name__)
+    )
+    cancel_button = editor.findChild(QPushButton, "cancel_button")
+    cancel_button.clicked.connect(editor.close)
     return editor
+
 
 def load_structure_dialog():
     """Load the new-roadmap structure dialog."""
@@ -410,6 +421,61 @@ def main():
 
     # --- Open Roadmap ---
     # Lets the user choose an existing GitMap Markdown roadmap.
+
+    def populate_roadmap_tree(tree, roadmap):
+        tree.clear()
+
+        test_item = QTreeWidgetItem([roadmap.name])
+        tree.addTopLevelItem(test_item)
+
+        for milestone in roadmap.milestones:
+            milestone_item = QTreeWidgetItem([f"{milestone.number} {milestone.title}"])
+            milestone_item.setData(0, MODEL_ROLE, milestone)
+            milestone_font = QFont()
+            milestone_font.setBold(True)
+            milestone_item.setFont(0, milestone_font)
+
+            milestone_item.setData(
+                0,
+                Qt.ItemDataRole.ForegroundRole,
+                QColor("#008B8B"),
+            )
+
+            test_item.addChild(milestone_item)
+
+            for section in milestone.sections:
+                section_item = QTreeWidgetItem([f"{section.number} {section.title}"])
+                section_item.setData(0, MODEL_ROLE, section)
+                section_font = QFont()
+                section_font.setBold(True)
+                section_item.setFont(0, section_font)
+
+                section_item.setForeground(0, QColor("#D49A00"))
+
+                milestone_item.addChild(section_item)
+
+                for issue in section.issues:
+                    add_issue_to_tree(section_item, issue)
+
+                for feature in section.features:
+                    feature_item = QTreeWidgetItem(
+                        [f"{feature.number} {feature.title}"]
+                    )
+                    feature_item.setData(0, MODEL_ROLE, feature)
+
+                    feature_font = QFont()
+                    feature_font.setBold(True)
+                    feature_item.setFont(0, feature_font)
+                    feature_item.setForeground(0, QColor("#C05050"))
+
+                    section_item.addChild(feature_item)
+
+                    for issue in feature.issues:
+                        add_issue_to_tree(feature_item, issue)
+
+        tree.expandAll()
+        return test_item
+
     def open_roadmap():
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
 
@@ -448,98 +514,17 @@ def main():
         roadmap_name.setText(roadmap.name)
         print(vars(roadmap))
 
-        # --- Display Roadmap ---
-        # Temporary test to prove we can write to the Designer tree.
-        roadmap_tree.clear()
-
-        test_item = QTreeWidgetItem([roadmap.name])
-        roadmap_tree.addTopLevelItem(test_item)
-
-        for milestone in roadmap.milestones:
-            milestone_item = QTreeWidgetItem([f"{milestone.number} {milestone.title}"])
-            milestone_item.setData(0, MODEL_ROLE, milestone)
-            milestone_font = QFont()
-            milestone_font.setBold(True)
-            milestone_item.setFont(0, milestone_font)
-
-            milestone_item.setData(
-                0,
-                Qt.ItemDataRole.ForegroundRole,
-                QColor("#008B8B"),
-            )
-
-            test_item.addChild(milestone_item)
-
-            for section in milestone.sections:
-                section_item = QTreeWidgetItem([f"{section.number} {section.title}"])
-                section_item.setData(0, MODEL_ROLE, section)
-                section_font = QFont()
-                section_font.setBold(True)
-                section_item.setFont(0, section_font)
-
-                section_item.setForeground(0, QColor("#D49A00"))
-
-                milestone_item.addChild(section_item)
-
-                for feature in section.features:
-                    feature_item = QTreeWidgetItem([f"{feature.number} {feature.title}"])
-                    feature_item.setData(0, MODEL_ROLE, feature)
-
-                    section_item.addChild(feature_item)
-
-                    feature_font = QFont()
-                    feature_font.setBold(True)
-                    feature_item.setFont(0, feature_font)
-                    feature_item.setForeground(0, QColor("#C05050"))
-
-                    for issue in feature.issues:
-                        add_issue_to_tree(feature_item, issue)
-
-                    # for issue in feature.issues:
-                    #     issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
-                    #
-                    #     feature_item.addChild(issue_item)
-                    #
-                    #     # --- Issue Requirements ---
-                    #     for requirement in issue.requirements:
-                    #         requirement_item = QTreeWidgetItem([requirement.text])
-                    #
-                    #         issue_item.addChild(requirement_item)
-                    #
-                    #     # --- Issue Work Steps ---
-                    #     for work_step in issue.work_steps:
-                    #         work_step_item = QTreeWidgetItem(
-                    #             [f"({work_step.work_step_marker}) {work_step.title}"]
-                    #         )
-                    #
-                    #         issue_item.addChild(work_step_item)
-
-                # --- Issues Directly Under Section ---
-                for issue in section.issues:
-                    add_issue_to_tree(section_item, issue)
-
-            # --- Issues Directly Under Milestone ---
-            for issue in milestone.issues:
-                add_issue_to_tree(milestone_item, issue)
-
-        roadmap_tree.expandAll()
-
-        test_item.setExpanded(True)
+        populate_roadmap_tree(roadmap_tree, roadmap)
 
         roadmap_is_active = True
-
-        print(f"Parsed roadmap: {roadmap}")
 
     def selection_changed(item, previous_item):
         nonlocal selected_roadmap_object
 
         model = item.data(0, MODEL_ROLE)
         selected_roadmap_object = model
-        is_editable = model is not None
-        edit_roadmap_button.setEnabled(is_editable)
 
-        if model is not None:
-            print("TREE MODEL:", type(model).__name__, model.number, model.title)
+        edit_roadmap_button.setEnabled(model is not None)
 
     roadmap_tree.currentItemChanged.connect(selection_changed)
 
@@ -550,6 +535,35 @@ def main():
             return
 
         item_editor_window = load_item_editor()
+        item_editor_window.roadmap_object = selected_roadmap_object
+        item_editor_window.roadmap = active_roadmap
+
+        preview_text = item_editor_window.findChild(QTreeWidget, "preview_text")
+        preview_text.setHeaderHidden(True)
+        preview_text.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+
+        populate_roadmap_tree(preview_text, active_roadmap)
+
+        def preview_selection_changed(current, previous):
+            if previous is not None:
+                previous.setBackground(0, QBrush())
+
+            if current is not None:
+                current.setBackground(0, QColor("#3A4A5A"))
+
+        preview_text.currentItemChanged.connect(preview_selection_changed)
+
+        iterator = QTreeWidgetItemIterator(preview_text)
+
+        while iterator.value():
+            item = iterator.value()
+
+            if item.data(0, MODEL_ROLE) is selected_roadmap_object:
+                preview_text.setCurrentItem(item)
+                break
+
+            iterator += 1
+
         item_editor_window.show()
 
     def roadmap_item_double_clicked(item, column):
@@ -562,7 +576,6 @@ def main():
 
     roadmap_tree.itemDoubleClicked.connect(roadmap_item_double_clicked)
     roadmap_tree.setExpandsOnDoubleClick(False)
-
 
     # --- Open Roadmap Button ---
     # Connects the Designer button to the roadmap file picker.
@@ -587,16 +600,22 @@ def main():
             return
 
         active_roadmap_path = None
-    
+
         answers = structure_dialog.answers
 
-        active_roadmap = Roadmap(name=answers["project_name"],)
+        active_roadmap = Roadmap(
+            name=answers["project_name"],
+        )
         active_roadmap.numbering_mode = answers["numbering"]
         active_roadmap.starting_series = str(answers.get("starting_series", 0))
         active_roadmap.use_sections = answers["use_sections"]
         active_roadmap.use_features = answers["use_features"]
-        active_roadmap.allow_issues_under_sections = answers["allow_issues_under_sections"]
-        active_roadmap.allow_issues_under_features = answers["allow_issues_under_features"]
+        active_roadmap.allow_issues_under_sections = answers[
+            "allow_issues_under_sections"
+        ]
+        active_roadmap.allow_issues_under_features = answers[
+            "allow_issues_under_features"
+        ]
 
         if answers.get("hierarchy") == "labeling":
             active_roadmap.hierarchy_issue_title_style = "type_prefix"
