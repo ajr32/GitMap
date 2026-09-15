@@ -112,6 +112,30 @@ color: rgb(255, 255, 255);</string>
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
+   <widget class="QTreeWidget" name="context_tree">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>441</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);
+color: rgb(255, 238, 230);</string>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true">1</string>
+     </property>
+    </column>
+   </widget>
   </widget>
   <widget class="QFrame" name="frame_3">
    <property name="geometry">
@@ -147,7 +171,7 @@ color: rgb(255, 255, 255);</string>
      <string>Save + Exit</string>
     </property>
    </widget>
-   <widget class="QLabel" name="item_type">
+   <widget class="QLabel" name="item_type_label">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -206,16 +230,6 @@ color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
         <string>Add</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="edit_button">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Edit</string>
        </property>
       </widget>
      </item>
@@ -370,7 +384,7 @@ background-color: rgb(255, 0, 0);</string>
     </property>
    </widget>
    <zorder>pushButton_2</zorder>
-   <zorder>item_type</zorder>
+   <zorder>item_type_label</zorder>
    <zorder>pushButton</zorder>
    <zorder>label_6</zorder>
    <zorder>layoutWidget</zorder>

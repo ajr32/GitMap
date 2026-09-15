@@ -45,9 +45,6 @@ def apply_editor_changes(editor):
     if roadmap_detail is not None and hasattr(roadmap_detail, "text"):
         roadmap_detail.text = requirement_field.toPlainText()
 
-        print("AFTER CHANGE:", roadmap_detail.text)
-        print("DETAIL OBJECT ID:", id(roadmap_detail))
-
     if roadmap_detail is not None and hasattr(roadmap_detail, "work_step_marker"):
         work_step_text = work_step_field.toPlainText()
 
@@ -60,6 +57,9 @@ def apply_editor_changes(editor):
 
     if isinstance(roadmap_object, Issue):
         roadmap_object.description = description_field.toPlainText()
+
+    if hasattr(editor, "roadmap"):
+        editor.roadmap.is_modified = True
 
     if hasattr(editor, "refresh_preview"):
         editor.refresh_preview()
@@ -111,8 +111,8 @@ def configure_editor(
 ):
     item_type = get_item_type(roadmap_object)
 
-    type_field = editor.findChild(QLabel, "item_type")
-    type_field.setText(item_type)
+    type_field = editor.findChild(QLabel, "item_type_label")
+    type_field.setText(f"Editing {item_type}")
 
     requirement_field = editor.findChild(QPlainTextEdit, "item_require")
     work_step_field = editor.findChild(QPlainTextEdit, "item_work_step")

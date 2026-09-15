@@ -72,3 +72,4 @@ class Roadmap:
     use_features: bool = False
     allow_issues_under_sections: bool = False
     allow_issues_under_features: bool = False
+    is_modified: bool = False

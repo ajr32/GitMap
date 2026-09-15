@@ -50,6 +50,7 @@ def add_issue_to_tree(parent_item, issue):
     if issue.description:
         description_item = QTreeWidgetItem([issue.description])
         description_item.setData(0, MODEL_ROLE, issue)
+        description_item.setData(0, DETAIL_KIND_ROLE, "description")
 
         description_font = QFont()
         description_font.setItalic(True)
@@ -434,6 +435,23 @@ def main():
         tree.expandAll()
         return test_item
 
+    def flatten_tree(tree):
+        items = []
+
+        def visit(item):
+            if (
+                item.data(0, DETAIL_ROLE) is None
+                and item.data(0, DETAIL_KIND_ROLE) is None
+            ):
+                items.append(item)
+                for i in range(item.childCount()):
+                    visit(item.child(i))
+
+        for i in range(tree.topLevelItemCount()):
+            visit(tree.topLevelItem(i))
+
+        return items
+
     def open_roadmap():
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
 
@@ -516,6 +534,9 @@ def main():
         preview_text.setHeaderHidden(True)
         preview_text.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
+        context_tree = item_editor_window.findChild(QTreeWidget, "context_tree")
+        context_tree.clear()
+
         populate_roadmap_tree(preview_text, active_roadmap)
 
         def refresh_editor_preview():
@@ -538,6 +559,24 @@ def main():
                 detail = current.data(0, DETAIL_ROLE)
                 detail_kind = current.data(0, DETAIL_KIND_ROLE)
 
+                items = flatten_tree(preview_text)
+
+                if current in items:
+                    current_index = items.index(current)
+
+                    context_tree.clear()
+
+                    start = max(0, current_index - 4)
+                    end = min(len(items), current_index + 5)
+
+                    for item in items[start:end]:
+                        zoom_item = QTreeWidgetItem([item.text(0)])
+
+                        if item is current:
+                            zoom_item.setBackground(0, QColor("#3A4A5A"))
+
+                        context_tree.addTopLevelItem(zoom_item)
+
                 if model is not None:
                     item_editor_window.roadmap_object = model
                     item_editor_window.roadmap_detail = detail
@@ -550,17 +589,6 @@ def main():
                     )
 
         preview_text.currentItemChanged.connect(preview_selection_changed)
-
-        # iterator = QTreeWidgetItemIterator(preview_text)
-        #
-        # while iterator.value():
-        #     item = iterator.value()
-        #
-        #     if item.data(0, MODEL_ROLE) is selected_roadmap_object:
-        #         preview_text.setCurrentItem(item)
-        #         break
-        #
-        #     iterator += 1
 
         item_editor_window.show()
 
