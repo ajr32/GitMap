@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>905</width>
+    <width>928</width>
     <height>700</height>
    </rect>
   </property>
@@ -117,7 +117,7 @@ color: rgb(255, 255, 255);</string>
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>441</width>
+      <width>451</width>
       <height>291</height>
      </rect>
     </property>
@@ -142,12 +142,12 @@ color: rgb(255, 238, 230);</string>
     <rect>
      <x>470</x>
      <y>0</y>
-     <width>451</width>
+     <width>441</width>
      <height>411</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(170, 255, 255, 70);</string>
+    <string notr="true">background-color: rgba(170, 255, 255, 255);</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::Shape::StyledPanel</enum>

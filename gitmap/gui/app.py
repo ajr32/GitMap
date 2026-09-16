@@ -1,33 +1,82 @@
+# =============================================================================
+# GITMAP app.py ROAD MAP
+# =============================================================================
+# Use these labels when discussing this file:
+#
+#   Part A  - Imports and shared tree data roles
+#   Part B  - New Roadmap structure questionnaire
+#   Part C  - Application startup / shared state
+#   Part D  - Main Window roadmap tree setup
+#   Part E  - Open an existing roadmap
+#   Part F  - Main Window tree selection
+#   Part G  - Open/setup Roadmap Editor
+#     G1    - Enter Add mode
+#     G2    - Show Add popup
+#     G3    - Editor Preview + Zoom widget setup
+#     G4    - Refresh Editor Preview
+#   Part H  - Editor Preview selection router
+#     H1    - Build Zoom
+#     H2    - Load selection into editor fields
+#   Part I  - Main Window double-click behavior
+#   Part J  - Main Window button wiring
+#   Part K  - Create a new unsaved Roadmap model
+#   Part L  - Show Main Window / Qt event loop
+#   Part M  - Python module entry point
+#
+# Example directions can now be:
+#   "Go to Part H, then H1."
+#   "The Add bug is in Part G2/H."
+#
+# These comments are navigation/documentation only. They do not intentionally
+# change GitMap behavior.
+# =============================================================================
+
 # ============================================================
 # MAIN GITMAP WINDOW
 # Loads the GitMap interface created in Qt Designer.
 # ============================================================
+# =============================================================================
+# PART A — IMPORTS AND SHARED TREE DATA ROLES
+# =============================================================================
+# Imports used by the main GitMap GUI.
+#
+# The MODEL_ROLE / DETAIL_ROLE / DETAIL_KIND_ROLE constants below are the
+# hidden data slots attached to QTreeWidgetItems. They let a visible tree row
+# point back to the real Roadmap/Milestone/Section/Feature/Issue object, or to
+# a Requirement / Work Step detail.
+#
+# When debugging "I clicked X but GitMap edited Y", Part A's roles are one of
+# the first things to remember.
+# =============================================================================
 
 import sys
 import traceback
 from pathlib import Path
 
 from PySide6.QtCore import QFile, Qt
-from PySide6.QtGui import QBrush, QColor, QFont
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QFileDialog,
-    QLineEdit,
     QMessageBox,
-    QPlainTextEdit,
     QPushButton,
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
-    QTreeWidgetItemIterator,
 )
 
+from gitmap.gui.add_item_dialog import load_add_item_dialog
 from gitmap.gui.item_editor import (
     configure_editor,
     get_item_type,
     load_item_editor,
+)
+from gitmap.gui.roadmap_structure import infer_roadmap_structure
+from gitmap.gui.roadmap_tree import (
+    flatten_tree,
+    populate_roadmap_tree,
 )
 from gitmap.gui.structure_questions import QUESTIONS
 from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
@@ -38,86 +87,27 @@ DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
 DETAIL_KIND_ROLE = Qt.ItemDataRole.UserRole + 2
 
 
-def add_issue_to_tree(parent_item, issue):
-    """Add an issue and its contents to the roadmap tree."""
-
-    issue_item = QTreeWidgetItem([f"{issue.number} {issue.title}"])
-    issue_item.setData(0, MODEL_ROLE, issue)
-    parent_item.addChild(issue_item)
-
-    issue_item.setForeground(0, QColor("#FFFFFF"))
-
-    if issue.description:
-        description_item = QTreeWidgetItem([issue.description])
-        description_item.setData(0, MODEL_ROLE, issue)
-        description_item.setData(0, DETAIL_KIND_ROLE, "description")
-
-        description_font = QFont()
-        description_font.setItalic(True)
-        # description_font.setPointSize(description_font.pointSize() - 1)
-
-        description_item.setFont(0, description_font)
-        description_item.setForeground(0, QColor("#808080"))
-
-        issue_item.addChild(description_item)
-
-    print("\nISSUE:", issue.number, issue.title)
-
-    print("  DESCRIPTION:", repr(issue.description))
-    for requirement in issue.requirements:
-        print("  REQUIREMENT:", repr(requirement.text))
-
-    for work_step in issue.work_steps:
-        print("  WORK STEP:", repr(work_step.title))
-
-    # --- Requirements ---
-    for requirement in issue.requirements:
-        requirement_text = requirement.text
-
-        print("TREE REQUIREMENT:", id(requirement), requirement.text)
-
-        if requirement_text.strip() == issue.description.strip():
-            continue
-
-        # Remove legacy Markdown checkbox syntax.
-        for prefix in (
-            "- [ ] ",
-            "* [ ] ",
-            "[ ] ",
-            "- [x] ",
-            "* [x] ",
-            "[x] ",
-            "- [X] ",
-            "* [X] ",
-            "[X] ",
-        ):
-            if requirement_text.startswith(prefix):
-                requirement_text = requirement_text[len(prefix) :]
-                break
-
-        requirement_item = QTreeWidgetItem([f"• {requirement_text}"])
-        requirement_item.setData(0, MODEL_ROLE, issue)
-        requirement_item.setData(0, DETAIL_ROLE, requirement)
-        requirement_item.setData(0, DETAIL_KIND_ROLE, "requirement")
-
-        requirement_item.setForeground(0, QColor("#B08CC6"))
-
-        issue_item.addChild(requirement_item)
-
-    # --- Work Steps ---
-    for work_step in issue.work_steps:
-        work_step_item = QTreeWidgetItem(
-            [f"{work_step.work_step_marker} {work_step.title}"]
-        )
-        work_step_item.setData(0, MODEL_ROLE, issue)
-        work_step_item.setData(0, DETAIL_ROLE, work_step)
-        work_step_item.setData(0, DETAIL_KIND_ROLE, "work_step")
-
-        work_step_item.setForeground(0, QColor("#4F8A5B"))
-
-        issue_item.addChild(work_step_item)
-
-
+# =============================================================================
+# PART B — NEW ROADMAP STRUCTURE DIALOG
+# =============================================================================
+# Everything in this function controls the questionnaire shown when creating
+# a NEW roadmap.
+#
+# It does NOT create the Roadmap model itself. It gathers answers and leaves
+# them on `dialog.answers`. Part K later uses those answers to build the model.
+#
+# Nested helpers in this part:
+#   validate_configuration() - rejects impossible combinations.
+#   update_details()          - records the selected radio-button answer and
+#                               updates the explanation/example.
+#   show_question()           - redraws the dialog for a particular question.
+#   question_applies()        - decides which conditional questions to skip.
+#   go_forward()              - saves special values and advances.
+#   go_back()                 - returns to the previous applicable question.
+#
+# FUTURE REFACTOR:
+# This whole Part B is a natural controller to move out of app.py later.
+# =============================================================================
 def load_structure_dialog():
     """Load the new-roadmap structure dialog."""
 
@@ -336,6 +326,24 @@ def load_structure_dialog():
     return dialog
 
 
+# =============================================================================
+# PART C — APPLICATION STARTUP AND MAIN-WINDOW STATE
+# =============================================================================
+# Starts QApplication, handles the two developer/test command-line shortcuts,
+# creates the state variables for the currently active roadmap, and loads the
+# main_window.ui file.
+#
+# Important state owned here:
+#   active_roadmap_path      - path for an opened roadmap; None for unsaved.
+#   active_roadmap           - the actual Roadmap model currently in memory.
+#   roadmap_is_active        - whether a roadmap is currently active.
+#   selected_roadmap_object  - model object selected in the MAIN window tree.
+#   item_editor_window       - currently opened roadmap Editor window.
+#
+# NOTE:
+# The Main Window selection is not supposed to decide which object the Editor
+# initially edits. "Edit Roadmap" opens the active roadmap Editor.
+# =============================================================================
 def main():
     """Launch the GitMap desktop application."""
 
@@ -365,7 +373,14 @@ def main():
     loader = QUiLoader()
     window = loader.load(ui_file)
 
-    # --- Roadmap Tree ---
+    # =========================================================================
+    # PART D — MAIN WINDOW ROADMAP TREE
+    # =========================================================================
+    # Finds and configures the tree on the MAIN GitMap window.
+    #
+    # This is different from `preview_text`, which is the tree inside the
+    # Editor. Both trees are rendered by populate_roadmap_tree().
+    # =========================================================================
     # Finds the roadmap display created in Qt Designer.
     roadmap_tree = window.findChild(QTreeWidget, "roadmap_Tree")
     roadmap_tree.setHeaderHidden(True)
@@ -378,79 +393,20 @@ def main():
     roadmap_name = window.findChild(QTextEdit, "textEdit")
     roadmap_name.setReadOnly(True)
 
-    # --- Open Roadmap ---
+    # =========================================================================
+    # PART E — OPEN AN EXISTING ROADMAP
+    # =========================================================================
+    # open_roadmap() handles:
+    #   1. File picker
+    #   2. Markdown parsing
+    #   3. Inferring structural settings for older/existing roadmaps
+    #   4. Updating the Main Window title/tree
+    #   5. Enabling Edit Roadmap
+    #
+    # infer_roadmap_structure() is important because an existing Markdown file
+    # does not necessarily contain the answers from Part B.
+    # =========================================================================
     # Lets the user choose an existing GitMap Markdown roadmap.
-
-    def populate_roadmap_tree(tree, roadmap):
-        tree.clear()
-
-        test_item = QTreeWidgetItem([roadmap.name])
-        tree.addTopLevelItem(test_item)
-
-        for milestone in roadmap.milestones:
-            milestone_item = QTreeWidgetItem([f"{milestone.number} {milestone.title}"])
-            milestone_item.setData(0, MODEL_ROLE, milestone)
-            milestone_font = QFont()
-            milestone_font.setBold(True)
-            milestone_item.setFont(0, milestone_font)
-
-            milestone_item.setData(
-                0,
-                Qt.ItemDataRole.ForegroundRole,
-                QColor("#008B8B"),
-            )
-
-            test_item.addChild(milestone_item)
-
-            for section in milestone.sections:
-                section_item = QTreeWidgetItem([f"{section.number} {section.title}"])
-                section_item.setData(0, MODEL_ROLE, section)
-                section_font = QFont()
-                section_font.setBold(True)
-                section_item.setFont(0, section_font)
-
-                section_item.setForeground(0, QColor("#D49A00"))
-
-                milestone_item.addChild(section_item)
-
-                for issue in section.issues:
-                    add_issue_to_tree(section_item, issue)
-
-                for feature in section.features:
-                    feature_item = QTreeWidgetItem(
-                        [f"{feature.number} {feature.title}"]
-                    )
-                    feature_item.setData(0, MODEL_ROLE, feature)
-
-                    feature_font = QFont()
-                    feature_font.setBold(True)
-                    feature_item.setFont(0, feature_font)
-                    feature_item.setForeground(0, QColor("#C05050"))
-
-                    section_item.addChild(feature_item)
-
-                    for issue in feature.issues:
-                        add_issue_to_tree(feature_item, issue)
-
-        tree.expandAll()
-        return test_item
-
-    def flatten_tree(tree):
-        items = []
-
-        def visit(item):
-            if (
-                item.data(0, DETAIL_ROLE) is None
-                and item.data(0, DETAIL_KIND_ROLE) is None
-            ):
-                items.append(item)
-                for i in range(item.childCount()):
-                    visit(item.child(i))
-
-        for i in range(tree.topLevelItemCount()):
-            visit(tree.topLevelItem(i))
-
-        return items
 
     def open_roadmap():
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
@@ -469,6 +425,8 @@ def main():
 
         try:
             roadmap = parse_roadmap(roadmap_path)
+            infer_roadmap_structure(roadmap)
+
         except (OSError, UnicodeError) as error:
             print(f"Failed to open roadmap: {roadmap_path}")
             print(f"Error: {error}")
@@ -495,6 +453,14 @@ def main():
         roadmap_is_active = True
         edit_roadmap_button.setEnabled(True)
 
+    # =========================================================================
+    # PART F — MAIN WINDOW TREE SELECTION
+    # =========================================================================
+    # Stores the model object attached to the selected MAIN-window tree row.
+    #
+    # This is intentionally small. Most editing selection behavior happens in
+    # Part H inside the Editor Preview.
+    # =========================================================================
     def selection_changed(item, previous_item):
         nonlocal selected_roadmap_object
 
@@ -505,31 +471,187 @@ def main():
 
     roadmap_tree.currentItemChanged.connect(selection_changed)
 
+    # =========================================================================
+    # PART G — OPEN AND SET UP THE ROADMAP EDITOR
+    # =========================================================================
+    # This is currently the largest GUI-controller section in app.py.
+    #
+    # It:
+    #   * loads item_editor.ui
+    #   * attaches the active Roadmap
+    #   * creates the Add popup
+    #   * wires the Add button
+    #   * finds the Editor Preview and Zoom trees
+    #   * renders the Preview
+    #   * defines Preview-selection behavior (Part H below)
+    #
+    # FUTURE REFACTOR:
+    # The Add-mode pieces inside Parts G/H are the next natural code to extract,
+    # but they are intentionally still here because the last attempted move
+    # disturbed Preview scope. Move them only in small tested steps.
+    # =========================================================================
     def open_selected_item_editor():
         nonlocal item_editor_window
 
-        # if selected_roadmap_object is None:
-        #     return
-
-        # selected_detail = roadmap_tree.currentItem().data(0, DETAIL_ROLE)
         selected_detail = None
 
         item_editor_window = load_item_editor()
-        # item_editor_window.roadmap_object = selected_roadmap_object
         item_editor_window.roadmap_detail = selected_detail
 
         if selected_detail is not None:
             print("EDITOR DETAIL:", selected_detail.title)
 
-        # configure_editor(
-        #     item_editor_window,
-        #     selected_roadmap_object,
-        #     selected_detail,
-        # )
         item_type = get_item_type(selected_roadmap_object)
 
         item_editor_window.roadmap = active_roadmap
 
+        item_editor_window.add_item_dialog = load_add_item_dialog()
+        add_button = item_editor_window.findChild(QPushButton, "add_button")
+        add_continue_button = item_editor_window.add_item_dialog.add_continue_button
+
+        item_editor_window.add_mode = False
+
+        def continue_add_item():
+            if getattr(item_editor_window, "add_question_stage", None) == "position":
+                selected_position = next(
+                    (
+                        option
+                        for option in item_editor_window.add_item_dialog.add_options
+                        if option.isChecked()
+                    ),
+                    None,
+                )
+
+                if selected_position is None:
+                    return
+
+                position = selected_position.text()
+                item_editor_window.add_selected_position = position
+                item_editor_window.add_question_stage = "ready"
+
+                item_editor_window.add_item_dialog.close()
+
+                return
+
+            selected_option = next(
+                (
+                    option
+                    for option in item_editor_window.add_item_dialog.add_options
+                    if option.isChecked()
+                ),
+                None,
+            )
+
+            if selected_option is None:
+                return
+
+            selected_type = selected_option.text()
+            item_editor_window.add_selected_type = selected_type
+
+            reference_model = item_editor_window.add_reference_model
+            reference_type = get_item_type(reference_model)
+
+            if selected_type == reference_type:
+                dialog = item_editor_window.add_item_dialog
+
+                # Clear the old item-type radio selection BEFORE
+                # reusing these buttons for Before / After.
+                for option in dialog.add_options:
+                    option.setAutoExclusive(False)
+
+                for option in dialog.add_options:
+                    option.setChecked(False)
+
+                # Now change what the buttons represent.
+                dialog.add_options[0].setText("Before")
+                dialog.add_options[1].setText("After")
+
+                for option in dialog.add_options:
+                    option.setAutoExclusive(True)
+
+                dialog.add_question_label.setText(
+                    f"Add {selected_type} before or after this {reference_type}?"
+                )
+
+                dialog.add_options[0].setText("Before")
+                dialog.add_options[0].show()
+
+                dialog.add_options[1].setText("After")
+                dialog.add_options[1].show()
+
+                dialog.add_options[2].hide()
+                dialog.add_options[3].hide()
+
+                item_editor_window.add_question_stage = "position"
+
+                return
+
+            item_editor_window.add_selected_position = "child"
+            item_editor_window.add_parent_model = reference_model
+
+            item_editor_window.add_question_stage = "ready"
+
+        add_continue_button.clicked.connect(continue_add_item)
+
+        # ---------------------------------------------------------------------
+        # PART G1 — ENTER ADD MODE
+        # ---------------------------------------------------------------------
+        # Clicking Add sets a flag and opens the small Add decision popup.
+        #
+        # IMPORTANT CURRENT BEHAVIOR:
+        # `add_mode` changes what Part H does when the user clicks Preview.
+        # ---------------------------------------------------------------------
+        def start_add_mode():
+            item_editor_window.add_mode = True
+            item_editor_window.add_question_stage = None
+            item_editor_window.add_item_dialog.add_continue_button.setText("Continue")
+
+            open_add_dialog()
+
+        add_button.clicked.connect(start_add_mode)
+
+        # ---------------------------------------------------------------------
+        # PART G2 — SHOW THE ADD DECISION POPUP
+        # ---------------------------------------------------------------------
+        # Resets the popup to "Select an item in Preview", hides its choices,
+        # positions it over the upper-right portion of the Editor, and shows it.
+        #
+        # PARKED BUG:
+        # After entering Add mode and cancelling the popup, Zoom stops updating.
+        # Likely cause: Add-mode state is not reset when the popup closes.
+        # Fix this after the current refactor checkpoint, not by hiding the
+        # problem with unrelated Preview changes.
+        # ---------------------------------------------------------------------
+        def open_add_dialog():
+            dialog = item_editor_window.add_item_dialog
+
+            def cancel_add_mode():
+                item_editor_window.add_mode = False
+                dialog.close()
+
+            cancel_button = dialog.findChild(QPushButton, "add_cancel_button")
+            cancel_button.clicked.connect(cancel_add_mode)
+
+            dialog.add_question_label.setText("Select an item in Preview.")
+
+            for option in dialog.add_options:
+                option.hide()
+
+            editor_pos = item_editor_window.pos()
+
+            dialog.move(editor_pos.x() + 470, editor_pos.y())
+
+            dialog.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+            dialog.show()
+
+        # ---------------------------------------------------------------------
+        # PART G3 — EDITOR PREVIEW AND ZOOM WIDGET SETUP
+        # ---------------------------------------------------------------------
+        # `preview_text` = full clickable roadmap tree on the LEFT of Editor.
+        # `context_tree` = read-only-ish "Zoom" neighborhood on bottom-right.
+        #
+        # Do not confuse `preview_text` with the Main Window `roadmap_tree`.
+        # ---------------------------------------------------------------------
         preview_text = item_editor_window.findChild(QTreeWidget, "preview_text")
         preview_text.setHeaderHidden(True)
         preview_text.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -539,15 +661,50 @@ def main():
 
         populate_roadmap_tree(preview_text, active_roadmap)
 
+        # ---------------------------------------------------------------------
+        # PART G4 — REFRESH EDITOR PREVIEW
+        # ---------------------------------------------------------------------
+        # item_editor.py calls editor.refresh_preview() after Apply changes the
+        # in-memory model. This callback redraws the Editor Preview from that
+        # model.
+        # ---------------------------------------------------------------------
         def refresh_editor_preview():
-            print(
-                "BEFORE REFRESH:",
-                getattr(item_editor_window.roadmap_detail, "text", None),
-            )
             populate_roadmap_tree(preview_text, active_roadmap)
 
         item_editor_window.refresh_preview = refresh_editor_preview
 
+        # =====================================================================
+        # PART H — EDITOR PREVIEW SELECTION ROUTER
+        # =====================================================================
+        # This function is the central "what happens when I click Preview?"
+        # router. There are TWO modes:
+        #
+        # NORMAL MODE:
+        #   * highlights the selected Preview row
+        #   * rebuilds Zoom using nearby structural rows
+        #   * stores the selected model/detail on the Editor
+        #   * calls configure_editor() to display editable fields
+        #
+        # ADD MODE:
+        #   * stores the clicked row as the Add reference
+        #   * decides which child/sibling types are structurally legal
+        #   * fills the Add popup radio buttons
+        #   * RETURNS EARLY, so normal Zoom/editor selection code does not run
+        #
+        # That early return is especially relevant to the parked
+        # "Cancel Add -> Zoom stops" bug: if add_mode remains True after Cancel,
+        # every future Preview click keeps taking the Add branch.
+        #
+        # STRUCTURE RULES CURRENTLY USED:
+        #   Issue     -> Issue / Requirement / Work Step
+        #   Feature   -> Feature / Issue
+        #   Section   -> Section + optional Feature/Issue according to Roadmap
+        #   Milestone -> Milestone + Section, OR Issue when sections aren't used
+        #
+        # SKIPPED 0.7 DEPENDENCY TO REMEMBER:
+        # Structural add/move/renumber behavior must use the existing 0.7
+        # numbering/structure backend rather than inventing a GUI-only system.
+        # =====================================================================
         def preview_selection_changed(current, previous):
             if previous is not None:
                 previous.setBackground(0, QBrush())
@@ -559,6 +716,107 @@ def main():
                 detail = current.data(0, DETAIL_ROLE)
                 detail_kind = current.data(0, DETAIL_KIND_ROLE)
 
+                if item_editor_window.add_mode:
+                    item_editor_window.add_reference = current
+                    item_editor_window.add_reference_model = model
+                    item_editor_window.add_reference_detail = detail
+                    item_editor_window.add_reference_detail_kind = detail_kind
+
+                    dialog = item_editor_window.add_item_dialog
+
+                    if isinstance(model, Issue):
+                        choices = ["Issue", "Requirement", "Work Step"]
+
+                        dialog.add_question_label.setText("What would you like to add?")
+
+                        for index, option in enumerate(dialog.add_options):
+                            if index < len(choices):
+                                option.setText(choices[index])
+                                option.show()
+                            else:
+                                option.hide()
+                    elif isinstance(model, Feature):
+                        choices = ["Feature", "Issue"]
+
+                        dialog.add_question_label.setText("What would you like to add?")
+
+                        for index, option in enumerate(dialog.add_options):
+                            if index < len(choices):
+                                option.setText(choices[index])
+                                option.show()
+                            else:
+                                option.hide()
+
+                    elif isinstance(model, Section):
+                        choices = ["Section"]
+
+                        if active_roadmap.use_features:
+                            choices.append("Feature")
+
+                        if active_roadmap.allow_issues_under_sections:
+                            choices.append("Issue")
+
+                        dialog.add_question_label.setText("What would you like to add?")
+
+                        for index, option in enumerate(dialog.add_options):
+                            if index < len(choices):
+                                option.setText(choices[index])
+                                option.show()
+                            else:
+                                option.hide()
+
+                    elif isinstance(model, Milestone):
+                        choices = ["Milestone"]
+
+                        if active_roadmap.use_sections:
+                            choices.append("Section")
+
+                        if not active_roadmap.use_sections:
+                            choices.append("Issue")
+
+                        dialog.add_question_label.setText("What would you like to add?")
+
+                        for index, option in enumerate(dialog.add_options):
+                            if index < len(choices):
+                                option.setText(choices[index])
+                                option.show()
+                            else:
+                                option.hide()
+
+                    def add_type_selected(selected_option):
+
+                        selected_type = selected_option.text()
+
+                        if selected_type in ("Before", "After"):
+                            item_editor_window.add_selected_position = selected_type
+                            dialog.add_continue_button.setText("Add")
+                            return
+
+                        reference_type = get_item_type(
+                            item_editor_window.add_reference_model
+                        )
+
+                        if selected_type != reference_type:
+                            dialog.add_continue_button.setText("Add")
+                        else:
+                            dialog.add_continue_button.setText("Continue")
+
+                    for option in dialog.add_options:
+                        option.clicked.connect(
+                            lambda checked=False, button=option: add_type_selected(
+                                button
+                            )
+                        )
+
+                    return
+
+                # -------------------------------------------------------------
+                # PART H1 — BUILD THE ZOOM VIEW
+                # -------------------------------------------------------------
+                # flatten_tree() returns structural Preview rows in visible
+                # traversal order while ignoring Description/Requirement/
+                # Work-Step detail rows. We then show roughly +/- 4 neighbors.
+                # -------------------------------------------------------------
                 items = flatten_tree(preview_text)
 
                 if current in items:
@@ -577,6 +835,14 @@ def main():
 
                         context_tree.addTopLevelItem(zoom_item)
 
+                # -------------------------------------------------------------
+                # PART H2 — LOAD THE SELECTED OBJECT INTO THE EDITOR
+                # -------------------------------------------------------------
+                # `model` is the parent GitMap model object.
+                # `detail` is an exact Requirement/WorkStep when applicable.
+                # `detail_kind` tells configure_editor() which detail row was
+                # actually clicked.
+                # -------------------------------------------------------------
                 if model is not None:
                     item_editor_window.roadmap_object = model
                     item_editor_window.roadmap_detail = detail
@@ -592,6 +858,12 @@ def main():
 
         item_editor_window.show()
 
+    # =========================================================================
+    # PART I — MAIN WINDOW DOUBLE-CLICK
+    # =========================================================================
+    # Legacy/convenience route that opens the Editor from a model-backed row in
+    # the Main Window tree. Root rows with no MODEL_ROLE are ignored.
+    # =========================================================================
     def roadmap_item_double_clicked(item, column):
         model = item.data(0, MODEL_ROLE)
 
@@ -603,7 +875,12 @@ def main():
     roadmap_tree.itemDoubleClicked.connect(roadmap_item_double_clicked)
     roadmap_tree.setExpandsOnDoubleClick(False)
 
-    # --- Open Roadmap Button ---
+    # =========================================================================
+    # PART J — MAIN WINDOW BUTTON WIRING
+    # =========================================================================
+    # Connects the Main Window's Open / New / Edit buttons to the controller
+    # functions in this file.
+    # =========================================================================
     # Connects the Designer button to the roadmap file picker.
     open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
 
@@ -615,6 +892,21 @@ def main():
 
     edit_roadmap_button.clicked.connect(open_selected_item_editor)
 
+    # =========================================================================
+    # PART K — CREATE A NEW UNSAVED ROADMAP MODEL
+    # =========================================================================
+    # Runs Part B, then converts its answers into a Roadmap object in memory.
+    #
+    # Important:
+    #   * active_roadmap_path stays None because nothing has been saved yet.
+    #   * no fake root/content is created merely to make the tree look filled.
+    #   * numbering_mode / starting_series / structure flags are copied onto
+    #     the model here.
+    #   * hierarchy "labeling" maps to backend value "type_prefix".
+    #   * GitHub representation answers are normalized to issue/label/both.
+    #
+    # This is the handoff point from "questionnaire answers" to real model.
+    # =========================================================================
     def create_new_roadmap():
         nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
 
@@ -663,6 +955,11 @@ def main():
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
 
+    # =========================================================================
+    # PART L — SHOW MAIN WINDOW AND ENTER QT EVENT LOOP
+    # =========================================================================
+    # At this point all Main Window widgets and signals are wired.
+    # =========================================================================
     ui_file.close()
 
     window.show()
@@ -670,8 +967,16 @@ def main():
     sys.exit(app.exec())
 
 
-# ============================================================
-# MODULE ENTRY POINT
+# =============================================================================
+# PART M — MODULE ENTRY POINT
+# =============================================================================
+# Allows this file to be launched directly with:
+#     python app.py
+#
+# Developer shortcuts handled in Part C:
+#     python app.py --structure-dialog
+#     python app.py --item-editor
+# =============================================================================
 # ============================================================
 
 if __name__ == "__main__":
