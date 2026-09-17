@@ -30,7 +30,6 @@
 # These comments are navigation/documentation only. They do not intentionally
 # change GitMap behavior.
 # =============================================================================
-
 # ============================================================
 # MAIN GITMAP WINDOW
 # Loads the GitMap interface created in Qt Designer.
@@ -48,7 +47,6 @@
 # When debugging "I clicked X but GitMap edited Y", Part A's roles are one of
 # the first things to remember.
 # =============================================================================
-
 import sys
 import traceback
 from pathlib import Path
@@ -81,6 +79,7 @@ from gitmap.gui.roadmap_tree import (
 from gitmap.gui.structure_questions import QUESTIONS
 from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
 from gitmap.parser import parse_roadmap
+from gitmap.roadmap_numbering import generate_issue_number
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -151,12 +150,12 @@ def load_structure_dialog():
             return False
 
         if answers.get("allow_issues_under_sections") and not answers.get(
-            "use_sections"
+                "use_sections"
         ):
             return False
 
         if answers.get("allow_issues_under_features") and not answers.get(
-            "use_features"
+                "use_features"
         ):
             return False
 
@@ -252,8 +251,8 @@ def load_structure_dialog():
             issue_values = ("issues", "issues_and_labels")
 
             return (
-                answers.get("section_tracking") in issue_values
-                or answers.get("feature_tracking") in issue_values
+                    answers.get("section_tracking") in issue_values
+                    or answers.get("feature_tracking") in issue_values
             )
 
         return True
@@ -507,8 +506,47 @@ def main():
 
         item_editor_window.add_item_dialog = load_add_item_dialog()
         add_button = item_editor_window.findChild(QPushButton, "add_button")
-        add_continue_button = item_editor_window.add_item_dialog.add_continue_button
+        delete_button = item_editor_window.findChild(QPushButton, "delete_button")
+        save_button = item_editor_window.findChild(QPushButton, "save_button")
+        save_exit_button = item_editor_window.findChild(QPushButton, "save_exit_button")
 
+        def set_add_draft_actions_visible(visible):
+            add_button.setVisible(visible)
+            delete_button.setVisible(visible)
+            save_button.setVisible(visible)
+            save_exit_button.setVisible(visible)
+        
+        add_continue_button = item_editor_window.add_item_dialog.add_continue_button
+        never_mind_button = item_editor_window.findChild(
+            QPushButton, "never_mind_button"
+        )
+        never_mind_button.hide()
+        set_add_draft_actions_visible(True)
+
+        def never_mind_add():
+            placeholder = getattr(item_editor_window, "add_placeholder", None)
+
+            if placeholder is not None:
+                parent_item = placeholder.parent()
+
+                if parent_item is not None:
+                    parent_item.removeChild(placeholder)
+                    context_tree.clear()
+
+                    reference_item = getattr(item_editor_window, "add_reference", None)
+
+                    if reference_item is not None:
+                        preview_text.setCurrentItem(reference_item)
+
+                    never_mind_button.hide()
+
+        never_mind_button.clicked.connect(never_mind_add)
+
+        def finish_add():
+            never_mind_button.hide()
+            set_add_draft_actions_visible(True)
+
+        item_editor_window.finish_add = finish_add
         item_editor_window.add_mode = False
 
         def continue_add_item():
@@ -528,6 +566,62 @@ def main():
                 position = selected_position.text()
                 item_editor_window.add_selected_position = position
                 item_editor_window.add_question_stage = "ready"
+
+                item_editor_window.item_type_label.setText(
+                    f"Adding {item_editor_window.add_selected_type}"
+                )
+                never_mind_button.show()
+                set_add_draft_actions_visible(False)
+
+                item_editor_window.item_title.clear()
+                item_editor_window.item_description.clear()
+                item_editor_window.item_require.clear()
+                item_editor_window.item_work_step.clear()
+
+                # Show where the new item will be inserted in Preview.
+                reference_item = item_editor_window.add_reference
+                parent_item = reference_item.parent()
+
+                parent_model = parent_item.data(0, MODEL_ROLE)
+
+                item_editor_window.add_parent_model = parent_model
+                item_editor_window.add_siblings = parent_model.issues
+
+                placeholder = QTreeWidgetItem(["[New Issue]"])
+                item_editor_window.add_placeholder = placeholder
+
+                parent_item = reference_item.parent()
+
+                if parent_item is not None:
+                    reference_index = parent_item.indexOfChild(reference_item)
+
+                    if item_editor_window.add_selected_position == "Before":
+                        insert_index = reference_index
+                    else:
+                        insert_index = reference_index + 1
+
+                    new_issue = Issue(
+                        number="",
+                        title="",
+                    )
+
+                    item_editor_window.add_new_model = new_issue
+                    item_editor_window.add_insert_index = insert_index
+
+                    parent_type = get_item_type(parent_model).lower()
+
+                    proposed_number = generate_issue_number(
+                        parent_model.number,
+                        parent_type,
+                        insert_index + 1,
+                    )
+
+                    item_editor_window.item_number.setText(proposed_number)
+
+                    parent_item.insertChild(insert_index, placeholder)
+
+                    item_editor_window.add_mode = False
+                    preview_text.setCurrentItem(placeholder)
 
                 item_editor_window.add_item_dialog.close()
 
@@ -608,6 +702,11 @@ def main():
 
             open_add_dialog()
 
+            current_item = preview_text.currentItem()
+
+            if current_item is not None:
+                preview_text.setCurrentItem(None)
+
         add_button.clicked.connect(start_add_mode)
 
         # ---------------------------------------------------------------------
@@ -668,6 +767,14 @@ def main():
         # in-memory model. This callback redraws the Editor Preview from that
         # model.
         # ---------------------------------------------------------------------
+        def select_preview_model(target_model):
+            for item in flatten_tree(preview_text):
+                if item.data(0, MODEL_ROLE) is target_model:
+                    preview_text.setCurrentItem(item)
+                    return
+
+        item_editor_window.select_preview_model = select_preview_model
+        
         def refresh_editor_preview():
             populate_roadmap_tree(preview_text, active_roadmap)
 

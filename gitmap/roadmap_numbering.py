@@ -1,3 +1,5 @@
+from gitmap.models import Feature, Issue, Milestone, Section
+
 def generate_milestone_number(starting_series, sibling_index):
     """Generate a milestone number."""
 
@@ -136,50 +138,89 @@ def remember_numbering_state(roadmap):
         for issue in milestone.get("issues", []):
             remember_next_work_step_number(issue)
 
+def get_numbering_value(item, name, default=None):
+    """Read a numbering value from either a dict or model object."""
+
+    if isinstance(item, dict):
+        return item.get(name, default)
+
+    if name == "type":
+        if isinstance(item, Milestone):
+            return "milestone"
+        if isinstance(item, Section):
+            return "section"
+        if isinstance(item, Feature):
+            return "feature"
+        if isinstance(item, Issue):
+            return "issue"
+
+    return getattr(item, name, default)
+
+def set_numbering_value(item, name, value):
+    """Write a numbering value to either a dict or model object."""
+
+    if isinstance(item, dict):
+        item[name] = value
+    else:
+        setattr(item, name, value)
+
 def renumber_siblings(items, parent_number, parent_type=None):
     """Renumber siblings while preserving GitMap hierarchy numbering."""
 
     for index, item in enumerate(items, start=1):
 
         if parent_type == "section_issue":
-            item["number"] = f"{parent_number}.0.{index}"
+            set_numbering_value(
+                item,
+                "number",
+                f"{parent_number}.0.{index}",
+            )
 
         elif parent_type == "work_step":
-            item["number"] = parent_number
-            item["work_step_marker"] = generate_work_step_number(index)
-            
-        else:
-            item["number"] = f"{parent_number}.{index}"
+            set_numbering_value(item, "number", parent_number)
 
-        if item.get("type") == "section":
+            set_numbering_value(
+                item,
+                "work_step_marker",
+                generate_work_step_number(index),
+            )
+
+        else:
+            set_numbering_value(
+                item,
+                "number",
+                f"{parent_number}.{index}",
+            )
+
+        if get_numbering_value(item, "type") == "section":
             renumber_siblings(
-                item.get("issues", []),
-                item["number"],
+                get_numbering_value(item, "issues", []),
+                get_numbering_value(item, "number"),
                 parent_type="section_issue",
             )
 
             renumber_siblings(
-                item.get("features", []),
-                item["number"],
+                get_numbering_value(item, "features", []),
+                get_numbering_value(item, "number"),
             )
 
-        elif item.get("type") == "feature":
+        elif get_numbering_value(item, "type") == "feature":
             renumber_siblings(
-                item.get("issues", []),
-                item["number"],
+                get_numbering_value(item, "issues", []),
+                get_numbering_value(item, "number"),
             )
 
-        elif item.get("type") == "issue":
+        elif get_numbering_value(item, "type") == "issue":
             renumber_siblings(
-                item.get("work_steps", []),
-                item["number"],
+                get_numbering_value(item, "work_steps", []),
+                get_numbering_value(item, "number"),
                 parent_type="work_step",
             )
 
-        elif item.get("type") == "work_step":
+        elif get_numbering_value(item, "type") == "work_step":
             renumber_siblings(
-                item.get("work_steps", []),
-                item["number"],
+                get_numbering_value(item, "work_steps", []),
+                get_numbering_value(item, "number"),
                 parent_type="work_step",
             )
 

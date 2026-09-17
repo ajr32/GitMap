@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
 )
 
 from gitmap.models import Feature, Issue, Milestone, Section
-
+from gitmap.roadmap_numbering import renumber_siblings
 
 # =============================================================================
 # PART B — APPLY EDITOR CHANGES TO THE IN-MEMORY MODEL
@@ -63,6 +63,49 @@ from gitmap.models import Feature, Issue, Milestone, Section
 # those detail rows was selected.
 # =============================================================================
 def apply_editor_changes(editor):
+    if getattr(editor, "add_new_model", None) is not None:
+        new_issue = editor.add_new_model
+
+        title_field = editor.findChild(QLineEdit, "item_title")
+        new_title = title_field.text().strip()
+
+        if not new_title:
+            QMessageBox.warning(
+                editor,
+                "Invalid Title",
+                "Title cannot be blank.",
+            )
+            return
+
+        new_issue.title = new_title
+        description_field = editor.findChild(QPlainTextEdit, "item_description")
+        new_issue.description = description_field.toPlainText()
+        number_field = editor.findChild(QLineEdit, "item_number")
+        new_issue.number = number_field.text()
+        siblings = editor.add_siblings
+        insert_index = editor.add_insert_index
+
+        siblings.insert(insert_index, new_issue)
+        renumber_siblings(
+            siblings,
+            editor.add_parent_model.number,
+        )
+
+        if hasattr(editor, "refresh_preview"):
+            editor.refresh_preview()
+
+        if hasattr(editor, "roadmap"):
+            editor.roadmap.is_modified = True
+
+        if hasattr(editor, "select_preview_model"):
+            editor.select_preview_model(new_issue)
+
+        editor.add_new_model = None
+        editor.add_placeholder = None
+        if hasattr(editor, "finish_add"):
+            editor.finish_add()
+        return
+
     roadmap_object = editor.roadmap_object
     roadmap_detail = getattr(editor, "roadmap_detail", None)
 
