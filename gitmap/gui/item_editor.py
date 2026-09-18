@@ -46,8 +46,9 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from gitmap.models import Feature, Issue, Milestone, Section
+from gitmap.models import Requirement, Feature, Issue, Milestone, Section
 from gitmap.roadmap_numbering import renumber_siblings
+
 
 # =============================================================================
 # PART B — APPLY EDITOR CHANGES TO THE IN-MEMORY MODEL
@@ -63,8 +64,74 @@ from gitmap.roadmap_numbering import renumber_siblings
 # those detail rows was selected.
 # =============================================================================
 def apply_editor_changes(editor):
+    if getattr(editor, "add_selected_type", None) == "Requirement":
+        parent_issue = editor.add_parent_model
+
+        requirement_text = editor.item_require.toPlainText().strip()
+
+        if not requirement_text:
+            QMessageBox.warning(
+                editor,
+                "Invalid Requirement",
+                "Requirement cannot be blank.",
+            )
+            return
+
+        new_requirement = Requirement(text=requirement_text)
+        parent_issue.requirements.append(new_requirement)
+
+        editor.roadmap.is_modified = True
+
+        if hasattr(editor, "refresh_preview"):
+            editor.refresh_preview()
+
+        if hasattr(editor, "finish_add"):
+            editor.finish_add()
+
+        editor.add_selected_type = None
+
+        return
+
+    if getattr(editor, "add_selected_type", None) == "Work Step":
+        parent_issue = editor.add_parent_model
+
+        work_step_text = editor.item_work_step.toPlainText().strip()
+
+        if not work_step_text:
+            QMessageBox.warning(
+                editor,
+                "Invalid Work Step",
+                "Work Step cannot be blank.",
+            )
+            return
+
+        new_work_step = Issue(
+            number=parent_issue.number,
+            title=work_step_text,
+        )
+
+        parent_issue.work_steps.append(new_work_step)
+
+        renumber_siblings(
+            parent_issue.work_steps,
+            parent_issue.number,
+            parent_type="work_step",
+        )
+
+        editor.roadmap.is_modified = True
+
+        if hasattr(editor, "refresh_preview"):
+            editor.refresh_preview()
+
+        if hasattr(editor, "finish_add"):
+            editor.finish_add()
+
+        editor.add_selected_type = None
+
+        return
+
     if getattr(editor, "add_new_model", None) is not None:
-        new_issue = editor.add_new_model
+        new_model = editor.add_new_model
 
         title_field = editor.findChild(QLineEdit, "item_title")
         new_title = title_field.text().strip()
@@ -77,15 +144,16 @@ def apply_editor_changes(editor):
             )
             return
 
-        new_issue.title = new_title
-        description_field = editor.findChild(QPlainTextEdit, "item_description")
-        new_issue.description = description_field.toPlainText()
+        new_model.title = new_title
+        if isinstance(new_model, Issue):
+            description_field = editor.findChild(QPlainTextEdit, "item_description")
+            new_model.description = description_field.toPlainText()
         number_field = editor.findChild(QLineEdit, "item_number")
-        new_issue.number = number_field.text()
+        new_model.number = number_field.text()
         siblings = editor.add_siblings
         insert_index = editor.add_insert_index
 
-        siblings.insert(insert_index, new_issue)
+        siblings.insert(insert_index, new_model)
         renumber_siblings(
             siblings,
             editor.add_parent_model.number,
@@ -98,7 +166,7 @@ def apply_editor_changes(editor):
             editor.roadmap.is_modified = True
 
         if hasattr(editor, "select_preview_model"):
-            editor.select_preview_model(new_issue)
+            editor.select_preview_model(new_model)
 
         editor.add_new_model = None
         editor.add_placeholder = None

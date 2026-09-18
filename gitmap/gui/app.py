@@ -51,6 +51,13 @@ import sys
 import traceback
 from pathlib import Path
 
+from gitmap.gui.add_item_controller import (
+    continue_add_item,
+    finish_add,
+    never_mind_add,
+    show_add_type_choices,
+    start_add_mode,
+)
 from PySide6.QtCore import QFile, Qt
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtUiTools import QUiLoader
@@ -77,9 +84,8 @@ from gitmap.gui.roadmap_tree import (
     populate_roadmap_tree,
 )
 from gitmap.gui.structure_questions import QUESTIONS
-from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
+from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
-from gitmap.roadmap_numbering import generate_issue_number
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -485,9 +491,8 @@ def main():
     #   * defines Preview-selection behavior (Part H below)
     #
     # FUTURE REFACTOR:
-    # The Add-mode pieces inside Parts G/H are the next natural code to extract,
-    # but they are intentionally still here because the last attempted move
-    # disturbed Preview scope. Move them only in small tested steps.
+    # Add workflow behavior now lives in add_item_controller.py. Part G keeps
+    # only the Editor-specific wiring and Preview/Zoom lifecycle.
     # =========================================================================
     def open_selected_item_editor():
         nonlocal item_editor_window
@@ -523,225 +528,51 @@ def main():
         never_mind_button.hide()
         set_add_draft_actions_visible(True)
 
-        def never_mind_add():
-            placeholder = getattr(item_editor_window, "add_placeholder", None)
-
-            if placeholder is not None:
-                parent_item = placeholder.parent()
-
-                if parent_item is not None:
-                    parent_item.removeChild(placeholder)
-                    context_tree.clear()
-
-                    reference_item = getattr(item_editor_window, "add_reference", None)
-
-                    if reference_item is not None:
-                        preview_text.setCurrentItem(reference_item)
-
-                    never_mind_button.hide()
-
-        never_mind_button.clicked.connect(never_mind_add)
-
-        def finish_add():
-            never_mind_button.hide()
-            set_add_draft_actions_visible(True)
-
-        item_editor_window.finish_add = finish_add
-        item_editor_window.add_mode = False
-
-        def continue_add_item():
-            if getattr(item_editor_window, "add_question_stage", None) == "position":
-                selected_position = next(
-                    (
-                        option
-                        for option in item_editor_window.add_item_dialog.add_options
-                        if option.isChecked()
-                    ),
-                    None,
-                )
-
-                if selected_position is None:
-                    return
-
-                position = selected_position.text()
-                item_editor_window.add_selected_position = position
-                item_editor_window.add_question_stage = "ready"
-
-                item_editor_window.item_type_label.setText(
-                    f"Adding {item_editor_window.add_selected_type}"
-                )
-                never_mind_button.show()
-                set_add_draft_actions_visible(False)
-
-                item_editor_window.item_title.clear()
-                item_editor_window.item_description.clear()
-                item_editor_window.item_require.clear()
-                item_editor_window.item_work_step.clear()
-
-                # Show where the new item will be inserted in Preview.
-                reference_item = item_editor_window.add_reference
-                parent_item = reference_item.parent()
-
-                parent_model = parent_item.data(0, MODEL_ROLE)
-
-                item_editor_window.add_parent_model = parent_model
-                item_editor_window.add_siblings = parent_model.issues
-
-                placeholder = QTreeWidgetItem(["[New Issue]"])
-                item_editor_window.add_placeholder = placeholder
-
-                parent_item = reference_item.parent()
-
-                if parent_item is not None:
-                    reference_index = parent_item.indexOfChild(reference_item)
-
-                    if item_editor_window.add_selected_position == "Before":
-                        insert_index = reference_index
-                    else:
-                        insert_index = reference_index + 1
-
-                    new_issue = Issue(
-                        number="",
-                        title="",
-                    )
-
-                    item_editor_window.add_new_model = new_issue
-                    item_editor_window.add_insert_index = insert_index
-
-                    parent_type = get_item_type(parent_model).lower()
-
-                    proposed_number = generate_issue_number(
-                        parent_model.number,
-                        parent_type,
-                        insert_index + 1,
-                    )
-
-                    item_editor_window.item_number.setText(proposed_number)
-
-                    parent_item.insertChild(insert_index, placeholder)
-
-                    item_editor_window.add_mode = False
-                    preview_text.setCurrentItem(placeholder)
-
-                item_editor_window.add_item_dialog.close()
-
-                return
-
-            selected_option = next(
-                (
-                    option
-                    for option in item_editor_window.add_item_dialog.add_options
-                    if option.isChecked()
-                ),
-                None,
+        def abandon_add_draft():
+            never_mind_add(
+                item_editor_window,
+                never_mind_button,
+                set_add_draft_actions_visible,
+                preview_text,
+                context_tree,
             )
 
-            if selected_option is None:
-                return
+        never_mind_button.clicked.connect(abandon_add_draft)
 
-            selected_type = selected_option.text()
-            item_editor_window.add_selected_type = selected_type
+        def finish_current_add():
+            finish_add(
+                item_editor_window,
+                never_mind_button,
+                set_add_draft_actions_visible,
+            )
 
-            reference_model = item_editor_window.add_reference_model
-            reference_type = get_item_type(reference_model)
+        item_editor_window.finish_add = finish_current_add
+        item_editor_window.add_mode = False
 
-            if selected_type == reference_type:
-                dialog = item_editor_window.add_item_dialog
+        def continue_current_add():
+            continue_add_item(
+                item_editor_window,
+                never_mind_button,
+                set_add_draft_actions_visible,
+                preview_text,
+                MODEL_ROLE,
+                get_item_type,
+            )
 
-                # Clear the old item-type radio selection BEFORE
-                # reusing these buttons for Before / After.
-                for option in dialog.add_options:
-                    option.setAutoExclusive(False)
-
-                for option in dialog.add_options:
-                    option.setChecked(False)
-
-                # Now change what the buttons represent.
-                dialog.add_options[0].setText("Before")
-                dialog.add_options[1].setText("After")
-
-                for option in dialog.add_options:
-                    option.setAutoExclusive(True)
-
-                dialog.add_question_label.setText(
-                    f"Add {selected_type} before or after this {reference_type}?"
-                )
-
-                dialog.add_options[0].setText("Before")
-                dialog.add_options[0].show()
-
-                dialog.add_options[1].setText("After")
-                dialog.add_options[1].show()
-
-                dialog.add_options[2].hide()
-                dialog.add_options[3].hide()
-
-                item_editor_window.add_question_stage = "position"
-
-                return
-
-            item_editor_window.add_selected_position = "child"
-            item_editor_window.add_parent_model = reference_model
-
-            item_editor_window.add_question_stage = "ready"
-
-        add_continue_button.clicked.connect(continue_add_item)
+        add_continue_button.clicked.connect(continue_current_add)
 
         # ---------------------------------------------------------------------
         # PART G1 — ENTER ADD MODE
         # ---------------------------------------------------------------------
-        # Clicking Add sets a flag and opens the small Add decision popup.
-        #
-        # IMPORTANT CURRENT BEHAVIOR:
-        # `add_mode` changes what Part H does when the user clicks Preview.
-        # ---------------------------------------------------------------------
-        def start_add_mode():
-            item_editor_window.add_mode = True
-            item_editor_window.add_question_stage = None
-            item_editor_window.add_item_dialog.add_continue_button.setText("Continue")
+        def start_current_add_mode():
+            start_add_mode(item_editor_window, preview_text)
 
-            open_add_dialog()
-
-            current_item = preview_text.currentItem()
-
-            if current_item is not None:
-                preview_text.setCurrentItem(None)
-
-        add_button.clicked.connect(start_add_mode)
+        add_button.clicked.connect(start_current_add_mode)
 
         # ---------------------------------------------------------------------
-        # PART G2 — SHOW THE ADD DECISION POPUP
+        # PART G2 — ADD POPUP
         # ---------------------------------------------------------------------
-        # Resets the popup to "Select an item in Preview", hides its choices,
-        # positions it over the upper-right portion of the Editor, and shows it.
-        #
-        # PARKED BUG:
-        # After entering Add mode and cancelling the popup, Zoom stops updating.
-        # Likely cause: Add-mode state is not reset when the popup closes.
-        # Fix this after the current refactor checkpoint, not by hiding the
-        # problem with unrelated Preview changes.
-        # ---------------------------------------------------------------------
-        def open_add_dialog():
-            dialog = item_editor_window.add_item_dialog
-
-            def cancel_add_mode():
-                item_editor_window.add_mode = False
-                dialog.close()
-
-            cancel_button = dialog.findChild(QPushButton, "add_cancel_button")
-            cancel_button.clicked.connect(cancel_add_mode)
-
-            dialog.add_question_label.setText("Select an item in Preview.")
-
-            for option in dialog.add_options:
-                option.hide()
-
-            editor_pos = item_editor_window.pos()
-
-            dialog.move(editor_pos.x() + 470, editor_pos.y())
-
-            dialog.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
-            dialog.show()
+        # Popup behavior now lives in add_item_controller.py.
 
         # ---------------------------------------------------------------------
         # PART G3 — EDITOR PREVIEW AND ZOOM WIDGET SETUP
@@ -829,91 +660,12 @@ def main():
                     item_editor_window.add_reference_detail = detail
                     item_editor_window.add_reference_detail_kind = detail_kind
 
-                    dialog = item_editor_window.add_item_dialog
-
-                    if isinstance(model, Issue):
-                        choices = ["Issue", "Requirement", "Work Step"]
-
-                        dialog.add_question_label.setText("What would you like to add?")
-
-                        for index, option in enumerate(dialog.add_options):
-                            if index < len(choices):
-                                option.setText(choices[index])
-                                option.show()
-                            else:
-                                option.hide()
-                    elif isinstance(model, Feature):
-                        choices = ["Feature", "Issue"]
-
-                        dialog.add_question_label.setText("What would you like to add?")
-
-                        for index, option in enumerate(dialog.add_options):
-                            if index < len(choices):
-                                option.setText(choices[index])
-                                option.show()
-                            else:
-                                option.hide()
-
-                    elif isinstance(model, Section):
-                        choices = ["Section"]
-
-                        if active_roadmap.use_features:
-                            choices.append("Feature")
-
-                        if active_roadmap.allow_issues_under_sections:
-                            choices.append("Issue")
-
-                        dialog.add_question_label.setText("What would you like to add?")
-
-                        for index, option in enumerate(dialog.add_options):
-                            if index < len(choices):
-                                option.setText(choices[index])
-                                option.show()
-                            else:
-                                option.hide()
-
-                    elif isinstance(model, Milestone):
-                        choices = ["Milestone"]
-
-                        if active_roadmap.use_sections:
-                            choices.append("Section")
-
-                        if not active_roadmap.use_sections:
-                            choices.append("Issue")
-
-                        dialog.add_question_label.setText("What would you like to add?")
-
-                        for index, option in enumerate(dialog.add_options):
-                            if index < len(choices):
-                                option.setText(choices[index])
-                                option.show()
-                            else:
-                                option.hide()
-
-                    def add_type_selected(selected_option):
-
-                        selected_type = selected_option.text()
-
-                        if selected_type in ("Before", "After"):
-                            item_editor_window.add_selected_position = selected_type
-                            dialog.add_continue_button.setText("Add")
-                            return
-
-                        reference_type = get_item_type(
-                            item_editor_window.add_reference_model
-                        )
-
-                        if selected_type != reference_type:
-                            dialog.add_continue_button.setText("Add")
-                        else:
-                            dialog.add_continue_button.setText("Continue")
-
-                    for option in dialog.add_options:
-                        option.clicked.connect(
-                            lambda checked=False, button=option: add_type_selected(
-                                button
-                            )
-                        )
+                    show_add_type_choices(
+                        item_editor_window,
+                        model,
+                        active_roadmap,
+                        get_item_type,
+                    )
 
                     return
 
