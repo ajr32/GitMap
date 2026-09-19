@@ -399,6 +399,46 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <string>Edit Roadmap</string>
         </property>
        </widget>
+       <widget class="QPushButton" name="review_button">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>260</y>
+          <width>150</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>133</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>155</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgba(89, 255, 131, 128);</string>
+        </property>
+        <property name="text">
+         <string>Review Changes</string>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>

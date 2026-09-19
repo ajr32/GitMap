@@ -47,17 +47,12 @@
 # When debugging "I clicked X but GitMap edited Y", Part A's roles are one of
 # the first things to remember.
 # =============================================================================
+import copy
 import sys
 import traceback
 from pathlib import Path
 
-from gitmap.gui.add_item_controller import (
-    continue_add_item,
-    finish_add,
-    never_mind_add,
-    show_add_type_choices,
-    start_add_mode,
-)
+
 from PySide6.QtCore import QFile, Qt
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtUiTools import QUiLoader
@@ -72,11 +67,22 @@ from PySide6.QtWidgets import (
     QTreeWidgetItem,
 )
 
+from gitmap.gui.review_dialog import load_review_dialog
+from gitmap.gui.add_item_controller import (
+    continue_add_item,
+    finish_add,
+    never_mind_add,
+    show_add_type_choices,
+    start_add_mode,
+)
 from gitmap.gui.add_item_dialog import load_add_item_dialog
 from gitmap.gui.item_editor import (
     configure_editor,
     get_item_type,
     load_item_editor,
+)
+from gitmap.gui.remove_item_controller import (
+    remove_selected_item,
 )
 from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import (
@@ -86,8 +92,6 @@ from gitmap.gui.roadmap_tree import (
 from gitmap.gui.structure_questions import QUESTIONS
 from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
-
-from gitmap.gui.remove_item_controller import remove_structural_item
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -368,9 +372,11 @@ def main():
 
     active_roadmap_path = None
     active_roadmap = None
+    sync_baseline_roadmap = None
     roadmap_is_active = False
     selected_roadmap_object = None
     item_editor_window = None
+    review_window = None
 
     ui_path = Path(__file__).with_name("main_window.ui")
 
@@ -416,8 +422,7 @@ def main():
     # Lets the user choose an existing GitMap Markdown roadmap.
 
     def open_roadmap():
-        nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
-
+        nonlocal active_roadmap_path, active_roadmap, sync_baseline_roadmap, roadmap_is_active
         roadmap_path, _ = QFileDialog.getOpenFileName(
             window,
             "Open Roadmap",
@@ -451,6 +456,10 @@ def main():
 
         active_roadmap_path = roadmap_path
         active_roadmap = roadmap
+
+        # Keep an untouched copy of the roadmap as it existed when opened.
+        # Later, Sync will be the only operation that replaces this baseline.
+        sync_baseline_roadmap = copy.deepcopy(roadmap)
 
         roadmap_name.setText(roadmap.name)
         print(vars(roadmap))
@@ -535,7 +544,7 @@ def main():
         set_add_draft_actions_visible(True)
 
         delete_button.clicked.connect(
-            lambda: remove_structural_item(item_editor_window)
+            lambda: remove_selected_item(item_editor_window)
         )
 
         def abandon_add_draft():
@@ -751,15 +760,24 @@ def main():
     # functions in this file.
     # =========================================================================
     # Connects the Designer button to the roadmap file picker.
+
+    def open_review_window():
+        nonlocal review_window
+
+        review_window = load_review_dialog()
+        review_window.show()
+    
     open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
 
     open_roadmap_button.clicked.connect(open_roadmap)
 
     new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
     edit_roadmap_button = window.findChild(QPushButton, "edit_roadmap_button")
+    review_button = window.findChild(QPushButton, "review_button")
     edit_roadmap_button.setEnabled(False)
 
     edit_roadmap_button.clicked.connect(open_selected_item_editor)
+    review_button.clicked.connect(open_review_window)
 
     # =========================================================================
     # PART K — CREATE A NEW UNSAVED ROADMAP MODEL

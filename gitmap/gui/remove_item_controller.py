@@ -1,4 +1,4 @@
-from gitmap.models import Milestone
+from gitmap.models import Milestone, Requirement
 from gitmap.roadmap_numbering import renumber_siblings
 from gitmap.gui.confirmation import confirm_remove_item
 
@@ -129,3 +129,127 @@ def remove_structural_item(editor):
         editor.refresh_preview()
 
     return True
+
+# =============================================================================
+# PART D — REMOVE REQUIREMENT
+# =============================================================================
+def remove_requirement(editor):
+    """Confirm and remove the selected Requirement."""
+
+    target = get_remove_target(editor)
+
+    if not isinstance(target, Requirement):
+        return False
+
+    parent_issue = getattr(editor, "roadmap_object", None)
+
+    if parent_issue is None:
+        return False
+
+    if target not in parent_issue.requirements:
+        return False
+
+    approved = confirm_remove_item(
+        editor,
+        "Requirement",
+        target.text,
+    )
+
+    if not approved:
+        return False
+
+    parent_issue.requirements.remove(target)
+
+    editor.roadmap.is_modified = True
+
+    if hasattr(editor, "refresh_preview"):
+        editor.refresh_preview()
+
+    return True
+
+# =============================================================================
+# PART E — ROUTE REMOVE REQUEST
+# =============================================================================
+def remove_selected_item(editor):
+    """Route Delete to the correct removal handler."""
+
+    target = get_remove_target(editor)
+
+    if target is None:
+        return False
+
+    # Requirements have their own removal path.
+    if isinstance(target, Requirement):
+        return remove_requirement(editor)
+
+    # Milestones, Sections, Features, and normal Issues use the
+    # structural removal path.
+    return remove_structural_item(editor)
+
+# =============================================================================
+# PART E — REMOVE WORK STEP
+# =============================================================================
+def remove_work_step(editor):
+    """Confirm and remove the selected Work Step."""
+
+    work_step = getattr(editor, "roadmap_detail", None)
+    parent_issue = getattr(editor, "roadmap_object", None)
+
+    if work_step is None or parent_issue is None:
+        return False
+
+    if work_step not in parent_issue.work_steps:
+        return False
+
+    approved = confirm_remove_item(
+        editor,
+        "Work Step",
+        work_step.title,
+    )
+
+    if not approved:
+        return False
+
+    parent_issue.work_steps.remove(work_step)
+
+    # Reassign (a), (b), (c), etc. after removing a Work Step.
+    renumber_siblings(
+        parent_issue.work_steps,
+        parent_issue.number,
+        parent_type="work_step",
+    )
+
+    editor.roadmap.is_modified = True
+
+    if hasattr(editor, "refresh_preview"):
+        editor.refresh_preview()
+
+    return True
+
+# =============================================================================
+# PART F — ROUTE REMOVE REQUEST
+# =============================================================================
+def remove_selected_item(editor):
+    """Route Delete to the correct removal handler."""
+
+    target = get_remove_target(editor)
+
+    if target is None:
+        return False
+
+    # Requirements are exact detail objects beneath an Issue.
+    if isinstance(target, Requirement):
+        return remove_requirement(editor)
+
+    # Work Steps are also detail objects, but internally they are Issue objects.
+    # Check membership in the selected parent Issue instead of relying on class.
+    parent_issue = getattr(editor, "roadmap_object", None)
+
+    if (
+        parent_issue is not None
+        and target in getattr(parent_issue, "work_steps", [])
+    ):
+        return remove_work_step(editor)
+
+    # Everything else is one of the structural roadmap items.
+    return remove_structural_item(editor)
