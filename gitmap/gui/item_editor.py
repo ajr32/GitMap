@@ -47,8 +47,14 @@ from PySide6.QtWidgets import (
 )
 
 from gitmap.models import Requirement, Feature, Issue, Milestone, Section
-from gitmap.roadmap_numbering import renumber_siblings
+from gitmap.roadmap_numbering import (
+    collect_numbering_changes,
+    remember_original_numbers,
+    renumber_siblings,
+    restore_original_numbers,
+)
 
+from gitmap.gui.confirmation import confirm_numbering_changes
 
 # =============================================================================
 # PART B — APPLY EDITOR CHANGES TO THE IN-MEMORY MODEL
@@ -152,12 +158,66 @@ def apply_editor_changes(editor):
         new_model.number = number_field.text()
         siblings = editor.add_siblings
         insert_index = editor.add_insert_index
+        # ---------------------------------------------------------------------
+        # PART B3A — REMEMBER NUMBERS BEFORE INSERTION
+        # ---------------------------------------------------------------------
+        # Keep the current numbering so we can compare it with the proposed
+        # numbering after the temporary insertion.
+        # ---------------------------------------------------------------------
 
+        remember_original_numbers(siblings)
         siblings.insert(insert_index, new_model)
-        renumber_siblings(
-            siblings,
-            editor.add_parent_model.number,
-        )
+
+        if isinstance(new_model, Section) and not isinstance(
+            editor.add_parent_model, Milestone
+        ):
+            QMessageBox.warning(
+                editor,
+                "Invalid Section Parent",
+                "A Section must be inserted beneath a Milestone.",
+            )
+            siblings.pop(insert_index)
+            return
+
+        if isinstance(new_model, Milestone):
+            # Milestones use the roadmap series (for example, 0.1, 0.2, 0.3).
+            # Derive it from the reference Milestone so this also works when the
+            # Roadmap's starting_series field was not populated by an older parser.
+            milestone_series = editor.add_reference_model.number.rsplit(".", 1)[0]
+
+            renumber_siblings(
+                siblings,
+                milestone_series,
+            )
+
+        else:
+            renumber_siblings(
+                siblings,
+                editor.add_parent_model.number,
+            )
+
+        # ---------------------------------------------------------------------
+        # PART B3B — CONFIRM NUMBERING CHANGES
+        # ---------------------------------------------------------------------
+        # The insertion has been applied temporarily so the numbering backend can
+        # calculate every affected number. Ask for approval before keeping it.
+        # ---------------------------------------------------------------------
+        numbering_changes = collect_numbering_changes(siblings)
+
+        if numbering_changes:
+            approved = confirm_numbering_changes(
+                editor,
+                numbering_changes,
+            )
+
+            if not approved:
+                # Remove the temporary new item.
+                siblings.remove(new_model)
+
+                # Restore the entire descendant tree to its original numbering.
+                restore_original_numbers(siblings)
+
+                return
 
         if hasattr(editor, "refresh_preview"):
             editor.refresh_preview()

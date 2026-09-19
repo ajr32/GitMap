@@ -118,6 +118,13 @@ def never_mind_add(
 
             if parent_item is not None:
                 parent_item.removeChild(placeholder)
+            else:
+                # A Milestone draft can be a top-level Preview item.
+                placeholder_index = preview_text.indexOfTopLevelItem(placeholder)
+
+                if placeholder_index >= 0:
+                    preview_text.takeTopLevelItem(placeholder_index)
+
         except RuntimeError:
             # The tree may already have been refreshed and deleted the item.
             pass
@@ -257,6 +264,7 @@ def continue_add_item(
     model_role,
     get_item_type,
 ):
+
     """Advance the Add popup or create the selected in-memory draft."""
 
     if getattr(item_editor_window, "add_question_stage", None) == "position":
@@ -280,7 +288,7 @@ def continue_add_item(
             f"Adding {item_editor_window.add_selected_type}"
         )
 
-        if item_editor_window.add_selected_type == "Feature":
+        if item_editor_window.add_selected_type in ("Feature", "Section", "Milestone"):
             item_editor_window.item_description.hide()
             item_editor_window.description_label.hide()
             item_editor_window.item_require.hide()
@@ -297,14 +305,33 @@ def continue_add_item(
         item_editor_window.item_work_step.clear()
 
         reference_item = item_editor_window.add_reference
-        parent_item = reference_item.parent()
-        parent_model = parent_item.data(0, model_role)
-        item_editor_window.add_parent_model = parent_model
 
-        if item_editor_window.add_selected_type == "Feature":
-            item_editor_window.add_siblings = parent_model.features
+        # ---------------------------------------------------------------------
+        # PART F1 — RESOLVE SIBLING CONTAINER
+        # ---------------------------------------------------------------------
+        # Milestones are top-level Preview items. They do not have a model-backed
+        # parent item, so use the Roadmap's milestone list directly.
+        # ---------------------------------------------------------------------
+        if item_editor_window.add_selected_type == "Milestone":
+            # Milestones are children of the visible Roadmap root item.
+            parent_item = reference_item.parent()
+            parent_model = item_editor_window.roadmap
+            item_editor_window.add_parent_model = parent_model
+            item_editor_window.add_siblings = item_editor_window.roadmap.milestones
+
         else:
-            item_editor_window.add_siblings = parent_model.issues
+            parent_item = reference_item.parent()
+            parent_model = parent_item.data(0, model_role)
+            item_editor_window.add_parent_model = parent_model
+
+            if item_editor_window.add_selected_type == "Feature":
+                item_editor_window.add_siblings = parent_model.features
+
+            elif item_editor_window.add_selected_type == "Section":
+                item_editor_window.add_siblings = parent_model.sections
+
+            else:
+                item_editor_window.add_siblings = parent_model.issues
 
         placeholder = QTreeWidgetItem(
             [f"[New {item_editor_window.add_selected_type}]"]
@@ -327,7 +354,7 @@ def continue_add_item(
             item_editor_window.add_placeholder_title_callback
         )
 
-        if item_editor_window.add_selected_type == "Feature":
+        if item_editor_window.add_selected_type in ("Feature", "Section", "Milestone"):
             placeholder.setForeground(0, QColor("#F6DF4F"))
             font = placeholder.font(0)
             font.setBold(True)
@@ -343,32 +370,54 @@ def continue_add_item(
 
             if item_editor_window.add_selected_type == "Issue":
                 new_model = Issue(number="", title="")
+
             elif item_editor_window.add_selected_type == "Feature":
                 new_model = Feature(number="", title="")
+
+            elif item_editor_window.add_selected_type == "Section":
+                new_model = Section(number="", title="")
+
+            elif item_editor_window.add_selected_type == "Milestone":
+                new_model = Milestone(number="", title="")
+
             else:
                 return
 
             item_editor_window.add_new_model = new_model
             item_editor_window.add_insert_index = insert_index
 
-            parent_type = get_item_type(parent_model).lower()
+            if item_editor_window.add_selected_type == "Milestone":
+                reference_number = item_editor_window.add_reference_model.number
+                milestone_series, reference_sibling = reference_number.rsplit(".", 1)
 
-            if item_editor_window.add_selected_type == "Issue":
-                proposed_number = generate_issue_number(
-                    parent_model.number,
-                    parent_type,
-                    insert_index + 1,
-                )
+                reference_sibling = int(reference_sibling)
+
+                if item_editor_window.add_selected_position == "Before":
+                    proposed_sibling = reference_sibling
+                else:
+                    proposed_sibling = reference_sibling + 1
+
+                proposed_number = f"{milestone_series}.{proposed_sibling}"
+
             else:
-                proposed_number = f"{parent_model.number}.{insert_index + 1}"
+                parent_type = get_item_type(parent_model).lower()
+
+                if item_editor_window.add_selected_type == "Issue":
+                    proposed_number = generate_issue_number(
+                        parent_model.number,
+                        parent_type,
+                        insert_index + 1,
+                    )
+                else:
+                    proposed_number = f"{parent_model.number}.{insert_index + 1}"
 
             item_editor_window.item_number.setText(proposed_number)
             parent_item.insertChild(insert_index, placeholder)
             item_editor_window.add_mode = False
             preview_text.setCurrentItem(placeholder)
 
-        item_editor_window.add_item_dialog.close()
-        return
+            item_editor_window.add_item_dialog.close()
+            return
 
     selected_option = next(
         (
@@ -400,55 +449,97 @@ def continue_add_item(
     item_editor_window.add_parent_model = reference_model
     item_editor_window.add_question_stage = "ready"
 
-    if selected_type == "Issue" and isinstance(reference_model, Feature):
-        item_editor_window.item_type_label.setText("Adding Issue")
-        item_editor_window.add_parent_model = reference_model
-        item_editor_window.add_siblings = reference_model.issues
-        item_editor_window.add_insert_index = len(reference_model.issues)
-
-        new_issue = Issue(number="", title="")
-        item_editor_window.add_new_model = new_issue
-
-        proposed_number = generate_issue_number(
-            reference_model.number,
-            "feature",
-            len(reference_model.issues) + 1,
+    # -------------------------------------------------------------------------
+    # PART F2 — CREATE STRUCTURAL CHILD DRAFT
+    # -------------------------------------------------------------------------
+    # Child additions append beneath the selected parent. Unlike sibling
+    # insertion, they do not need a Before / After question.
+    # -------------------------------------------------------------------------
+    if (
+        (selected_type == "Section" and isinstance(reference_model, Milestone))
+        or (selected_type == "Feature" and isinstance(reference_model, Section))
+        or (
+            selected_type == "Issue"
+            and isinstance(reference_model, (Milestone, Section, Feature))
         )
+    ):
+        item_editor_window.item_type_label.setText(f"Adding {selected_type}")
+        item_editor_window.add_parent_model = reference_model
+
+        if selected_type == "Section":
+            siblings = reference_model.sections
+            new_model = Section(number="", title="")
+            proposed_number = f"{reference_model.number}.{len(siblings) + 1}"
+
+        elif selected_type == "Feature":
+            siblings = reference_model.features
+            new_model = Feature(number="", title="")
+            proposed_number = f"{reference_model.number}.{len(siblings) + 1}"
+
+        else:
+            siblings = reference_model.issues
+            new_model = Issue(number="", title="")
+
+            proposed_number = generate_issue_number(
+                reference_model.number,
+                get_item_type(reference_model).lower(),
+                len(siblings) + 1,
+            )
+
+        item_editor_window.add_siblings = siblings
+        item_editor_window.add_insert_index = len(siblings)
+        item_editor_window.add_new_model = new_model
 
         item_editor_window.item_number.setText(proposed_number)
         item_editor_window.item_title.clear()
         item_editor_window.item_description.clear()
 
-        reference_item = item_editor_window.add_reference
-        placeholder = QTreeWidgetItem(["[New Issue]"])
-        item_editor_window.add_placeholder = placeholder
+        if selected_type == "Issue":
+            item_editor_window.item_description.show()
+            item_editor_window.description_label.show()
+        else:
+            item_editor_window.item_description.hide()
+            item_editor_window.description_label.hide()
 
-        reference_item.addChild(placeholder)
-        reference_item.setExpanded(True)
-
-        def update_issue_placeholder_title(text):
-            if text.strip():
-                placeholder.setText(0, f"[{text.strip()}]")
-            else:
-                placeholder.setText(0, "[New Issue]")
-
-        _disconnect_placeholder_title_signal(item_editor_window)
-        item_editor_window.add_placeholder_title_callback = update_issue_placeholder_title
-        item_editor_window.item_title.textChanged.connect(
-            item_editor_window.add_placeholder_title_callback
-        )
-
-        item_editor_window.item_title.show()
-        item_editor_window.item_number.show()
-        item_editor_window.item_description.show()
-        item_editor_window.description_label.show()
         item_editor_window.item_require.hide()
         item_editor_window.require_label.hide()
         item_editor_window.item_work_step.hide()
         item_editor_window.work_step_label.hide()
 
+        reference_item = item_editor_window.add_reference
+
+        placeholder = QTreeWidgetItem([f"[New {selected_type}]"])
+        item_editor_window.add_placeholder = placeholder
+
+        if selected_type in ("Section", "Feature"):
+            placeholder.setForeground(0, QColor("#F6DF4F"))
+            font = placeholder.font(0)
+            font.setBold(True)
+            placeholder.setFont(0, font)
+
+        reference_item.addChild(placeholder)
+        reference_item.setExpanded(True)
+
+        def update_child_placeholder_title(text):
+            if text.strip():
+                placeholder.setText(0, f"[{text.strip()}]")
+            else:
+                placeholder.setText(0, f"[New {selected_type}]")
+
+        _disconnect_placeholder_title_signal(item_editor_window)
+        item_editor_window.add_placeholder_title_callback = (
+            update_child_placeholder_title
+        )
+        item_editor_window.item_title.textChanged.connect(
+            item_editor_window.add_placeholder_title_callback
+        )
+
         never_mind_button.show()
         set_add_draft_actions_visible(False)
+
+        item_editor_window.add_mode = False
+        preview_text.setCurrentItem(placeholder)
+
         item_editor_window.add_item_dialog.close()
         return
 

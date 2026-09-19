@@ -165,11 +165,23 @@ def set_numbering_value(item, name, value):
         setattr(item, name, value)
 
 def renumber_siblings(items, parent_number, parent_type=None):
-    """Renumber siblings while preserving GitMap hierarchy numbering."""
+    """Renumber siblings while preserving GitMap hierarchy numbering.
+
+    Section renumbering recursively updates its direct Issues, Features, and
+    the Issues beneath those Features. This is the backend used by GUI
+    insertion; the GUI must not create a second numbering system.
+    """
 
     for index, item in enumerate(items, start=1):
 
-        if parent_type == "section_issue":
+        if parent_type == "milestone_issue":
+            set_numbering_value(
+                item,
+                "number",
+                f"{parent_number}.0.0.{index}",
+            )
+
+        elif parent_type == "section_issue":
             set_numbering_value(
                 item,
                 "number",
@@ -192,7 +204,19 @@ def renumber_siblings(items, parent_number, parent_type=None):
                 f"{parent_number}.{index}",
             )
 
-        if get_numbering_value(item, "type") == "section":
+        if get_numbering_value(item, "type") == "milestone":
+            renumber_siblings(
+                get_numbering_value(item, "sections", []),
+                get_numbering_value(item, "number"),
+            )
+
+            renumber_siblings(
+                get_numbering_value(item, "issues", []),
+                get_numbering_value(item, "number"),
+                parent_type="milestone_issue",
+            )
+
+        elif get_numbering_value(item, "type") == "section":
             renumber_siblings(
                 get_numbering_value(item, "issues", []),
                 get_numbering_value(item, "number"),
@@ -230,13 +254,23 @@ def collect_numbering_changes(items):
     changes = []
 
     for item in items:
-        old_number = item.get("_original_number")
-        new_number = item.get("number")
+        old_number = get_numbering_value(
+            item,
+            "_original_number",
+        )
+        new_number = get_numbering_value(
+            item,
+            "number",
+        )
 
         if old_number and old_number != new_number:
             changes.append(
                 {
-                    "title": item.get("title", ""),
+                    "title": get_numbering_value(
+                        item,
+                        "title",
+                        "",
+                    ),
                     "old_number": old_number,
                     "new_number": new_number,
                 }
@@ -250,7 +284,11 @@ def collect_numbering_changes(items):
         ):
             changes.extend(
                 collect_numbering_changes(
-                    item.get(child_key, [])
+                    get_numbering_value(
+                        item,
+                        child_key,
+                        [],
+                    )
                 )
             )
 
@@ -260,23 +298,55 @@ def remember_original_numbers(items):
     """Remember roadmap numbers before automatic renumbering."""
 
     for item in items:
-        item["_original_number"] = item.get("number")
-
-        remember_original_numbers(
-            item.get("sections", [])
+        set_numbering_value(
+            item,
+            "_original_number",
+            get_numbering_value(item, "number"),
         )
 
-        remember_original_numbers(
-            item.get("features", [])
+        for child_key in (
+            "sections",
+            "features",
+            "issues",
+            "work_steps",
+        ):
+            remember_original_numbers(
+                get_numbering_value(
+                    item,
+                    child_key,
+                    [],
+                )
+            )
+
+def restore_original_numbers(items):
+    """Restore roadmap numbers remembered before temporary renumbering."""
+
+    for item in items:
+        original_number = get_numbering_value(
+            item,
+            "_original_number",
         )
 
-        remember_original_numbers(
-            item.get("issues", [])
-        )
+        if original_number is not None:
+            set_numbering_value(
+                item,
+                "number",
+                original_number,
+            )
 
-        remember_original_numbers(
-            item.get("work_steps", [])
-        )
+        for child_key in (
+            "sections",
+            "features",
+            "issues",
+            "work_steps",
+        ):
+            restore_original_numbers(
+                get_numbering_value(
+                    item,
+                    child_key,
+                    [],
+                )
+            )
 
 def choose_insert_position(items):
     """Choose where a new automatically numbered item should be inserted."""
