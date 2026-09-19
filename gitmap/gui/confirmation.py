@@ -48,6 +48,25 @@ def confirm_numbering_changes(parent, changes):
         "Apply this change?"
     )
 
+# =============================================================================
+# PART B — REMOVE ITEM CONFIRMATION
+# =============================================================================
+def confirm_remove_item(parent, item_type, title):
+    """Ask the user to confirm removal of a roadmap item."""
+
+    message_box = QMessageBox(parent)
+
+    message_box.setWindowTitle("Remove Item")
+    message_box.setIcon(QMessageBox.Icon.Warning)
+
+    message_box.setText(f"<b>Remove this {item_type} and all children below it?</b>")
+
+    message_box.setInformativeText(
+        f"{title}\n\n"
+        "This change will not be permanent until you click "
+        "Save or Save &amp; Exit."
+    )
+
     message_box.setStandardButtons(
         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
     )

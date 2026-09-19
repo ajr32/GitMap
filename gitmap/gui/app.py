@@ -87,6 +87,8 @@ from gitmap.gui.structure_questions import QUESTIONS
 from gitmap.models import Roadmap
 from gitmap.parser import parse_roadmap
 
+from gitmap.gui.remove_item_controller import remove_structural_item
+
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 DETAIL_ROLE = Qt.ItemDataRole.UserRole + 1
 DETAIL_KIND_ROLE = Qt.ItemDataRole.UserRole + 2
@@ -494,6 +496,10 @@ def main():
     # Add workflow behavior now lives in add_item_controller.py. Part G keeps
     # only the Editor-specific wiring and Preview/Zoom lifecycle.
     # =========================================================================
+    # -------------------------------------------------------------------------
+    # PART G — REMOVE ITEM CONTROLLER
+    # -------------------------------------------------------------------------
+    
     def open_selected_item_editor():
         nonlocal item_editor_window
 
@@ -527,6 +533,10 @@ def main():
         )
         never_mind_button.hide()
         set_add_draft_actions_visible(True)
+
+        delete_button.clicked.connect(
+            lambda: remove_structural_item(item_editor_window)
+        )
 
         def abandon_add_draft():
             never_mind_add(
