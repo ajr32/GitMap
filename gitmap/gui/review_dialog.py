@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QLabel, QListWidget, QTreeWidget
+from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QTreeWidget
 
 from gitmap.gui.roadmap_tree import populate_roadmap_tree
 
@@ -31,6 +31,17 @@ def load_review_dialog(before_roadmap, after_roadmap):
     changes_list = dialog.findChild(QListWidget, "changes_list")
     no_changes_label = dialog.findChild(QLabel, "no_changes_label")
 
+    # Find filter buttons.
+    filter_buttons = {
+        "all": dialog.findChild(QPushButton, "button_changes"),
+        "added": dialog.findChild(QPushButton, "button_add"),
+        "removed": dialog.findChild(QPushButton, "button_removed"),
+        "renumbered": dialog.findChild(QPushButton, "button_renumber"),
+        "retitled": dialog.findChild(QPushButton, "button_retitled"),
+        "hierarchy": dialog.findChild(QPushButton, "button_hierarchy"),
+        "unchanged": dialog.findChild(QPushButton, "button_unchanged"),
+    }
+
     # Hide the tree headers.
     before_tree.setHeaderHidden(True)
     after_tree.setHeaderHidden(True)
@@ -55,5 +66,41 @@ def load_review_dialog(before_roadmap, after_roadmap):
     else:
         no_changes_label.hide()
         populate_roadmap_tree(after_tree, after_roadmap)
+
+    def select_filter(selected_name):
+        """Select one Review Changes filter button."""
+
+        for name, button in filter_buttons.items():
+            if button is None:  # TEST
+                print(f"MISSING FILTER BUTTON: {name}")
+                continue
+
+            is_selected = name == selected_name
+            button.setChecked(is_selected)
+
+            if is_selected:
+                button.setStyleSheet("""
+                    QPushButton {
+                        background-color: gold;
+                        color: black;
+                        font-weight: bold;
+                    }
+                """)
+            else:
+                button.setStyleSheet("""
+                    QPushButton {
+                        background-color: white;
+                        color: black;
+                        font-weight: normal;
+                    }
+                """)
+
+    for name, button in filter_buttons.items():
+        button.clicked.connect(
+            lambda checked=False, filter_name=name: select_filter(filter_name)
+        )
+
+    # All Changes is the default filter.
+    select_filter("all")
 
     return dialog
