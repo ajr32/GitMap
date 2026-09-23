@@ -52,7 +52,6 @@ import sys
 import traceback
 from pathlib import Path
 
-
 from PySide6.QtCore import QFile, Qt
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtUiTools import QUiLoader
@@ -67,7 +66,6 @@ from PySide6.QtWidgets import (
     QTreeWidgetItem,
 )
 
-from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.add_item_controller import (
     continue_add_item,
     finish_add,
@@ -84,6 +82,7 @@ from gitmap.gui.item_editor import (
 from gitmap.gui.remove_item_controller import (
     remove_selected_item,
 )
+from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import (
     flatten_tree,
@@ -162,12 +161,12 @@ def load_structure_dialog():
             return False
 
         if answers.get("allow_issues_under_sections") and not answers.get(
-                "use_sections"
+            "use_sections"
         ):
             return False
 
         if answers.get("allow_issues_under_features") and not answers.get(
-                "use_features"
+            "use_features"
         ):
             return False
 
@@ -263,8 +262,8 @@ def load_structure_dialog():
             issue_values = ("issues", "issues_and_labels")
 
             return (
-                    answers.get("section_tracking") in issue_values
-                    or answers.get("feature_tracking") in issue_values
+                answers.get("section_tracking") in issue_values
+                or answers.get("feature_tracking") in issue_values
             )
 
         return True
@@ -422,7 +421,11 @@ def main():
     # Lets the user choose an existing GitMap Markdown roadmap.
 
     def open_roadmap():
-        nonlocal active_roadmap_path, active_roadmap, sync_baseline_roadmap, roadmap_is_active
+        nonlocal \
+            active_roadmap_path, \
+            active_roadmap, \
+            sync_baseline_roadmap, \
+            roadmap_is_active
         roadmap_path, _ = QFileDialog.getOpenFileName(
             window,
             "Open Roadmap",
@@ -508,7 +511,7 @@ def main():
     # -------------------------------------------------------------------------
     # PART G — REMOVE ITEM CONTROLLER
     # -------------------------------------------------------------------------
-    
+
     def open_selected_item_editor():
         nonlocal item_editor_window
 
@@ -535,7 +538,7 @@ def main():
             delete_button.setVisible(visible)
             save_button.setVisible(visible)
             save_exit_button.setVisible(visible)
-        
+
         add_continue_button = item_editor_window.add_item_dialog.add_continue_button
         never_mind_button = item_editor_window.findChild(
             QPushButton, "never_mind_button"
@@ -543,9 +546,7 @@ def main():
         never_mind_button.hide()
         set_add_draft_actions_visible(True)
 
-        delete_button.clicked.connect(
-            lambda: remove_selected_item(item_editor_window)
-        )
+        delete_button.clicked.connect(lambda: remove_selected_item(item_editor_window))
 
         def abandon_add_draft():
             never_mind_add(
@@ -624,7 +625,7 @@ def main():
                     return
 
         item_editor_window.select_preview_model = select_preview_model
-        
+
         def refresh_editor_preview():
             populate_roadmap_tree(preview_text, active_roadmap)
 
@@ -764,9 +765,12 @@ def main():
     def open_review_window():
         nonlocal review_window
 
-        review_window = load_review_dialog()
+        review_window = load_review_dialog(
+            sync_baseline_roadmap,
+            active_roadmap,
+        )
         review_window.show()
-    
+
     open_roadmap_button = window.findChild(QPushButton, "Open_Roadmap")
 
     open_roadmap_button.clicked.connect(open_roadmap)
