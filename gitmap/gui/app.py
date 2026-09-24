@@ -10,18 +10,18 @@
 #   Part E  - Open an existing roadmap
 #   Part F  - Main Window tree selection
 #   Part G  - Open/setup Roadmap Editor
-#     G1    - Enter Add mode
-#     G2    - Show Add popup
-#     G3    - Editor Preview + Zoom widget setup
-#     G4    - Refresh Editor Preview
-#   Part H  - Editor Preview selection router
-#     H1    - Build Zoom
-#     H2    - Load selection into editor fields
-#   Part I  - Main Window double-click behavior
-#   Part J  - Main Window button wiring
-#   Part K  - Create a new unsaved Roadmap model
-#   Part L  - Show Main Window / Qt event loop
-#   Part M  - Python module entry point
+#   Part H  - Enter Add mode
+#   Part I  - Show Add popup
+#   Part J  - Editor Preview + Zoom widget setup
+#   Part K  - Refresh Editor Preview
+#   Part L  - Editor Preview selection router
+#   Part M  - Build Zoom
+#   Part N  - Load selection into editor fields
+#   Part O  - Main Window double-click behavior
+#   Part P  - Main Window button wiring
+#   Part Q  - Create a new unsaved Roadmap model
+#   Part R  - Show Main Window / Qt event loop
+#   Part S  - Python module entry point
 #
 # Example directions can now be:
 #   "Go to Part H, then H1."
@@ -74,6 +74,7 @@ from gitmap.gui.add_item_controller import (
     start_add_mode,
 )
 from gitmap.gui.add_item_dialog import load_add_item_dialog
+from gitmap.gui.cancel_changes import cancel_changes
 from gitmap.gui.item_editor import (
     configure_editor,
     get_item_type,
@@ -470,7 +471,9 @@ def main():
         populate_roadmap_tree(roadmap_tree, roadmap)
 
         roadmap_is_active = True
-        edit_roadmap_button.setEnabled(True)
+        edit_roadmap_button.show()
+        review_button.show()
+        cancel_button.show()
 
     # =========================================================================
     # PART F — MAIN WINDOW TREE SELECTION
@@ -509,7 +512,7 @@ def main():
     # only the Editor-specific wiring and Preview/Zoom lifecycle.
     # =========================================================================
     # -------------------------------------------------------------------------
-    # PART G — REMOVE ITEM CONTROLLER
+    # PART G' — REMOVE ITEM CONTROLLER
     # -------------------------------------------------------------------------
 
     def open_selected_item_editor():
@@ -582,7 +585,7 @@ def main():
         add_continue_button.clicked.connect(continue_current_add)
 
         # ---------------------------------------------------------------------
-        # PART G1 — ENTER ADD MODE
+        # PART H — ENTER ADD MODE
         # ---------------------------------------------------------------------
         def start_current_add_mode():
             start_add_mode(item_editor_window, preview_text)
@@ -590,12 +593,12 @@ def main():
         add_button.clicked.connect(start_current_add_mode)
 
         # ---------------------------------------------------------------------
-        # PART G2 — ADD POPUP
+        # PART I — ADD POPUP
         # ---------------------------------------------------------------------
         # Popup behavior now lives in add_item_controller.py.
 
         # ---------------------------------------------------------------------
-        # PART G3 — EDITOR PREVIEW AND ZOOM WIDGET SETUP
+        # PART J — EDITOR PREVIEW AND ZOOM WIDGET SETUP
         # ---------------------------------------------------------------------
         # `preview_text` = full clickable roadmap tree on the LEFT of Editor.
         # `context_tree` = read-only-ish "Zoom" neighborhood on bottom-right.
@@ -612,7 +615,7 @@ def main():
         populate_roadmap_tree(preview_text, active_roadmap)
 
         # ---------------------------------------------------------------------
-        # PART G4 — REFRESH EDITOR PREVIEW
+        # PART K — REFRESH EDITOR PREVIEW
         # ---------------------------------------------------------------------
         # item_editor.py calls editor.refresh_preview() after Apply changes the
         # in-memory model. This callback redraws the Editor Preview from that
@@ -628,11 +631,12 @@ def main():
 
         def refresh_editor_preview():
             populate_roadmap_tree(preview_text, active_roadmap)
+            populate_roadmap_tree(roadmap_tree, active_roadmap)
 
         item_editor_window.refresh_preview = refresh_editor_preview
 
         # =====================================================================
-        # PART H — EDITOR PREVIEW SELECTION ROUTER
+        # PART L — EDITOR PREVIEW SELECTION ROUTER
         # =====================================================================
         # This function is the central "what happens when I click Preview?"
         # router. There are TWO modes:
@@ -690,7 +694,7 @@ def main():
                     return
 
                 # -------------------------------------------------------------
-                # PART H1 — BUILD THE ZOOM VIEW
+                # PART M — BUILD THE ZOOM VIEW
                 # -------------------------------------------------------------
                 # flatten_tree() returns structural Preview rows in visible
                 # traversal order while ignoring Description/Requirement/
@@ -715,7 +719,7 @@ def main():
                         context_tree.addTopLevelItem(zoom_item)
 
                 # -------------------------------------------------------------
-                # PART H2 — LOAD THE SELECTED OBJECT INTO THE EDITOR
+                # PART N — LOAD THE SELECTED OBJECT INTO THE EDITOR
                 # -------------------------------------------------------------
                 # `model` is the parent GitMap model object.
                 # `detail` is an exact Requirement/WorkStep when applicable.
@@ -738,7 +742,7 @@ def main():
         item_editor_window.show()
 
     # =========================================================================
-    # PART I — MAIN WINDOW DOUBLE-CLICK
+    # PART O — MAIN WINDOW DOUBLE-CLICK
     # =========================================================================
     # Legacy/convenience route that opens the Editor from a model-backed row in
     # the Main Window tree. Root rows with no MODEL_ROLE are ignored.
@@ -755,7 +759,7 @@ def main():
     roadmap_tree.setExpandsOnDoubleClick(False)
 
     # =========================================================================
-    # PART J — MAIN WINDOW BUTTON WIRING
+    # PART P — MAIN WINDOW BUTTON WIRING
     # =========================================================================
     # Connects the Main Window's Open / New / Edit buttons to the controller
     # functions in this file.
@@ -778,13 +782,35 @@ def main():
     new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
     edit_roadmap_button = window.findChild(QPushButton, "edit_roadmap_button")
     review_button = window.findChild(QPushButton, "review_button")
-    edit_roadmap_button.setEnabled(False)
+    cancel_button = window.findChild(QPushButton, "cancel_button")
+
+    edit_roadmap_button.hide()
+    review_button.hide()
+    cancel_button.hide()
 
     edit_roadmap_button.clicked.connect(open_selected_item_editor)
     review_button.clicked.connect(open_review_window)
 
+    def cancel_pending_changes():
+        nonlocal active_roadmap
+
+        print("CANCEL BUTTON CLICKED")  # TEST
+
+        restored_roadmap = cancel_changes(
+            window,
+            sync_baseline_roadmap,
+        )
+
+        if restored_roadmap is None:
+            return
+
+        active_roadmap = restored_roadmap
+        populate_roadmap_tree(roadmap_tree, active_roadmap)
+
+    cancel_button.clicked.connect(cancel_pending_changes)
+
     # =========================================================================
-    # PART K — CREATE A NEW UNSAVED ROADMAP MODEL
+    # PART Q — CREATE A NEW UNSAVED ROADMAP MODEL
     # =========================================================================
     # Runs Part B, then converts its answers into a Roadmap object in memory.
     #
@@ -847,7 +873,7 @@ def main():
     new_roadmap_button.clicked.connect(create_new_roadmap)
 
     # =========================================================================
-    # PART L — SHOW MAIN WINDOW AND ENTER QT EVENT LOOP
+    # PART R — SHOW MAIN WINDOW AND ENTER QT EVENT LOOP
     # =========================================================================
     # At this point all Main Window widgets and signals are wired.
     # =========================================================================
@@ -859,7 +885,7 @@ def main():
 
 
 # =============================================================================
-# PART M — MODULE ENTRY POINT
+# PART S — MODULE ENTRY POINT
 # =============================================================================
 # Allows this file to be launched directly with:
 #     python app.py
