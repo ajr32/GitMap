@@ -6,26 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>905</width>
-    <height>700</height>
+    <width>913</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>500</x>
-     <y>90</y>
-     <width>61</width>
-     <height>131</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Description</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
@@ -44,23 +31,7 @@
     <string>Editor</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
-   <property name="geometry">
-    <rect>
-     <x>770</x>
-     <y>30</y>
-     <width>81</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>Apply</string>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame">
+  <widget class="QFrame" name="preview_frame">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -97,38 +68,42 @@ color: rgb(255, 255, 255);</string>
      <string>Preview</string>
     </property>
    </widget>
-  </widget>
-  <widget class="QFrame" name="frame_2">
-   <property name="geometry">
-    <rect>
-     <x>470</x>
-     <y>410</y>
-     <width>441</width>
-     <height>291</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgba(130, 136, 133, 100);
-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Shape::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Shadow::Raised</enum>
-   </property>
+   <widget class="QTreeWidget" name="preview_text">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>40</y>
+      <width>471</width>
+      <height>661</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true">1</string>
+     </property>
+    </column>
+   </widget>
   </widget>
   <widget class="QFrame" name="frame_3">
    <property name="geometry">
     <rect>
      <x>470</x>
      <y>0</y>
-     <width>451</width>
-     <height>411</height>
+     <width>441</width>
+     <height>721</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(170, 255, 255, 70);</string>
+    <string notr="true">background-color: rgba(170, 255, 255, 255);</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::Shape::StyledPanel</enum>
@@ -136,14 +111,20 @@ color: rgb(255, 255, 255);</string>
    <property name="frameShadow">
     <enum>QFrame::Shadow::Raised</enum>
    </property>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="save_exit_button">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>300</y>
-      <width>91</width>
-      <height>26</height>
+      <x>290</x>
+      <y>20</y>
+      <width>111</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -152,12 +133,12 @@ color: rgb(255, 255, 255);</string>
      <string>Save + Exit</string>
     </property>
    </widget>
-   <widget class="QLabel" name="item_type">
+   <widget class="QLabel" name="item_type_label">
     <property name="geometry">
      <rect>
       <x>100</x>
       <y>50</y>
-      <width>71</width>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
@@ -165,11 +146,11 @@ color: rgb(255, 255, 255);</string>
      <string>Type</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="save_button">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>300</y>
+      <x>330</x>
+      <y>340</y>
       <width>81</width>
       <height>26</height>
      </rect>
@@ -181,12 +162,144 @@ color: rgb(255, 255, 255);</string>
      <string>Save</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="continue_button">
+   <widget class="QPushButton" name="apply_button">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>300</y>
+      <width>81</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(170, 255, 127);</string>
+    </property>
+    <property name="text">
+     <string>Apply</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="item_description">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>150</y>
+      <width>321</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>160</y>
+      <width>61</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Description</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="item_require">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>200</y>
+      <width>321</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="item_work_step">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>250</y>
+      <width>321</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="description_label">
     <property name="geometry">
      <rect>
       <x>30</x>
+      <y>150</y>
+      <width>61</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string>Description</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="require_label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>200</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string>Requirement</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="work_step_label">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>250</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string>Work Step</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="never_mind_button">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
       <y>300</y>
-      <width>201</width>
+      <width>81</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 170, 0);</string>
+    </property>
+    <property name="text">
+     <string>Never Mind</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="edit_button">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>380</y>
+      <width>111</width>
       <height>26</height>
      </rect>
     </property>
@@ -194,66 +307,100 @@ color: rgb(255, 255, 255);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Continue Building</string>
+     <string>Edit Roadmap</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_6">
+   <widget class="QPushButton" name="delete_button">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>340</y>
-      <width>101</width>
-      <height>31</height>
+      <x>220</x>
+      <y>380</y>
+      <width>151</width>
+      <height>26</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Inline Editing&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Delete Roadmap Section</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QLabel" name="editor_tips">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>370</y>
-      <width>271</width>
-      <height>28</height>
+      <x>10</x>
+      <y>430</y>
+      <width>221</width>
+      <height>261</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QPushButton" name="add_button">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="edit_button">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Edit</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="delete_button">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Robert's Text</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
    </widget>
+   <widget class="QPushButton" name="add_milestone">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>340</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Add Milestone</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="add_button">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>340</y>
+      <width>161</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Add Roadmap Subsections</string>
+    </property>
+   </widget>
+   <zorder>save_exit_button</zorder>
+   <zorder>item_type_label</zorder>
+   <zorder>save_button</zorder>
+   <zorder>apply_button</zorder>
+   <zorder>label_7</zorder>
+   <zorder>description_label</zorder>
+   <zorder>require_label</zorder>
+   <zorder>work_step_label</zorder>
+   <zorder>item_require</zorder>
+   <zorder>item_description</zorder>
+   <zorder>item_work_step</zorder>
+   <zorder>never_mind_button</zorder>
+   <zorder>edit_button</zorder>
+   <zorder>delete_button</zorder>
+   <zorder>editor_tips</zorder>
+   <zorder>add_milestone</zorder>
+   <zorder>add_button</zorder>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>500</x>
@@ -264,28 +411,22 @@ color: rgb(255, 255, 255);</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="title_label">
       <property name="text">
        <string>Title</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="item_title"/>
+     <widget class="QLineEdit" name="item_title">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QPlainTextEdit" name="item_description">
-   <property name="geometry">
-    <rect>
-     <x>500</x>
-     <y>160</y>
-     <width>387</width>
-     <height>137</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>500</x>
@@ -296,29 +437,26 @@ color: rgb(255, 255, 255);</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="number_label">
       <property name="text">
        <string>Number</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="item_number"/>
+     <widget class="QLineEdit" name="item_number">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
   <zorder>frame_3</zorder>
-  <zorder>label</zorder>
-  <zorder>item_title</zorder>
-  <zorder>label_3</zorder>
-  <zorder>item_number</zorder>
-  <zorder>label_3</zorder>
-  <zorder>item_number</zorder>
-  <zorder>label_2</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget</zorder>
   <zorder>label_4</zorder>
-  <zorder>pushButton_4</zorder>
-  <zorder>frame</zorder>
-  <zorder>frame_2</zorder>
+  <zorder>preview_frame</zorder>
  </widget>
  <resources/>
  <connections/>

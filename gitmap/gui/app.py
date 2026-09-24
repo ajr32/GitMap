@@ -80,6 +80,7 @@ from gitmap.gui.item_editor import (
     get_item_type,
     load_item_editor,
 )
+from gitmap.gui.new_roadmap_creator import load_new_roadmap_creator
 from gitmap.gui.remove_item_controller import (
     remove_selected_item,
 )
@@ -377,6 +378,7 @@ def main():
     selected_roadmap_object = None
     item_editor_window = None
     review_window = None
+    new_roadmap_creator_window = None
 
     ui_path = Path(__file__).with_name("main_window.ui")
 
@@ -825,7 +827,11 @@ def main():
     # This is the handoff point from "questionnaire answers" to real model.
     # =========================================================================
     def create_new_roadmap():
-        nonlocal active_roadmap_path, active_roadmap, roadmap_is_active
+        nonlocal \
+            active_roadmap_path, \
+            active_roadmap, \
+            roadmap_is_active, \
+            new_roadmap_creator_window
 
         structure_dialog = load_structure_dialog()
 
@@ -869,6 +875,9 @@ def main():
         }
         roadmap_name.setText(active_roadmap.name)
         roadmap_is_active = True
+
+        new_roadmap_creator_window = load_new_roadmap_creator(active_roadmap)
+        new_roadmap_creator_window.show()
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
 
