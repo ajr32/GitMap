@@ -81,7 +81,7 @@ def apply_editor_changes(editor):
                 "Invalid Requirement",
                 "Requirement cannot be blank.",
             )
-            return
+            return False
 
         new_requirement = Requirement(text=requirement_text)
         parent_issue.requirements.append(new_requirement)
@@ -96,7 +96,7 @@ def apply_editor_changes(editor):
 
         editor.add_selected_type = None
 
-        return
+        return True
 
     if getattr(editor, "add_selected_type", None) == "Work Step":
         parent_issue = editor.add_parent_model
@@ -109,7 +109,7 @@ def apply_editor_changes(editor):
                 "Invalid Work Step",
                 "Work Step cannot be blank.",
             )
-            return
+            return False
 
         new_work_step = Issue(
             number=parent_issue.number,
@@ -134,7 +134,7 @@ def apply_editor_changes(editor):
 
         editor.add_selected_type = None
 
-        return
+        return True
 
     if getattr(editor, "add_new_model", None) is not None:
         new_model = editor.add_new_model
@@ -148,7 +148,7 @@ def apply_editor_changes(editor):
                 "Invalid Title",
                 "Title cannot be blank.",
             )
-            return
+            return False
 
         new_model.title = new_title
         if isinstance(new_model, Issue):
@@ -177,7 +177,7 @@ def apply_editor_changes(editor):
                 "A Section must be inserted beneath a Milestone.",
             )
             siblings.pop(insert_index)
-            return
+            return False
 
         if isinstance(new_model, Milestone):
             # Milestones use the roadmap series (for example, 0.1, 0.2, 0.3).
@@ -217,7 +217,7 @@ def apply_editor_changes(editor):
                 # Restore the entire descendant tree to its original numbering.
                 restore_original_numbers(siblings)
 
-                return
+                return False
 
         if hasattr(editor, "refresh_preview"):
             editor.refresh_preview()
@@ -232,7 +232,7 @@ def apply_editor_changes(editor):
         editor.add_placeholder = None
         if hasattr(editor, "finish_add"):
             editor.finish_add()
-        return
+        return True
 
     roadmap_object = editor.roadmap_object
     roadmap_detail = getattr(editor, "roadmap_detail", None)
@@ -257,7 +257,7 @@ def apply_editor_changes(editor):
             "Invalid Title",
             "Title cannot be blank.",
         )
-        return
+        return False
 
     description_field = editor.findChild(QPlainTextEdit, "item_description")
 
@@ -322,6 +322,8 @@ def apply_editor_changes(editor):
     if hasattr(editor, "refresh_preview"):
         editor.refresh_preview()
 
+    return True
+
 
 # =============================================================================
 # PART C — LOAD AND WIRE THE ITEM EDITOR UI
@@ -348,7 +350,11 @@ def load_item_editor():
     ui_file.close()
 
     apply_button = editor.findChild(QPushButton, "apply_button")
-    apply_button.clicked.connect(lambda: apply_editor_changes(editor))
+    apply_button.clicked.connect(
+        lambda: editor.apply_changes()
+        if hasattr(editor, "apply_changes")
+        else apply_editor_changes(editor)
+    )
 
     cancel_button = editor.findChild(QPushButton, "cancel_button")
     cancel_button.clicked.connect(editor.close)

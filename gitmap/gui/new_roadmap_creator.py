@@ -50,7 +50,19 @@ def load_new_roadmap_creator(roadmap):
     title_field = window.findChild(QLineEdit, "item_title")
     number_field = window.findChild(QLineEdit, "item_number")
 
-    apply_button.clicked.connect(lambda: apply_editor_changes(window))
+    def apply_changes():
+        apply_editor_changes(window)
+        finish_edit_mode()
+
+    def never_mind_changes():
+        finish_edit_mode()
+
+        editor_tips.setText(
+            "No problem! Those changes weren't applied. What would you like to build next?"
+        )
+
+    apply_button.clicked.connect(apply_changes)
+    never_mind_button.clicked.connect(never_mind_changes)
 
     editor_tips = window.findChild(QLabel, "editor_tips")
 
@@ -70,6 +82,21 @@ def load_new_roadmap_creator(roadmap):
 
     window.edit_mode = False
 
+    def finish_edit_mode():
+        window.edit_mode = False
+
+        apply_button.hide()
+        never_mind_button.hide()
+
+        edit_button.show()
+        delete_button.show()
+        add_button.show()
+        add_milestone_button.show()
+        save_button.show()
+        save_exit_button.show()
+
+        editor_tips.setText("Hey! I've moved over here to build the rest of the roadmap./n/n To help you out, I've created a zoomed roadmap to my right. /n/n If you find me too annoying, hit the button above. I won't be insulted.")
+        
     def start_edit_mode():
         def preview_selection_changed(current, previous):
             if not window.edit_mode:

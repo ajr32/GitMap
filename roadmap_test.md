@@ -608,11 +608,11 @@ Load the GitMap desktop interface from the Qt Designer file while keeping applic
 - Load the GitMap GUI from a Qt Designer interface while keeping application behavior in Python.
 
 **Work Steps:**
-- [ ] 0.9.1.0.1.1 (a) Create `gitmap/gui/app.py`
+- [ ] 0.9.1.0.1.1 (a) Create `gitmap/gui/app_old.py`
 - [ ] 0.9.1.0.1.2 (b) Create `gitmap/gui/main_window.ui`
 - [ ] 0.9.1.0.1.3 (c) Create the GUI module entry point
 - [ ] 0.9.1.0.1.4 (d) Create the `QApplication`
-- [ ] 0.9.1.0.1.5 (e) Locate `main_window.ui` relative to `app.py`
+- [ ] 0.9.1.0.1.5 (e) Locate `main_window.ui` relative to `app_old.py`
 - [ ] 0.9.1.0.1.6 (f) Open the `.ui` file using `QFile`
 - [ ] 0.9.1.0.1.7 (g) Load the interface using `QUiLoader`
 - [ ] 0.9.1.0.1.8 (h) Display the loaded main window
