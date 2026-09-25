@@ -46,7 +46,8 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from gitmap.models import Requirement, Feature, Issue, Milestone, Section
+from gitmap.gui.confirmation import confirm_numbering_changes
+from gitmap.models import Feature, Issue, Milestone, Requirement, Section
 from gitmap.roadmap_numbering import (
     collect_numbering_changes,
     remember_original_numbers,
@@ -54,7 +55,6 @@ from gitmap.roadmap_numbering import (
     restore_original_numbers,
 )
 
-from gitmap.gui.confirmation import confirm_numbering_changes
 
 # =============================================================================
 # PART B — APPLY EDITOR CHANGES TO THE IN-MEMORY MODEL
@@ -181,9 +181,14 @@ def apply_editor_changes(editor):
 
         if isinstance(new_model, Milestone):
             # Milestones use the roadmap series (for example, 0.1, 0.2, 0.3).
-            # Derive it from the reference Milestone so this also works when the
-            # Roadmap's starting_series field was not populated by an older parser.
-            milestone_series = editor.add_reference_model.number.rsplit(".", 1)[0]
+            #
+            # Generic Add has a reference Milestone.
+            # Dedicated Add Milestone does not, so in that case use the
+            # proposed number already calculated for the new Milestone.
+            if editor.add_reference_model is not None:
+                milestone_series = editor.add_reference_model.number.rsplit(".", 1)[0]
+            else:
+                milestone_series = new_model.number.rsplit(".", 1)[0]
 
             renumber_siblings(
                 siblings,
@@ -351,9 +356,11 @@ def load_item_editor():
 
     apply_button = editor.findChild(QPushButton, "apply_button")
     apply_button.clicked.connect(
-        lambda: editor.apply_changes()
-        if hasattr(editor, "apply_changes")
-        else apply_editor_changes(editor)
+        lambda: (
+            editor.apply_changes()
+            if hasattr(editor, "apply_changes")
+            else apply_editor_changes(editor)
+        )
     )
 
     cancel_button = editor.findChild(QPushButton, "cancel_button")

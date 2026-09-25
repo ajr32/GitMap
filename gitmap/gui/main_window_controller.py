@@ -9,7 +9,14 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
+from gitmap.gui.builder_controller import open_builder
+from gitmap.gui.cancel_changes import cancel_changes
 from gitmap.gui.editor_controller import open_editor
+from gitmap.gui.new_roadmap_controller import (
+    build_roadmap_from_answers,
+    load_structure_dialog,
+)
+from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.parser import parse_roadmap
@@ -50,8 +57,11 @@ def setup_main_window(window):
     roadmap_name.setReadOnly(True)
 
     window.gitmap_state = MainWindowState()
-
     state = window.gitmap_state
+
+    # -------------------------------------------------------------------------
+    # Main Window roadmap selection
+    # -------------------------------------------------------------------------
 
     def roadmap_selection_changed():
         selected_items = roadmap_tree.selectedItems()
@@ -65,9 +75,50 @@ def setup_main_window(window):
 
     roadmap_tree.itemSelectionChanged.connect(roadmap_selection_changed)
 
+    # -------------------------------------------------------------------------
+    # Main Window buttons
+    # -------------------------------------------------------------------------
+
+    new_roadmap_button = window.findChild(QPushButton, "New_Roadmap")
     open_button = window.findChild(QPushButton, "Open_Roadmap")
     edit_button = window.findChild(QPushButton, "edit_roadmap_button")
+    review_button = window.findChild(QPushButton, "review_button")
+    cancel_button = window.findChild(QPushButton, "cancel_button")
+
     edit_button.hide()
+    review_button.hide()
+    cancel_button.hide()
+
+    # -------------------------------------------------------------------------
+    # New Roadmap
+    # -------------------------------------------------------------------------
+
+    def create_new_roadmap():
+        structure_dialog = load_structure_dialog()
+
+        if not structure_dialog.exec():
+            return
+
+        roadmap = build_roadmap_from_answers(structure_dialog.answers)
+
+        state.active_roadmap_path = None
+        state.active_roadmap = roadmap
+        state.sync_baseline_roadmap = copy.deepcopy(roadmap)
+        state.selected_roadmap_object = None
+
+        roadmap_name.setText(roadmap.name)
+        populate_roadmap_tree(roadmap_tree, roadmap)
+
+        edit_button.show()
+        review_button.show()
+        cancel_button.show()
+        state.new_roadmap_creator_window = open_builder(roadmap)
+
+    new_roadmap_button.clicked.connect(create_new_roadmap)
+
+    # -------------------------------------------------------------------------
+    # Open Roadmap
+    # -------------------------------------------------------------------------
 
     def open_roadmap():
         roadmap_path, _ = QFileDialog.getOpenFileName(
@@ -104,14 +155,82 @@ def setup_main_window(window):
 
         roadmap_name.setText(roadmap.name)
         populate_roadmap_tree(roadmap_tree, roadmap)
+
         edit_button.show()
+        review_button.show()
+        cancel_button.show()
 
     open_button.clicked.connect(open_roadmap)
 
-    def open_active_editor():
+    # -------------------------------------------------------------------------
+    # Edit Roadmap
+    # -------------------------------------------------------------------------
+
+    def open_active_editor(target_model=None):
         if not state.roadmap_is_active:
             return
 
         state.item_editor_window = open_editor(state.active_roadmap)
 
-    edit_button.clicked.connect(open_active_editor)
+        if target_model is not None:
+            state.item_editor_window.select_preview_model(target_model)
+
+    edit_button.clicked.connect(lambda: open_active_editor())
+
+    # -------------------------------------------------------------------------
+    # Main Window double-click
+    # -------------------------------------------------------------------------
+
+    def roadmap_item_double_clicked(item, column):
+        model = item.data(0, MODEL_ROLE)
+
+        if model is None:
+            return
+
+        open_active_editor(model)
+
+    roadmap_tree.itemDoubleClicked.connect(roadmap_item_double_clicked)
+    roadmap_tree.setExpandsOnDoubleClick(False)
+
+    # -------------------------------------------------------------------------
+    # Review Changes
+    # -------------------------------------------------------------------------
+
+    def open_review_window():
+        if not state.roadmap_is_active:
+            return
+
+        state.review_window = load_review_dialog(
+            state.sync_baseline_roadmap,
+            state.active_roadmap,
+        )
+
+        state.review_window.show()
+
+    review_button.clicked.connect(open_review_window)
+
+    # -------------------------------------------------------------------------
+    # Cancel Changes
+    # -------------------------------------------------------------------------
+
+    def cancel_pending_changes():
+        if not state.roadmap_is_active:
+            return
+
+        restored_roadmap = cancel_changes(
+            window,
+            state.sync_baseline_roadmap,
+        )
+
+        if restored_roadmap is None:
+            return
+
+        state.active_roadmap = restored_roadmap
+        state.selected_roadmap_object = None
+
+        populate_roadmap_tree(
+            roadmap_tree,
+            state.active_roadmap,
+        )
+
+    cancel_button.clicked.connect(cancel_pending_changes)
