@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QAbstractItemView, QPushButton, QTreeWidget
+from PySide6.QtWidgets import QAbstractItemView, QMessageBox, QPushButton, QTreeWidget
 
 from gitmap.gui.add_item_controller import (
     continue_add_item,
@@ -18,11 +18,16 @@ from gitmap.gui.item_editor import (
 )
 from gitmap.gui.remove_item_controller import remove_selected_item
 from gitmap.gui.roadmap_tree import populate_roadmap_tree
+from gitmap.gui.save_controller import save_roadmap
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 
 
-def open_editor(roadmap):
+def open_editor(
+    roadmap,
+    state=None,
+    refresh_main_window=None,
+):
     """Open the normal GitMap Editor for a Roadmap."""
 
     editor = load_item_editor()
@@ -88,6 +93,8 @@ def open_editor(roadmap):
         QPushButton,
         "never_mind_button",
     )
+    save_button = editor.findChild(QPushButton, "save_button")
+    save_exit_button = editor.findChild(QPushButton, "save_exit_button")
 
     # =========================================================================
     # DELETE
@@ -163,6 +170,39 @@ def open_editor(roadmap):
         )
 
     add_milestone_button.clicked.connect(start_current_add_milestone)
+
+    # =========================================================================
+    # SAVE
+    # =========================================================================
+    def save_current_roadmap():
+        if state is None:
+            return False
+
+        success = save_roadmap(
+            editor,
+            state,
+        )
+
+        if success:
+            QMessageBox.information(
+                editor,
+                "Saved",
+                "Roadmap saved successfully.",
+            )
+
+        return success
+
+    def save_and_exit():
+        if not save_current_roadmap():
+            return
+
+        if hasattr(state, "refresh_main_roadmap"):
+            state.refresh_main_roadmap()
+
+        editor.close()
+
+    save_button.clicked.connect(save_current_roadmap)
+    save_exit_button.clicked.connect(save_and_exit)
 
     # =========================================================================
     # OPEN

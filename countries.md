@@ -25,7 +25,7 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 0.1.2 India
 <!-- GitMap-ID: furedsiy -->
 
-### 0.1.2.1 Southern
+### 0.1.2.1 Southwestern
 <!-- GitMap-ID: gvredshx -->
 
 ### 0.1.2.2 Northern

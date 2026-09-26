@@ -14,27 +14,21 @@ def render_work_steps(lines, work_steps, depth=0):
         marker = work_step.get("work_step_marker", "")
 
         lines.append(
-            f"{indent}- [ ] "
-            f"{work_step['number']} "
-            f"{marker} "
-            f"{work_step['title']}"
+            f"{indent}- [ ] {work_step['number']} {marker} {work_step['title']}"
         )
 
         if work_step["description"]:
-            lines.append(
-                f"{indent}  {work_step['description']}"
-            )
+            lines.append(f"{indent}  {work_step['description']}")
 
         for requirement in work_step["requirements"]:
-            lines.append(
-                f"{indent}  - {requirement}"
-            )
+            lines.append(f"{indent}  - {requirement}")
 
         render_work_steps(
             lines,
             work_step.get("work_steps", []),
             depth + 1,
         )
+
 
 def render_roadmap_markdown(roadmap):
     """Render a completed roadmap as Markdown."""
@@ -50,6 +44,16 @@ def render_roadmap_markdown(roadmap):
 
     if roadmap.get("starting_series") is not None:
         lines.append(f"Starting-Series: {roadmap['starting_series']}")
+        lines.append("")
+
+    representation = roadmap.get("github_representation")
+
+    if isinstance(representation, dict):
+        section_value = representation.get("section") or ""
+        feature_value = representation.get("feature") or ""
+
+        lines.append(f"<!-- GitMap-Section-Representation: {section_value} -->")
+        lines.append(f"<!-- GitMap-Feature-Representation: {feature_value} -->")
         lines.append("")
 
     if roadmap["overview"]:

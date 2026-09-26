@@ -25,7 +25,7 @@ def load_builder():
     return builder
 
 
-def open_builder(roadmap):
+def open_builder(roadmap, state=None):
     """Open Builder for the first Milestone of a new Roadmap."""
 
     builder = load_builder()
@@ -108,7 +108,10 @@ def open_builder(roadmap):
 
         builder.close()
 
-        editor = open_editor(roadmap)
+        editor = open_editor(
+            roadmap,
+            state,
+        )
 
         # Go directly to the Milestone that Builder just created.
         if roadmap.milestones:

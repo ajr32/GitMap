@@ -42,7 +42,6 @@ class MainWindowState:
 
 def setup_main_window(window):
     """Initialize the basic Main Window widgets."""
-
     roadmap_tree = window.findChild(QTreeWidget, "roadmap_Tree")
     roadmap_tree.setHeaderHidden(True)
 
@@ -58,6 +57,19 @@ def setup_main_window(window):
 
     window.gitmap_state = MainWindowState()
     state = window.gitmap_state
+
+    def refresh_main_roadmap():
+        if not state.roadmap_is_active:
+            return
+
+        roadmap_name.setText(state.active_roadmap.name)
+
+        populate_roadmap_tree(
+            roadmap_tree,
+            state.active_roadmap,
+        )
+
+    state.refresh_main_roadmap = refresh_main_roadmap
 
     # -------------------------------------------------------------------------
     # Main Window roadmap selection
@@ -112,9 +124,23 @@ def setup_main_window(window):
         edit_button.show()
         review_button.show()
         cancel_button.show()
-        state.new_roadmap_creator_window = open_builder(roadmap)
+        state.new_roadmap_creator_window = open_builder(
+            roadmap,
+            state,
+        )
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
+
+    def refresh_main_roadmap():
+        if not state.roadmap_is_active:
+            return
+
+        roadmap_name.setText(state.active_roadmap.name)
+
+        populate_roadmap_tree(
+            roadmap_tree,
+            state.active_roadmap,
+        )
 
     # -------------------------------------------------------------------------
     # Open Roadmap
@@ -170,8 +196,11 @@ def setup_main_window(window):
         if not state.roadmap_is_active:
             return
 
-        state.item_editor_window = open_editor(state.active_roadmap)
-
+        state.item_editor_window = open_editor(
+            state.active_roadmap,
+            state,
+            refresh_main_roadmap,
+        )
         if target_model is not None:
             state.item_editor_window.select_preview_model(target_model)
 
