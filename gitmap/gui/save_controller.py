@@ -9,7 +9,7 @@ from gitmap.builder.builder import (
 )
 
 
-def save_roadmap(window, state):
+def save_roadmap(window, state, save_as=False):
     """Save the active roadmap to its Markdown file."""
 
     if state.active_roadmap is None:
@@ -17,10 +17,10 @@ def save_roadmap(window, state):
 
     path = state.active_roadmap_path
 
-    if path is None:
+    if save_as or path is None:
         path, _ = QFileDialog.getSaveFileName(
             window,
-            "Save Roadmap",
+            "Save Roadmap As" if save_as else "Save Roadmap",
             f"{state.active_roadmap.name}.md",
             "Markdown Files (*.md)",
         )

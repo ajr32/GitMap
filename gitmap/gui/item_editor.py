@@ -88,6 +88,9 @@ def apply_editor_changes(editor):
 
         editor.roadmap.is_modified = True
 
+        # TEST
+        print("=== APPLY GOT PAST CONFIRMATION ===")
+
         if hasattr(editor, "refresh_preview"):
             editor.refresh_preview()
 
@@ -95,6 +98,9 @@ def apply_editor_changes(editor):
             editor.finish_add()
 
         editor.add_selected_type = None
+
+        # TEST
+        print("=== APPLY FINISHED ===")
 
         return True
 

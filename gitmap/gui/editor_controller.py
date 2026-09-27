@@ -178,9 +178,43 @@ def open_editor(
         if state is None:
             return False
 
+        save_as = False
+
+        # If this roadmap already has a file, ask whether to save there
+        # or choose a new file.
+        if state.active_roadmap_path is not None:
+            message_box = QMessageBox(editor)
+            message_box.setWindowTitle("Save Roadmap")
+            message_box.setText("How would you like to save this roadmap?")
+
+            save_button_choice = message_box.addButton(
+                "Save",
+                QMessageBox.ButtonRole.AcceptRole,
+            )
+            save_as_button_choice = message_box.addButton(
+                "Save As...",
+                QMessageBox.ButtonRole.ActionRole,
+            )
+            message_box.addButton(
+                "Cancel",
+                QMessageBox.ButtonRole.RejectRole,
+            )
+
+            message_box.exec()
+
+            clicked_button = message_box.clickedButton()
+
+            if clicked_button is save_button_choice:
+                save_as = False
+            elif clicked_button is save_as_button_choice:
+                save_as = True
+            else:
+                return False
+
         success = save_roadmap(
             editor,
             state,
+            save_as=save_as,
         )
 
         if success:

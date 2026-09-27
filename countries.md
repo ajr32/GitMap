@@ -22,6 +22,8 @@ Hierarchy-Issue-Title-Style: type_prefix
 #### 0.1.1.2.1 Forbidden City
 <!-- GitMap-ID: nuredsiq -->
 
+#### 0.1.1.2.2 test
+
 ## 0.1.2 India
 <!-- GitMap-ID: furedsiy -->
 

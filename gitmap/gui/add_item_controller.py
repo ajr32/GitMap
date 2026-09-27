@@ -217,7 +217,25 @@ def start_add_mode(item_editor_window, preview_text):
     item_editor_window.add_question_stage = None
     item_editor_window.add_placeholder_title_callback = None
 
-    item_editor_window.add_item_dialog.add_continue_button.setText("Continue")
+    # A new Add operation must start with completely fresh transient state.
+    item_editor_window.add_selected_type = None
+    item_editor_window.add_selected_position = None
+    item_editor_window.add_new_model = None
+    item_editor_window.add_parent_model = None
+    item_editor_window.add_siblings = None
+    item_editor_window.add_insert_index = None
+    item_editor_window.add_reference = None
+    item_editor_window.add_reference_model = None
+
+    dialog = item_editor_window.add_item_dialog
+
+    # Clear any radio-button choice left over from the previous Add operation.
+    for option in dialog.add_options:
+        option.setAutoExclusive(False)
+        option.setChecked(False)
+        option.setAutoExclusive(True)
+
+    dialog.add_continue_button.setText("Continue")
 
     open_add_dialog(item_editor_window)
 
@@ -281,10 +299,12 @@ def continue_add_item(
     get_item_type,
 ):
     """Advance the Add popup or create the selected in-memory draft."""
-
     # -------------------------------------------------------------------------
     # SIBLING POSITION SELECTED
     # -------------------------------------------------------------------------
+    # TEST
+    print("ADD TRACE entry stage:", getattr(item_editor_window, "add_question_stage", None))
+
     if (
         getattr(
             item_editor_window,
@@ -302,7 +322,12 @@ def continue_add_item(
             None,
         )
 
+        # TEST
+        print("ADD TRACE position option:", selected_position.text() if selected_position else None)
+
         if selected_position is None:
+            # TEST
+            print("ADD TRACE STOP: no position selected")
             return
 
         position = selected_position.text()
@@ -327,6 +352,8 @@ def continue_add_item(
             item_editor_window.work_step_label.hide()
 
         set_editor_mode(item_editor_window, "add")
+        # TEST
+        print("ADD TRACE sibling mode: visible=", item_editor_window.apply_button.isVisible(), "enabled=", item_editor_window.apply_button.isEnabled())
 
         item_editor_window.item_title.clear()
         item_editor_window.item_description.clear()
@@ -474,6 +501,8 @@ def continue_add_item(
             item_editor_window.add_mode = False
             preview_text.setCurrentItem(placeholder)
 
+            # TEST
+            print("ADD TRACE sibling draft ready:", item_editor_window.add_selected_type, item_editor_window.add_selected_position, item_editor_window.add_insert_index)
             item_editor_window.add_item_dialog.close()
             return
 
@@ -489,7 +518,12 @@ def continue_add_item(
         None,
     )
 
+    # TEST
+    print("ADD TRACE type option:", selected_option.text() if selected_option else None)
+
     if selected_option is None:
+        # TEST
+        print("ADD TRACE STOP: no type selected")
         return
 
     selected_type = selected_option.text()
@@ -624,6 +658,7 @@ def continue_add_item(
         )
 
         set_editor_mode(item_editor_window, "add")
+
 
         item_editor_window.add_mode = False
         preview_text.setCurrentItem(placeholder)
