@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
+from gitmap.gui.settings_controller import load_settings_dialog
 from gitmap.gui.builder_controller import open_builder
 from gitmap.gui.cancel_changes import cancel_changes
 from gitmap.gui.editor_controller import open_editor
@@ -96,6 +97,7 @@ def setup_main_window(window):
     edit_button = window.findChild(QPushButton, "edit_roadmap_button")
     review_button = window.findChild(QPushButton, "review_button")
     cancel_button = window.findChild(QPushButton, "cancel_button")
+    settings_button = window.findChild(QPushButton, "settings_button")
 
     edit_button.hide()
     review_button.hide()
@@ -263,3 +265,13 @@ def setup_main_window(window):
         )
 
     cancel_button.clicked.connect(cancel_pending_changes)
+
+    # -------------------------------------------------------------------------
+    # Open Settings
+    # -------------------------------------------------------------------------
+
+    def open_settings():
+        settings_dialog = load_settings_dialog()
+        settings_dialog.exec()
+
+    settings_button.clicked.connect(open_settings)

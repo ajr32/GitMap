@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1189</width>
+    <width>1121</width>
     <height>809</height>
    </rect>
   </property>
@@ -443,7 +443,48 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>320</y>
+          <y>360</y>
+          <width>150</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>133</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>155</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgba(89, 255, 131, 128);
+background-color: rgb(255, 174, 174);</string>
+        </property>
+        <property name="text">
+         <string>Revert Changes</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="accept_button_2">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>600</y>
           <width>150</width>
           <height>30</height>
          </rect>
@@ -476,7 +517,47 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <string notr="true">background-color: rgba(89, 255, 131, 128);</string>
         </property>
         <property name="text">
-         <string>Cancel Changes</string>
+         <string>Sync to GitHub</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="settings_button">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>550</y>
+          <width>150</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>133</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>155</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgba(89, 255, 131, 128);</string>
+        </property>
+        <property name="text">
+         <string>GitHub Settings</string>
         </property>
        </widget>
       </widget>
@@ -489,7 +570,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1189</width>
+     <width>1121</width>
      <height>33</height>
     </rect>
    </property>

@@ -1,4 +1,4 @@
-import copy
+# import copy
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog, QMessageBox
@@ -50,6 +50,6 @@ def save_roadmap(window, state, save_as=False):
         return False
 
     state.active_roadmap_path = str(path)
-    state.sync_baseline_roadmap = copy.deepcopy(state.active_roadmap)
+    # state.sync_baseline_roadmap = copy.deepcopy(state.active_roadmap)
 
     return True

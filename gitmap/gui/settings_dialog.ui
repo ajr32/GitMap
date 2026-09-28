@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>620</width>
+    <height>540</height>
+   </rect>
+  </property>
+
+  <property name="minimumSize">
+   <size>
+    <width>560</width>
+    <height>500</height>
+   </size>
+  </property>
+
+  <property name="windowTitle">
+   <string>Settings</string>
+  </property>
+
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+
+  <layout class="QVBoxLayout" name="main_layout">
+
+   <property name="leftMargin">
+    <number>18</number>
+   </property>
+
+   <property name="topMargin">
+    <number>18</number>
+   </property>
+
+   <property name="rightMargin">
+    <number>18</number>
+   </property>
+
+   <property name="bottomMargin">
+    <number>18</number>
+   </property>
+
+   <property name="spacing">
+    <number>14</number>
+   </property>
+
+   <!-- GitHub Settings -->
+
+   <item>
+    <widget class="QGroupBox" name="github_group">
+
+     <property name="title">
+      <string>GitHub</string>
+     </property>
+
+     <layout class="QVBoxLayout" name="github_layout">
+
+      <property name="spacing">
+       <number>12</number>
+      </property>
+
+      <!-- Explanation -->
+
+      <item>
+       <widget class="QLabel" name="github_explanation">
+
+        <property name="text">
+         <string>GitMap requires a GitHub Personal Access Token to create repositories and fully sync your roadmap with GitHub.</string>
+        </property>
+
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+
+       </widget>
+      </item>
+
+      <!-- Create Token -->
+
+      <item>
+       <widget class="QPushButton" name="get_token_button">
+
+        <property name="text">
+         <string>Create GitHub Token</string>
+        </property>
+
+        <property name="toolTip">
+         <string>Open GitHub's Personal Access Token creation page</string>
+        </property>
+
+       </widget>
+      </item>
+
+      <!-- Instructions -->
+
+      <item>
+       <widget class="QLabel" name="token_instructions">
+
+        <property name="text">
+         <string>On GitHub:
+
+• Create a Fine-grained personal access token.
+• Set Repository access to All repositories.
+
+Under Permissions, allow:
+• Contents: Read and write
+• Issues: Read and write
+• Metadata: Read-only (automatically granted)
+• Repository creation: Read and write
+
+Repository creation is required so GitMap can create a new repository when syncing a new roadmap.
+
+Generate the token, then paste it below.</string>
+        </property>
+
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+
+       </widget>
+      </item>
+
+      <!-- GitHub Account -->
+
+      <item>
+       <layout class="QFormLayout" name="github_form">
+
+        <!-- Username -->
+
+        <item row="0" column="0">
+         <widget class="QLabel" name="username_label">
+          <property name="text">
+           <string>GitHub Username:</string>
+          </property>
+         </widget>
+        </item>
+
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="github_username">
+
+          <property name="placeholderText">
+           <string>GitHub username</string>
+          </property>
+
+         </widget>
+        </item>
+
+        <!-- Token -->
+
+        <item row="1" column="0">
+         <widget class="QLabel" name="token_label">
+
+          <property name="text">
+           <string>Personal Access Token:</string>
+          </property>
+
+         </widget>
+        </item>
+
+        <item row="1" column="1">
+         <layout class="QHBoxLayout" name="token_layout">
+
+          <item>
+           <widget class="QLineEdit" name="github_token">
+
+            <property name="placeholderText">
+             <string>GitHub personal access token</string>
+            </property>
+
+            <property name="echoMode">
+             <enum>QLineEdit::EchoMode::Password</enum>
+            </property>
+
+           </widget>
+          </item>
+
+          <item>
+           <widget class="QToolButton" name="show_token_button">
+
+            <property name="toolTip">
+             <string>Show or hide token</string>
+            </property>
+
+            <property name="text">
+             <string>Show</string>
+            </property>
+
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+
+           </widget>
+          </item>
+
+         </layout>
+        </item>
+
+       </layout>
+      </item>
+
+      <!-- Test Connection -->
+
+      <item>
+       <layout class="QHBoxLayout" name="connection_layout">
+
+        <item>
+         <widget class="QPushButton" name="test_connection_button">
+
+          <property name="text">
+           <string>Test Connection</string>
+          </property>
+
+          <property name="toolTip">
+           <string>Test the GitHub username and Personal Access Token</string>
+          </property>
+
+         </widget>
+        </item>
+
+        <item>
+         <widget class="QLabel" name="connection_status">
+
+          <property name="text">
+           <string>Connection not tested</string>
+          </property>
+
+         </widget>
+        </item>
+
+        <item>
+         <spacer name="connection_spacer">
+
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+
+         </spacer>
+        </item>
+
+       </layout>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+   <!-- Spacer -->
+
+   <item>
+    <spacer name="vertical_spacer">
+
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+
+    </spacer>
+   </item>
+
+   <!-- Bottom Buttons -->
+
+   <item>
+    <layout class="QHBoxLayout" name="button_layout">
+
+     <item>
+      <spacer name="button_spacer">
+
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+
+      </spacer>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="cancel_button">
+
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="save_button">
+
+       <property name="text">
+        <string>Save</string>
+       </property>
+
+       <property name="default">
+        <bool>true</bool>
+       </property>
+
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+
+ <tabstops>
+  <tabstop>get_token_button</tabstop>
+  <tabstop>github_username</tabstop>
+  <tabstop>github_token</tabstop>
+  <tabstop>show_token_button</tabstop>
+  <tabstop>test_connection_button</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>save_button</tabstop>
+ </tabstops>
+
+ <resources/>
+ <connections/>
+
+</ui>

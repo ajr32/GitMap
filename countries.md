@@ -10,36 +10,36 @@ Hierarchy-Issue-Title-Style: type_prefix
 
 # 0.1 Asia
 
-## 0.1.1 China
-<!-- GitMap-ID: curedsib -->
+## 0.1.1 India
+<!-- GitMap-ID: furedsiy -->
 
-### 0.1.1.1 Shanghai
-<!-- GitMap-ID: duredsia -->
+### 0.1.1.1 Southwestern
+<!-- GitMap-ID: gvredshx -->
 
-### 0.1.1.2 Beijing
-<!-- GitMap-ID: euredsiz -->
+### 0.1.1.2 Northern
+<!-- GitMap-ID: hvredshw -->
 
 #### 0.1.1.2.1 Forbidden City
 <!-- GitMap-ID: nuredsiq -->
 
-#### 0.1.1.2.2 test
-
-## 0.1.2 India
-<!-- GitMap-ID: furedsiy -->
-
-### 0.1.2.1 Southwestern
-<!-- GitMap-ID: gvredshx -->
-
-### 0.1.2.2 Northern
-<!-- GitMap-ID: hvredshw -->
-
-#### 0.1.2.2.1 Mumbai
+#### 0.1.1.2.2 Mumbai
 <!-- GitMap-ID: puredsio -->
 
-#### 0.1.2.2.2 New Delhi
+#### 0.1.1.2.3 New Delhi
 <!-- GitMap-ID: ruredsim -->
 
 # 0.2 Antarctica
+
+## 0.2.1 China
+<!-- GitMap-ID: curedsib -->
+
+### 0.2.1.1 Shanghai
+<!-- GitMap-ID: duredsia -->
+
+### 0.2.1.2 Beijing
+<!-- GitMap-ID: euredsiz -->
+
+#### 0.2.1.2.1 test
 
 # 0.3 North America
 
