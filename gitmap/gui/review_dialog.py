@@ -14,12 +14,15 @@ def collect_roadmap_items(roadmap):
     items = {}
 
     for milestone in roadmap.milestones:
+        milestone_parent_id = f"milestone:{milestone.number}:{milestone.title}"
+
         for section in milestone.sections:
             if section.gitmap_id:
                 items[section.gitmap_id] = {
                     "type": "section",
                     "number": section.number,
                     "title": section.title,
+                    "parent_id": milestone_parent_id,
                 }
 
             for feature in section.features:
@@ -28,34 +31,35 @@ def collect_roadmap_items(roadmap):
                         "type": "feature",
                         "number": feature.number,
                         "title": feature.title,
+                        "parent_id": section.gitmap_id,
                     }
 
                 for issue in feature.issues:
-                    item_id = issue.gitmap_id or f"new:{issue.number}"
+                    if issue.gitmap_id:
+                        items[issue.gitmap_id] = {
+                            "type": "issue",
+                            "number": issue.number,
+                            "title": issue.title,
+                            "parent_id": feature.gitmap_id,
+                        }
 
-                    items[item_id] = {
+            for issue in section.issues:
+                if issue.gitmap_id:
+                    items[issue.gitmap_id] = {
                         "type": "issue",
                         "number": issue.number,
                         "title": issue.title,
+                        "parent_id": section.gitmap_id,
                     }
 
-            for issue in section.issues:
-                item_id = issue.gitmap_id or f"new:{issue.number}"
-
-                items[item_id] = {
+        for issue in milestone.issues:
+            if issue.gitmap_id:
+                items[issue.gitmap_id] = {
                     "type": "issue",
                     "number": issue.number,
                     "title": issue.title,
+                    "parent_id": milestone_parent_id,
                 }
-
-        for issue in milestone.issues:
-            item_id = issue.gitmap_id or f"new:{issue.number}"
-
-            items[item_id] = {
-                "type": "issue",
-                "number": issue.number,
-                "title": issue.title,
-            }
 
     return items
 
@@ -92,47 +96,12 @@ def load_review_dialog(before_roadmap, after_roadmap):
         "unchanged": dialog.findChild(QPushButton, "button_unchanged"),
     }
 
-        # TEST
     before_items = collect_roadmap_items(before_roadmap)
     after_items = collect_roadmap_items(after_roadmap)
 
-    # TEST
     added_ids = set(after_items) - set(before_items)
     removed_ids = set(before_items) - set(after_items)
-
-    # TEST
-    before_items = collect_roadmap_items(before_roadmap)
-    after_items = collect_roadmap_items(after_roadmap)
-
-    # TEST
-    added_ids = set(after_items) - set(before_items)
-    removed_ids = set(before_items) - set(after_items)
-
     common_ids = set(before_items) & set(after_items)
-
-    retitled_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["title"] != after_items[item_id]["title"]
-    }
-
-    unchanged_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["number"] == after_items[item_id]["number"]
-        and before_items[item_id]["title"] == after_items[item_id]["title"]
-    }
-
-    for item_id in common_ids:  # TEST
-        if before_items[item_id]["title"] != after_items[item_id]["title"]:
-            print(
-                "TITLE CHANGE:",
-                repr(before_items[item_id]["title"]),
-                "->",
-                repr(after_items[item_id]["title"]),
-                "ID:",
-                item_id,
-            )
 
     renumbered_ids = {
         item_id
@@ -140,17 +109,25 @@ def load_review_dialog(before_roadmap, after_roadmap):
         if before_items[item_id]["number"] != after_items[item_id]["number"]
     }
 
-    print("ADDED:", len(added_ids))
-    print("REMOVED:", len(removed_ids))
-    print("RENUMBERED:", len(renumbered_ids))
+    retitled_ids = {
+        item_id
+        for item_id in common_ids
+        if before_items[item_id]["title"] != after_items[item_id]["title"]
+    }
 
-    print("BEFORE ITEMS:", len(before_items))
-    print("AFTER ITEMS:", len(after_items))
-    print("ADDED:", len(added_ids))
-    print("REMOVED:", len(removed_ids))
+    hierarchy_ids = {
+        item_id
+        for item_id in common_ids
+        if before_items[item_id]["parent_id"] != after_items[item_id]["parent_id"]
+    }
 
-    print("BEFORE ITEMS:", len(before_items))
-    print("AFTER ITEMS:", len(after_items))
+    unchanged_ids = {
+        item_id
+        for item_id in common_ids
+        if before_items[item_id]["number"] == after_items[item_id]["number"]
+        and before_items[item_id]["title"] == after_items[item_id]["title"]
+        and before_items[item_id]["parent_id"] == after_items[item_id]["parent_id"]
+    }
 
     # Set up change statistics.
     stat_rows = {
@@ -166,9 +143,9 @@ def load_review_dialog(before_roadmap, after_roadmap):
         [
             f"Added: {len(added_ids)}",
             f"Removed: {len(removed_ids)}",
-            "Renumbered: N/A",
+            f"Renumbered: {len(renumbered_ids)}",
             f"Retitled: {len(retitled_ids)}",
-            "Hierarchy Changes: N/A",
+            f"Hierarchy Changes: {len(hierarchy_ids)}",
             f"Unchanged: {len(unchanged_ids)}",
         ]
     )
@@ -276,6 +253,34 @@ def load_review_dialog(before_roadmap, after_roadmap):
                 1 for item in removed_items if item["type"] == "section"
             )
 
+        elif selected_name == "renumbered":
+            renumbered_items = [
+                (before_items[item_id], after_items[item_id])
+                for item_id in renumbered_ids
+            ]
+
+            changes_detail_label.setText(f"Renumbered: {len(renumbered_items)}")
+
+            for before_item, after_item in sorted(
+                renumbered_items,
+                key=lambda pair: pair[1]["number"],
+            ):
+                changes_list.addItem(
+                    f"{before_item['number']} → {after_item['number']}  "
+                    f"{after_item['title']}"
+                )
+
+        elif selected_name == "hierarchy":
+            hierarchy_items = [after_items[item_id] for item_id in hierarchy_ids]
+
+            changes_detail_label.setText(f"Hierarchy Changes: {len(hierarchy_items)}")
+
+            for item in sorted(
+                hierarchy_items,
+                key=lambda value: value["number"],
+            ):
+                changes_list.addItem(f"{item['number']}  {item['title']}")
+
         elif selected_name == "retitled":
             retitled_items = [
                 (before_items[item_id], after_items[item_id])
@@ -283,15 +288,18 @@ def load_review_dialog(before_roadmap, after_roadmap):
             ]
 
             issue_count = sum(
-                1 for before_item, after_item in retitled_items
+                1
+                for before_item, after_item in retitled_items
                 if after_item["type"] == "issue"
             )
             feature_count = sum(
-                1 for before_item, after_item in retitled_items
+                1
+                for before_item, after_item in retitled_items
                 if after_item["type"] == "feature"
             )
             section_count = sum(
-                1 for before_item, after_item in retitled_items
+                1
+                for before_item, after_item in retitled_items
                 if after_item["type"] == "section"
             )
 
@@ -318,19 +326,14 @@ def load_review_dialog(before_roadmap, after_roadmap):
 
             for before_item, after_item in retitled_items:
                 changes_list.addItem(
-                    f'{after_item["number"]}  '
-                    f'{before_item["title"]} → {after_item["title"]}'
+                    f"{after_item['number']}  "
+                    f"{before_item['title']} → {after_item['title']}"
                 )
 
         elif selected_name == "unchanged":
-            unchanged_items = [
-                after_items[item_id]
-                for item_id in unchanged_ids
-            ]
+            unchanged_items = [after_items[item_id] for item_id in unchanged_ids]
 
-            issue_count = sum(
-                1 for item in unchanged_items if item["type"] == "issue"
-            )
+            issue_count = sum(1 for item in unchanged_items if item["type"] == "issue")
             feature_count = sum(
                 1 for item in unchanged_items if item["type"] == "feature"
             )
@@ -360,9 +363,7 @@ def load_review_dialog(before_roadmap, after_roadmap):
             )
 
             for item in unchanged_items:
-                changes_list.addItem(
-                    f'{item["number"]}  {item["title"]}'
-                )
+                changes_list.addItem(f"{item['number']}  {item['title']}")
 
     for name, button in filter_buttons.items():
         button.clicked.connect(

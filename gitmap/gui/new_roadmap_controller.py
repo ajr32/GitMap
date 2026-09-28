@@ -51,6 +51,36 @@ def load_structure_dialog():
 
         return True
 
+    def build_live_structure_example():
+        """Build the structure preview from the answers selected so far."""
+
+        lines = ["Roadmap", "└── Milestone"]
+
+        if not answers.get("use_sections", False):
+            lines.append("    └── Issue")
+            return "\n".join(lines)
+
+        lines.append("    └── Section")
+
+        section_children = []
+
+        if answers.get("allow_issues_under_sections", False):
+            section_children.append("Issue")
+
+        if answers.get("use_features", False):
+            section_children.append("Feature")
+
+        for index, child in enumerate(section_children):
+            is_last = index == len(section_children) - 1
+            branch = "└──" if is_last else "├──"
+            lines.append(f"        {branch} {child}")
+
+            if child == "Feature" and answers.get("allow_issues_under_features", False):
+                continuation = "    " if is_last else "│   "
+                lines.append(f"        {continuation}└── Issue")
+
+        return "\n".join(lines)
+
     def update_details():
         for index, button in enumerate(buttons):
             if not button.isChecked():
@@ -100,7 +130,15 @@ def load_structure_dialog():
                 "  |  ".join(f"{key}: {value}" for key, value in answers.items())
             )
 
-            dialog.structure_example.setPlainText(option["example"])
+            if question["id"] in (
+                "structure",
+                "section_tracking",
+                "feature_tracking",
+            ):
+                dialog.structure_example.setPlainText(build_live_structure_example())
+            else:
+                dialog.structure_example.setPlainText(option["example"])
+
             dialog.structure_explain.setPlainText(option["explanation"])
             break
 

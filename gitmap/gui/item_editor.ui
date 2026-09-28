@@ -171,8 +171,8 @@ color: rgb(255, 238, 230);</string>
    <widget class="QPushButton" name="apply_button">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>300</y>
+      <x>250</x>
+      <y>20</y>
       <width>81</width>
       <height>26</height>
      </rect>
@@ -287,8 +287,8 @@ color: rgb(255, 238, 230);</string>
    <widget class="QPushButton" name="never_mind_button">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>300</y>
+      <x>340</x>
+      <y>20</y>
       <width>81</width>
       <height>26</height>
      </rect>
@@ -303,9 +303,9 @@ color: rgb(255, 238, 230);</string>
    <widget class="QPushButton" name="save_exit_button">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>10</y>
-      <width>111</width>
+      <x>25</x>
+      <y>335</y>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
@@ -322,28 +322,12 @@ color: rgb(255, 238, 230);</string>
      <string>Save + Exit</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="add_milestone">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>340</y>
-      <width>111</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
-    </property>
-    <property name="text">
-     <string>Add Milestone</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="add_button">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>220</x>
       <y>340</y>
-      <width>161</width>
+      <width>81</width>
       <height>26</height>
      </rect>
     </property>
@@ -351,14 +335,14 @@ color: rgb(255, 238, 230);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Add Roadmap Subsections</string>
+     <string>Add</string>
     </property>
    </widget>
    <widget class="QPushButton" name="save_button">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>340</y>
+      <x>30</x>
+      <y>305</y>
       <width>81</width>
       <height>26</height>
      </rect>
@@ -373,9 +357,9 @@ color: rgb(255, 238, 230);</string>
    <widget class="QPushButton" name="edit_button">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>220</x>
       <y>380</y>
-      <width>111</width>
+      <width>81</width>
       <height>26</height>
      </rect>
     </property>
@@ -383,15 +367,15 @@ color: rgb(255, 238, 230);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Edit Roadmap</string>
+     <string>Edit</string>
     </property>
    </widget>
    <widget class="QPushButton" name="delete_button">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>380</y>
-      <width>151</width>
+      <x>310</x>
+      <y>340</y>
+      <width>81</width>
       <height>26</height>
      </rect>
     </property>
@@ -399,7 +383,7 @@ color: rgb(255, 238, 230);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Delete Roadmap Section</string>
+     <string>Delete</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="go_away">
@@ -418,10 +402,10 @@ color: rgb(255, 238, 230);</string>
    <widget class="QPushButton" name="cancel_button">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>40</y>
-      <width>131</width>
-      <height>31</height>
+      <x>10</x>
+      <y>370</y>
+      <width>121</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
@@ -438,7 +422,23 @@ font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(255, 0, 0);</string>
     </property>
     <property name="text">
-     <string>Close and Don't Save</string>
+     <string>Close (Don't Save)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="move_button">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>380</y>
+      <width>81</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Move</string>
     </property>
    </widget>
    <zorder>item_type_label</zorder>
@@ -452,13 +452,13 @@ background-color: rgb(255, 0, 0);</string>
    <zorder>item_work_step</zorder>
    <zorder>never_mind_button</zorder>
    <zorder>save_exit_button</zorder>
-   <zorder>add_milestone</zorder>
    <zorder>add_button</zorder>
    <zorder>save_button</zorder>
    <zorder>edit_button</zorder>
    <zorder>delete_button</zorder>
    <zorder>go_away</zorder>
    <zorder>cancel_button</zorder>
+   <zorder>move_button</zorder>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">

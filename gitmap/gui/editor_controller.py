@@ -1,11 +1,16 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QAbstractItemView, QMessageBox, QPushButton, QTreeWidget
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QInputDialog,
+    QMessageBox,
+    QPushButton,
+    QTreeWidget,
+)
 
 from gitmap.gui.add_item_controller import (
     continue_add_item,
     finish_add,
     never_mind_add,
-    start_add_milestone,
     start_add_mode,
 )
 from gitmap.gui.add_item_dialog import load_add_item_dialog
@@ -15,6 +20,12 @@ from gitmap.gui.item_editor import (
     apply_editor_changes,
     get_item_type,
     load_item_editor,
+)
+from gitmap.gui.move_item_controller import (
+    get_move_destinations,
+    get_position_choices,
+    move_item,
+    position_index_from_choice,
 )
 from gitmap.gui.remove_item_controller import remove_selected_item
 from gitmap.gui.roadmap_tree import populate_roadmap_tree
@@ -83,12 +94,9 @@ def open_editor(
     # BUTTONS
     # =========================================================================
     add_button = editor.findChild(QPushButton, "add_button")
-    add_milestone_button = editor.findChild(
-        QPushButton,
-        "add_milestone",
-    )
     edit_button = editor.findChild(QPushButton, "edit_button")
     delete_button = editor.findChild(QPushButton, "delete_button")
+    move_button = editor.findChild(QPushButton, "move_button")
     never_mind_button = editor.findChild(
         QPushButton,
         "never_mind_button",
@@ -161,15 +169,102 @@ def open_editor(
     add_button.clicked.connect(start_current_add_mode)
 
     # =========================================================================
-    # ADD MILESTONE
+    # MOVE
     # =========================================================================
-    def start_current_add_milestone():
-        start_add_milestone(
+    def start_move_mode():
+        target = editor.roadmap_object
+
+        if target is None:
+            QMessageBox.information(
+                editor,
+                "Move Item",
+                "Select an item to move first.",
+            )
+            return
+
+        destinations = get_move_destinations(roadmap, target)
+
+        if not destinations:
+            QMessageBox.information(
+                editor,
+                "Move Item",
+                "There are no valid destinations for this item.",
+            )
+            return
+
+        labels = [destination.label for destination in destinations]
+
+        selected_label, accepted = QInputDialog.getItem(
             editor,
-            preview_tree,
+            "Move Item",
+            "Move to:",
+            labels,
+            0,
+            False,
         )
 
-    add_milestone_button.clicked.connect(start_current_add_milestone)
+        if not accepted:
+            return
+
+        selected_index = labels.index(selected_label)
+        destination = destinations[selected_index]
+
+        position_choices = get_position_choices(
+            destination,
+            target,
+        )
+
+        selected_position, accepted = QInputDialog.getItem(
+            editor,
+            "Move Item",
+            "Place item:",
+            position_choices,
+            0,
+            False,
+        )
+
+        if not accepted:
+            return
+
+        insert_index = position_index_from_choice(
+            destination,
+            target,
+            selected_position,
+        )
+
+        changes = move_item(
+            roadmap,
+            target,
+            destination,
+            insert_index,
+        )
+
+        roadmap.is_modified = True
+
+        populate_roadmap_tree(preview_tree, roadmap)
+
+        if hasattr(editor, "select_preview_model"):
+            editor.select_preview_model(target)
+
+        if changes:
+            change_lines = [
+                f"{change['old_number']} → {change['new_number']}  {change['title']}"
+                for change in changes
+            ]
+
+            QMessageBox.information(
+                editor,
+                "Move Complete",
+                "Item moved. Numbering changes:\n\n" + "\n".join(change_lines),
+            )
+        else:
+            QMessageBox.information(
+                editor,
+                "Move Complete",
+                "Item moved.",
+            )
+
+    move_button.clicked.connect(start_move_mode)
 
     # =========================================================================
     # SAVE

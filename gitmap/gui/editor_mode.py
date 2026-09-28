@@ -14,7 +14,6 @@ def set_editor_mode(editor, mode):
         editor.edit_button,
         editor.delete_button,
         editor.add_button,
-        editor.add_milestone,
         editor.save_button,
         editor.save_exit_button,
     ]
@@ -29,7 +28,7 @@ def set_editor_mode(editor, mode):
             button.show()
 
         for button in action_buttons:
-	        button.hide()
+            button.hide()
 
         clear_editor_fields(editor)
 
