@@ -6,62 +6,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QTreeWidget
 
 from gitmap.gui.roadmap_tree import populate_roadmap_tree
-
-
-def collect_roadmap_items(roadmap):
-    """Collect GitMap-managed roadmap items for change comparison."""
-
-    items = {}
-
-    for milestone in roadmap.milestones:
-        milestone_parent_id = f"milestone:{milestone.number}:{milestone.title}"
-
-        for section in milestone.sections:
-            if section.gitmap_id:
-                items[section.gitmap_id] = {
-                    "type": "section",
-                    "number": section.number,
-                    "title": section.title,
-                    "parent_id": milestone_parent_id,
-                }
-
-            for feature in section.features:
-                if feature.gitmap_id:
-                    items[feature.gitmap_id] = {
-                        "type": "feature",
-                        "number": feature.number,
-                        "title": feature.title,
-                        "parent_id": section.gitmap_id,
-                    }
-
-                for issue in feature.issues:
-                    if issue.gitmap_id:
-                        items[issue.gitmap_id] = {
-                            "type": "issue",
-                            "number": issue.number,
-                            "title": issue.title,
-                            "parent_id": feature.gitmap_id,
-                        }
-
-            for issue in section.issues:
-                if issue.gitmap_id:
-                    items[issue.gitmap_id] = {
-                        "type": "issue",
-                        "number": issue.number,
-                        "title": issue.title,
-                        "parent_id": section.gitmap_id,
-                    }
-
-        for issue in milestone.issues:
-            if issue.gitmap_id:
-                items[issue.gitmap_id] = {
-                    "type": "issue",
-                    "number": issue.number,
-                    "title": issue.title,
-                    "parent_id": milestone_parent_id,
-                }
-
-    return items
+from gitmap.gui.sync_plan import compare_roadmaps
 
 
 def load_review_dialog(before_roadmap, after_roadmap):
@@ -74,6 +19,7 @@ def load_review_dialog(before_roadmap, after_roadmap):
 
     loader = QUiLoader()
     dialog = loader.load(ui_file)
+
 
     ui_file.close()
 
@@ -96,38 +42,21 @@ def load_review_dialog(before_roadmap, after_roadmap):
         "unchanged": dialog.findChild(QPushButton, "button_unchanged"),
     }
 
-    before_items = collect_roadmap_items(before_roadmap)
-    after_items = collect_roadmap_items(after_roadmap)
+    comparison = compare_roadmaps(
+        before_roadmap,
+        after_roadmap,
+    )
 
-    added_ids = set(after_items) - set(before_items)
-    removed_ids = set(before_items) - set(after_items)
-    common_ids = set(before_items) & set(after_items)
+    before_items = comparison["before_items"]
+    after_items = comparison["after_items"]
 
-    renumbered_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["number"] != after_items[item_id]["number"]
-    }
+    added_ids = comparison["added"]
+    removed_ids = comparison["removed"]
+    renumbered_ids = comparison["renumbered"]
+    retitled_ids = comparison["retitled"]
+    hierarchy_ids = comparison["hierarchy"]
+    unchanged_ids = comparison["unchanged"]
 
-    retitled_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["title"] != after_items[item_id]["title"]
-    }
-
-    hierarchy_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["parent_id"] != after_items[item_id]["parent_id"]
-    }
-
-    unchanged_ids = {
-        item_id
-        for item_id in common_ids
-        if before_items[item_id]["number"] == after_items[item_id]["number"]
-        and before_items[item_id]["title"] == after_items[item_id]["title"]
-        and before_items[item_id]["parent_id"] == after_items[item_id]["parent_id"]
-    }
 
     # Set up change statistics.
     stat_rows = {
@@ -246,12 +175,41 @@ def load_review_dialog(before_roadmap, after_roadmap):
             removed_items = [before_items[item_id] for item_id in removed_ids]
 
             issue_count = sum(1 for item in removed_items if item["type"] == "issue")
+
             feature_count = sum(
                 1 for item in removed_items if item["type"] == "feature"
             )
+
             section_count = sum(
                 1 for item in removed_items if item["type"] == "section"
             )
+
+            breakdown = []
+
+            if section_count:
+                breakdown.append(
+                    f"{section_count} section{'s' if section_count != 1 else ''}"
+                )
+
+            if feature_count:
+                breakdown.append(
+                    f"{feature_count} feature{'s' if feature_count != 1 else ''}"
+                )
+
+            if issue_count:
+                breakdown.append(
+                    f"{issue_count} issue{'s' if issue_count != 1 else ''}"
+                )
+
+            changes_detail_label.setText(
+                f"Removed: {len(removed_items)} ({', '.join(breakdown)})"
+            )
+
+            for item in sorted(
+                removed_items,
+                key=lambda value: value["number"],
+            ):
+                changes_list.addItem(f"{item['number']}  {item['title']}")
 
         elif selected_name == "renumbered":
             renumbered_items = [
@@ -363,6 +321,7 @@ def load_review_dialog(before_roadmap, after_roadmap):
             )
 
             for item in unchanged_items:
+                changes_list.addItem(f"{item['number']}  {item['title']}")
                 changes_list.addItem(f"{item['number']}  {item['title']}")
 
     for name, button in filter_buttons.items():

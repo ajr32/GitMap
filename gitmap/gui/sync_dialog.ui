@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SyncDialog</class>
+
+ <widget class="QDialog" name="SyncDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>330</height>
+   </rect>
+  </property>
+
+  <property name="windowTitle">
+   <string>Sync Roadmap</string>
+  </property>
+
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+
+  <layout class="QVBoxLayout" name="main_layout">
+
+   <item>
+    <widget class="QLabel" name="title_label">
+     <property name="text">
+      <string>Choose GitHub Repository</string>
+     </property>
+     <property name="styleSheet">
+      <string>font-size: 16pt; font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QLabel" name="explanation_label">
+     <property name="text">
+      <string>Choose where this roadmap should be synchronized on GitHub.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QGroupBox" name="repository_group">
+     <property name="title">
+      <string>Repository</string>
+     </property>
+
+     <layout class="QVBoxLayout" name="repository_layout">
+
+      <item>
+       <widget class="QRadioButton" name="existing_repository">
+        <property name="text">
+         <string>Use an existing repository</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QRadioButton" name="new_repository">
+        <property name="text">
+         <string>Create a new repository</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <layout class="QFormLayout" name="repository_form">
+
+        <item row="0" column="0">
+         <widget class="QLabel" name="repository_label">
+          <property name="text">
+           <string>Repository Name:</string>
+          </property>
+         </widget>
+        </item>
+
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="repository_name">
+          <property name="placeholderText">
+           <string>GitHub repository name</string>
+          </property>
+         </widget>
+        </item>
+
+       </layout>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="repository_status">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+   <item>
+    <spacer name="vertical_spacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>30</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+
+   <item>
+    <layout class="QHBoxLayout" name="button_layout">
+
+     <item>
+      <spacer name="button_spacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="cancel_button">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="continue_button">
+       <property name="text">
+        <string>Continue</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+
+ <tabstops>
+  <tabstop>existing_repository</tabstop>
+  <tabstop>new_repository</tabstop>
+  <tabstop>repository_name</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>continue_button</tabstop>
+ </tabstops>
+
+ <resources/>
+ <connections/>
+
+</ui>

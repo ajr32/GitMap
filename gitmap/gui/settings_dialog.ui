@@ -111,9 +111,9 @@ Under Permissions, allow:
 • Contents: Read and write
 • Issues: Read and write
 • Metadata: Read-only (automatically granted)
-• Repository creation: Read and write
+• Administration: Read and write
 
-Repository creation is required so GitMap can create a new repository when syncing a new roadmap.
+Administration is required so GitMap can create a new repository when syncing a new roadmap.
 
 Generate the token, then paste it below.</string>
         </property>

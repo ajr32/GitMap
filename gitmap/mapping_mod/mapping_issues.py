@@ -196,7 +196,6 @@ def create_hierarchy_issue(repository, mapping, milestone, labels=None):
         labels=labels or [],
     )
 
-
 def sync_hierarchy_issue(
     repository,
     mapping,

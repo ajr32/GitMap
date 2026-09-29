@@ -480,7 +480,7 @@ background-color: rgb(255, 174, 174);</string>
          <string>Revert Changes</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="accept_button_2">
+       <widget class="QPushButton" name="sync_to_github_button">
         <property name="geometry">
          <rect>
           <x>30</x>

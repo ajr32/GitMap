@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
-from gitmap.gui.settings_controller import load_settings_dialog
+from gitmap.github_setup import RepositoryInfo, create_repository, verify_repository
 from gitmap.gui.builder_controller import open_builder
 from gitmap.gui.cancel_changes import cancel_changes
 from gitmap.gui.editor_controller import open_editor
@@ -20,7 +20,17 @@ from gitmap.gui.new_roadmap_controller import (
 from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
+from gitmap.gui.settings_controller import load_settings_dialog
+from gitmap.gui.sync_dialog import load_sync_dialog
 from gitmap.parser import parse_roadmap
+from gitmap.settings import load_github_username
+
+from gitmap.gui.sync_plan import build_sync_plan
+from gitmap.mapping_mod.mapping_issues import (
+    collect_hierarchy_issue_mappings,
+    get_existing_issues,
+    sync_issues,
+)
 
 
 class MainWindowState:
@@ -72,6 +82,22 @@ def setup_main_window(window):
 
     state.refresh_main_roadmap = refresh_main_roadmap
 
+    def collect_all_normal_issues(roadmap):
+        """Collect every normal GitHub-syncable Issue in the roadmap."""
+
+        issues = []
+
+        for milestone in roadmap.milestones:
+            issues.extend(milestone.issues)
+
+            for section in milestone.sections:
+                issues.extend(section.issues)
+
+                for feature in section.features:
+                    issues.extend(feature.issues)
+
+        return issues
+
     # -------------------------------------------------------------------------
     # Main Window roadmap selection
     # -------------------------------------------------------------------------
@@ -98,7 +124,8 @@ def setup_main_window(window):
     review_button = window.findChild(QPushButton, "review_button")
     cancel_button = window.findChild(QPushButton, "cancel_button")
     settings_button = window.findChild(QPushButton, "settings_button")
-
+    sync_to_github_button = window.findChild(QPushButton, "sync_to_github_button")
+    
     edit_button.hide()
     review_button.hide()
     cancel_button.hide()
@@ -275,3 +302,141 @@ def setup_main_window(window):
         settings_dialog.exec()
 
     settings_button.clicked.connect(open_settings)
+
+    # -------------------------------------------------------------------------
+    # Sync to GitHub
+    # -------------------------------------------------------------------------
+
+    def open_github_sync():
+        dialog = load_sync_dialog()
+
+        if not dialog.exec():
+            return
+
+        repository_name = dialog.repository
+        create_new = dialog.create_repository
+        username = load_github_username()
+
+        if not username:
+            QMessageBox.warning(
+                window,
+                "GitHub Settings Required",
+                "Open Settings and enter your GitHub username first.",
+            )
+            return
+
+        try:
+            if create_new:
+                repository = create_repository(
+                    repository_name
+                )
+
+            else:
+                info = RepositoryInfo(
+                    username=username,
+                    repository=repository_name,
+                )
+
+                repository = verify_repository(info)
+
+        except ValueError as error:
+            QMessageBox.critical(
+                window,
+                "GitHub Repository Error",
+                str(error),
+            )
+            return
+
+        try:
+            existing_issues = get_existing_issues(
+                repository,
+                state.active_roadmap,
+            )
+
+            if not existing_issues:
+                # First sync for this roadmap/repository.
+                all_issues = collect_all_normal_issues(
+                    state.active_roadmap,
+                )
+
+                all_hierarchy_mappings = (
+                    collect_hierarchy_issue_mappings(
+                        state.active_roadmap,
+                    )
+                )
+
+                sync_issues(
+                    repository,
+                    state.active_roadmap,
+                    issues_to_sync=all_issues,
+                    update_issues=[],
+                )
+
+                if all_hierarchy_mappings:
+                    sync_issues(
+                        repository,
+                        state.active_roadmap,
+                        issues_to_sync=[],
+                        hierarchy_mappings_to_sync=all_hierarchy_mappings,
+                        hierarchy_expected_operation="create",
+                    )
+
+            else:
+                plan = build_sync_plan(
+                    state.sync_baseline_roadmap,
+                    state.active_roadmap,
+                )
+
+                issues_to_sync = (
+                        plan["added_issues"]
+                        + plan["changed_issues"]
+                )
+
+                if issues_to_sync:
+                    sync_issues(
+                        repository,
+                        state.active_roadmap,
+                        issues_to_sync=issues_to_sync,
+                        update_issues=plan["changed_issues"],
+                    )
+
+                if plan["added_hierarchy_mappings"]:
+                    sync_issues(
+                        repository,
+                        state.active_roadmap,
+                        issues_to_sync=[],
+                        hierarchy_mappings_to_sync=(
+                            plan["added_hierarchy_mappings"]
+                        ),
+                        hierarchy_expected_operation="create",
+                    )
+
+                if plan["changed_hierarchy_mappings"]:
+                    sync_issues(
+                        repository,
+                        state.active_roadmap,
+                        issues_to_sync=[],
+                        hierarchy_mappings_to_sync=(
+                            plan["changed_hierarchy_mappings"]
+                        ),
+                        hierarchy_expected_operation="update",
+                    )
+
+        except Exception as error:
+            QMessageBox.critical(
+                window,
+                "GitHub Sync Failed",
+                str(error),
+            )
+            return
+
+        QMessageBox.information(
+            window,
+            "GitHub Sync Complete",
+            (
+                "GitMap successfully synchronized with:\n\n"
+                f"{repository.full_name}"
+            ),
+        )
+
+    sync_to_github_button.clicked.connect(open_github_sync)
