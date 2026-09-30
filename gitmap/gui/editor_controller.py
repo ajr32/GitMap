@@ -56,6 +56,16 @@ def open_editor(
 
     populate_roadmap_tree(preview_tree, roadmap)
 
+    def refresh_preview():
+        populate_roadmap_tree(preview_tree, roadmap)
+
+    editor.refresh_preview = refresh_preview
+
+    context_tree = editor.findChild(QTreeWidget, "context_tree")
+    context_tree.clear()
+
+    editor.refresh_preview = refresh_preview
+
     context_tree = editor.findChild(QTreeWidget, "context_tree")
     context_tree.clear()
 

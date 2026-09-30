@@ -196,10 +196,29 @@ def apply_editor_changes(editor):
             )
 
         else:
-            renumber_siblings(
-                siblings,
-                editor.add_parent_model.number,
-            )
+            if isinstance(new_model, Issue) and isinstance(
+                editor.add_parent_model, Milestone
+            ):
+                renumber_siblings(
+                    siblings,
+                    editor.add_parent_model.number,
+                    parent_type="milestone_issue",
+                )
+
+            elif isinstance(new_model, Issue) and isinstance(
+                editor.add_parent_model, Section
+            ):
+                renumber_siblings(
+                    siblings,
+                    editor.add_parent_model.number,
+                    parent_type="section_issue",
+                )
+
+            else:
+                renumber_siblings(
+                    siblings,
+                    editor.add_parent_model.number,
+                )
 
         # ---------------------------------------------------------------------
         # PART B3B — CONFIRM NUMBERING CHANGES
@@ -210,12 +229,12 @@ def apply_editor_changes(editor):
         numbering_changes = collect_numbering_changes(siblings)
 
         if numbering_changes:
-            approved = confirm_numbering_changes(
+            confirmed = confirm_numbering_changes(
                 editor,
                 numbering_changes,
             )
 
-            if not approved:
+            if not confirmed:
                 # Remove the temporary new item.
                 siblings.remove(new_model)
 
@@ -235,17 +254,14 @@ def apply_editor_changes(editor):
 
         editor.add_new_model = None
         editor.add_placeholder = None
+
         if hasattr(editor, "finish_add"):
             editor.finish_add()
+
         return True
 
     roadmap_object = editor.roadmap_object
     roadmap_detail = getattr(editor, "roadmap_detail", None)
-
-    print(
-        "APPLYING DETAIL:",
-        getattr(roadmap_detail, "text", None),
-    )
 
     # -------------------------------------------------------------------------
     # PART B1 — READ FIELDS / VALIDATE TITLE
@@ -287,11 +303,6 @@ def apply_editor_changes(editor):
     # Work Steps expose `work_step_marker` and store their editable wording in
     # `.title`. If the marker somehow appears in the text box, strip it before
     # storing the title so the marker isn't duplicated.
-    #
-    # FUTURE WORK:
-    # Adding/removing Work Steps and marker renumbering are separate features.
-    # When implemented, use the existing 0.7 numbering backend rather than
-    # creating a second GUI-only numbering system.
     # -------------------------------------------------------------------------
     if roadmap_detail is not None and hasattr(roadmap_detail, "work_step_marker"):
         work_step_text = work_step_field.toPlainText()
@@ -317,7 +328,7 @@ def apply_editor_changes(editor):
     # Apply changes only the in-memory model. `is_modified` records that the
     # roadmap has unsaved changes.
     #
-    # `refresh_preview` is attached by app.py (Part G4 there). Keeping this as
+    # `refresh_preview` is attached by editor_controller.py. Keeping this as
     # a callback avoids item_editor.py needing to know how the Preview tree is
     # built.
     # -------------------------------------------------------------------------

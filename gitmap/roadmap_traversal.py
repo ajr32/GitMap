@@ -45,3 +45,24 @@ def iter_roadmap_work_steps(roadmap):
     for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
         for work_step in iter_work_steps(issue.work_steps):
             yield work_step, issue, milestone, section, feature
+
+
+def find_roadmap_item_by_id(roadmap, gitmap_id):
+    """Return the roadmap item with the given permanent GitMap ID."""
+
+    if not gitmap_id:
+        return None
+
+    for issue, _, _, _ in iter_roadmap_issues(roadmap):
+        if issue.gitmap_id == gitmap_id:
+            return issue
+
+    for section, _ in iter_roadmap_sections(roadmap):
+        if section.gitmap_id == gitmap_id:
+            return section
+
+    for feature, _, _ in iter_roadmap_features(roadmap):
+        if feature.gitmap_id == gitmap_id:
+            return feature
+
+    return None

@@ -1,5 +1,6 @@
 from gitmap.mapping_mod.mapping_issues import collect_hierarchy_issue_mappings
 from gitmap.roadmap_traversal import (
+    find_roadmap_item_by_id,
     iter_roadmap_features,
     iter_roadmap_issues,
     iter_roadmap_sections,
@@ -98,24 +99,6 @@ def compare_roadmaps(before_roadmap, after_roadmap):
         "hierarchy": hierarchy_ids,
         "unchanged": unchanged_ids,
     }
-
-
-def find_roadmap_item_by_id(roadmap, gitmap_id):
-    """Find a roadmap object by its permanent GitMap ID."""
-
-    for issue, _, _, _ in iter_roadmap_issues(roadmap):
-        if issue.gitmap_id == gitmap_id:
-            return issue
-
-    for section, _ in iter_roadmap_sections(roadmap):
-        if section.gitmap_id == gitmap_id:
-            return section
-
-    for feature, _, _ in iter_roadmap_features(roadmap):
-        if feature.gitmap_id == gitmap_id:
-            return feature
-
-    return None
 
 
 def build_sync_plan(before_roadmap, after_roadmap):

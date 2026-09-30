@@ -16,10 +16,7 @@ Hierarchy-Issue-Title-Style: type_prefix
 ### 0.1.1.1 Southwestern
 <!-- GitMap-ID: gvredshx -->
 
-#### 0.1.1.1.1 New Delhi
-<!-- GitMap-ID: ruredsim -->
-
-#### 0.1.1.1.2 Forbidden City
+#### 0.1.1.1.1 Forbidden City
 <!-- GitMap-ID: nuredsiq -->
 
 ### 0.1.1.2 Northern
@@ -35,6 +32,9 @@ Hierarchy-Issue-Title-Style: type_prefix
 
 ### 0.2.1.1 Shanghai
 <!-- GitMap-ID: duredsia -->
+
+#### 0.2.1.1.1 New Delhi
+<!-- GitMap-ID: ruredsim -->
 
 ### 0.2.1.2 Beijing
 <!-- GitMap-ID: euredsiz -->

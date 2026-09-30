@@ -25,9 +25,7 @@ def confirm_numbering_changes(parent, changes):
         old_number = change["old_number"]
         new_number = change["new_number"]
 
-        lines.append(
-            f"{old_number} {title}  →  {new_number} {title}"
-        )
+        lines.append(f"{old_number} {title}  →  {new_number} {title}")
 
     message = "\n".join(lines)
 
@@ -47,6 +45,17 @@ def confirm_numbering_changes(parent, changes):
         "changes to your roadmap.\n\n"
         "Apply this change?"
     )
+
+    message_box.setStandardButtons(
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    )
+
+    message_box.setDefaultButton(QMessageBox.StandardButton.No)
+
+    result = message_box.exec()
+
+    return result == QMessageBox.StandardButton.Yes
+
 
 # =============================================================================
 # PART B — REMOVE ITEM CONFIRMATION

@@ -1,5 +1,5 @@
 from gitmap.gui.confirmation import confirm_remove_item
-from gitmap.models import Milestone, Requirement
+from gitmap.models import Issue, Milestone, Requirement, Section
 from gitmap.roadmap_numbering import renumber_siblings
 
 # =============================================================================
@@ -116,12 +116,26 @@ def remove_structural_item(editor):
                 siblings,
                 milestone_series,
             )
+
+        elif isinstance(target, Issue) and isinstance(parent, Milestone):
+            renumber_siblings(
+                siblings,
+                parent.number,
+                parent_type="milestone_issue",
+            )
+
+        elif isinstance(target, Issue) and isinstance(parent, Section):
+            renumber_siblings(
+                siblings,
+                parent.number,
+                parent_type="section_issue",
+            )
+
         else:
             renumber_siblings(
                 siblings,
                 parent.number,
             )
-
     editor.roadmap.is_modified = True
 
     if hasattr(editor, "refresh_preview"):

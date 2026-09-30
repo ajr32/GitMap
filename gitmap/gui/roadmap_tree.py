@@ -236,6 +236,11 @@ def populate_roadmap_tree(tree, roadmap):
         )
 
         test_item.addChild(milestone_item)
+        # ---------------------------------------------------------------------
+        # PART C2A — MILESTONE-LEVEL ISSUES
+        # ---------------------------------------------------------------------
+        for issue in milestone.issues:
+            add_issue_to_tree(milestone_item, issue)
 
         # ---------------------------------------------------------------------
         # PART C3 — SECTIONS AND SECTION-LEVEL ISSUES

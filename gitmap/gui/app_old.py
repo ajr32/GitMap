@@ -1,4 +1,3 @@
-# print("### APP_OLD.PY LOADED ###")  # TEST
 #
 # # =============================================================================
 # # GITMAP app.py ROAD MAP
@@ -798,7 +797,6 @@
 #     # def cancel_pending_changes():
 #     #     nonlocal active_roadmap
 #     #
-#     #     print("CANCEL BUTTON CLICKED")  # TEST
 #     #
 #     #     restored_roadmap = cancel_changes(
 #     #         window,

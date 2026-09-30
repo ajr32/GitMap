@@ -10,7 +10,12 @@ from PySide6.QtWidgets import QPushButton, QTreeWidgetItem
 
 from gitmap.gui.editor_mode import set_editor_mode
 from gitmap.models import Feature, Issue, Milestone, Section
-from gitmap.roadmap_numbering import generate_issue_number
+from gitmap.roadmap_numbering import (
+    generate_feature_number,
+    generate_issue_number,
+    generate_milestone_number,
+    generate_section_number,
+)
 
 
 # =============================================================================
@@ -302,8 +307,6 @@ def continue_add_item(
     # -------------------------------------------------------------------------
     # SIBLING POSITION SELECTED
     # -------------------------------------------------------------------------
-    # TEST
-    print("ADD TRACE entry stage:", getattr(item_editor_window, "add_question_stage", None))
 
     if (
         getattr(
@@ -322,12 +325,7 @@ def continue_add_item(
             None,
         )
 
-        # TEST
-        print("ADD TRACE position option:", selected_position.text() if selected_position else None)
-
         if selected_position is None:
-            # TEST
-            print("ADD TRACE STOP: no position selected")
             return
 
         position = selected_position.text()
@@ -352,8 +350,6 @@ def continue_add_item(
             item_editor_window.work_step_label.hide()
 
         set_editor_mode(item_editor_window, "add")
-        # TEST
-        print("ADD TRACE sibling mode: visible=", item_editor_window.apply_button.isVisible(), "enabled=", item_editor_window.apply_button.isEnabled())
 
         item_editor_window.item_title.clear()
         item_editor_window.item_description.clear()
@@ -466,18 +462,10 @@ def continue_add_item(
             item_editor_window.add_insert_index = insert_index
 
             if item_editor_window.add_selected_type == "Milestone":
-                reference_number = item_editor_window.add_reference_model.number
-
-                milestone_series, reference_sibling = reference_number.rsplit(".", 1)
-
-                reference_sibling = int(reference_sibling)
-
-                if item_editor_window.add_selected_position == "Before":
-                    proposed_sibling = reference_sibling
-                else:
-                    proposed_sibling = reference_sibling + 1
-
-                proposed_number = f"{milestone_series}.{proposed_sibling}"
+                proposed_number = generate_milestone_number(
+                    item_editor_window.roadmap.starting_series,
+                    insert_index + 1,
+                )
 
             else:
                 parent_type = get_item_type(parent_model).lower()
@@ -488,8 +476,18 @@ def continue_add_item(
                         parent_type,
                         insert_index + 1,
                     )
-                else:
-                    proposed_number = f"{parent_model.number}.{insert_index + 1}"
+
+                elif item_editor_window.add_selected_type == "Section":
+                    proposed_number = generate_section_number(
+                        parent_model.number,
+                        insert_index + 1,
+                    )
+
+                elif item_editor_window.add_selected_type == "Feature":
+                    proposed_number = generate_feature_number(
+                        parent_model.number,
+                        insert_index + 1,
+                    )
 
             item_editor_window.item_number.setText(proposed_number)
 
@@ -500,9 +498,6 @@ def continue_add_item(
 
             item_editor_window.add_mode = False
             preview_text.setCurrentItem(placeholder)
-
-            # TEST
-            print("ADD TRACE sibling draft ready:", item_editor_window.add_selected_type, item_editor_window.add_selected_position, item_editor_window.add_insert_index)
             item_editor_window.add_item_dialog.close()
             return
 
@@ -518,12 +513,7 @@ def continue_add_item(
         None,
     )
 
-    # TEST
-    print("ADD TRACE type option:", selected_option.text() if selected_option else None)
-
     if selected_option is None:
-        # TEST
-        print("ADD TRACE STOP: no type selected")
         return
 
     selected_type = selected_option.text()
@@ -571,7 +561,10 @@ def continue_add_item(
                 number="",
                 title="",
             )
-            proposed_number = f"{reference_model.number}.{len(siblings) + 1}"
+            proposed_number = generate_section_number(
+                reference_model.number,
+                len(siblings) + 1,
+            )
 
         elif selected_type == "Feature":
             siblings = reference_model.features
@@ -579,8 +572,10 @@ def continue_add_item(
                 number="",
                 title="",
             )
-            proposed_number = f"{reference_model.number}.{len(siblings) + 1}"
-
+            proposed_number = generate_feature_number(
+                reference_model.number,
+                len(siblings) + 1,
+            )
         else:
             siblings = reference_model.issues
             new_model = Issue(
@@ -659,7 +654,6 @@ def continue_add_item(
 
         set_editor_mode(item_editor_window, "add")
 
-
         item_editor_window.add_mode = False
         preview_text.setCurrentItem(placeholder)
 
@@ -711,13 +705,10 @@ def start_add_milestone(item_editor_window, preview_text):
     if not roadmap.milestones:
         return
 
-    last_milestone = roadmap.milestones[-1]
-
-    try:
-        milestone_series, last_sibling = last_milestone.number.rsplit(".", 1)
-        proposed_number = f"{milestone_series}.{int(last_sibling) + 1}"
-    except (ValueError, AttributeError):
-        return
+    proposed_number = generate_milestone_number(
+        roadmap.starting_series,
+        len(roadmap.milestones) + 1,
+    )
 
     new_model = Milestone(
         number="",
