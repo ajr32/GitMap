@@ -54,7 +54,7 @@ from gitmap.roadmap_numbering import (
     renumber_siblings,
     restore_original_numbers,
 )
-
+from gitmap.github_mapping import assign_missing_gitmap_ids
 
 # =============================================================================
 # PART B — APPLY EDITOR CHANGES TO THE IN-MEMORY MODEL
@@ -242,6 +242,11 @@ def apply_editor_changes(editor):
                 restore_original_numbers(siblings)
 
                 return False
+
+        # Give newly committed GitMap-managed items their permanent identity.
+        # Milestones intentionally do not use GitMap IDs.
+        if isinstance(new_model, (Section, Feature, Issue)):
+            assign_missing_gitmap_ids(editor.roadmap)
 
         if hasattr(editor, "refresh_preview"):
             editor.refresh_preview()

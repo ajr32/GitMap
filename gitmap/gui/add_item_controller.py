@@ -16,7 +16,7 @@ from gitmap.roadmap_numbering import (
     generate_milestone_number,
     generate_section_number,
 )
-
+from gitmap.github_mapping import assign_missing_gitmap_ids
 
 # =============================================================================
 # PART A — VALID ADD TYPES

@@ -77,24 +77,6 @@ def choose_starting_series():
 
         print("Please choose 1, 2 or 3.")
 
-
-def generate_work_step_number(sibling_index):
-    """Generate a letter-based work step number."""
-
-    if sibling_index < 1:
-        raise ValueError("Work step index must be at least 1.")
-
-    letters = ""
-    number = sibling_index
-
-    while number:
-        number -= 1
-        letters = chr(ord("a") + number % 26) + letters
-        number //= 26
-
-    return f"({letters})"
-
-
 RESET = "\033[0m"
 BOLD = "\033[1m"
 PROJECT_COLOR = "\033[95m"  # Magenta

@@ -1,10 +1,3 @@
-from gitmap.builder.builder_add import add_item
-from gitmap.builder.builder_delete import delete_item
-from gitmap.builder.builder_edit import edit_item
-from gitmap.builder.builder_rename import rename_item
-from gitmap.roadmap_numbering import remember_numbering_state
-
-
 def render_work_steps(lines, work_steps, depth=0):
     """Render work steps and any nested work steps."""
 
@@ -180,41 +173,3 @@ def render_roadmap_markdown(roadmap):
     return "\n".join(lines)
 
 
-def review_roadmap(roadmap):
-    """Allow the user to review and revise the roadmap before saving."""
-
-    numbering_mode = roadmap.get("numbering_mode") or "manual"
-
-    remember_numbering_state(roadmap)
-
-    while True:
-        print()
-        print(render_roadmap_markdown(roadmap))
-        print()
-        print("Roadmap options:")
-        print("  (r)ename an item")
-        print("  (e)dit description or requirements")
-        print("  (a)dd an item")
-        print("  (d)elete an item")
-        print("  (f)inished reviewing")
-        print()
-
-        choice = input("Choose an option: ").strip().lower()
-
-        if choice in ("f", "finished", "done"):
-            return roadmap
-
-        elif choice in ("r", "rename"):
-            rename_item(roadmap)
-
-        elif choice in ("e", "edit"):
-            edit_item(roadmap)
-
-        elif choice in ("a", "add"):
-            add_item(roadmap, numbering_mode)
-
-        elif choice in ("d", "delete", "remove"):
-            delete_item(roadmap)
-
-        else:
-            print("Invalid choice.")

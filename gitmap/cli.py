@@ -5,11 +5,6 @@ from pathlib import Path
 from github import Auth, Github
 from rich.console import Console
 
-from gitmap.builder.builder import (
-    render_roadmap_markdown,
-    review_roadmap,
-    roadmap_to_builder_dict,
-)
 from gitmap.github_mapping import (
     assign_missing_gitmap_ids,
     summarize_roadmap_differences,
@@ -42,7 +37,6 @@ from gitmap.parser import (
     write_gitmap_ids_to_roadmap,
     write_hierarchy_issue_title_style_to_roadmap,
 )
-from gitmap.roadmap_creation import start_new_roadmap
 from gitmap.roadmap_menus import (
     choose_github_representation,
     choose_hierarchy_issue_title_style,
@@ -59,10 +53,8 @@ def choose_startup_workflow():
     print("What would you like to do?")
     print("--------------------------")
     print()
-    print("Roadmap creation")
-    print("----------------")
-    print("1. Need to create repository and then create a roadmap")
-    print("2. Repository made, but need to create roadmap")
+    print("Roadmap synchronization")
+    print("-----------------------")
     print("3. Repository made, initial upload/sync of roadmap")
     print()
     print("Roadmap maintenance")
@@ -77,46 +69,12 @@ def choose_startup_workflow():
     while True:
         choice = input("\nChoose an option: ").strip()
 
-        if choice in ("1", "2", "3", "4", "5", "6", "7", "8"):
+        if choice in ("3", "4", "5", "6", "7", "8"):
             return choice
 
-        print("Please choose 1, 2, 3, 4, 5, 6, 7 or 8.")
+        print("Please choose 3, 4, 5, 6, 7 or 8.")
 
 
-def run_new_roadmap():
-    """Run the new roadmap workflow."""
-    roadmap = start_new_roadmap()
-
-    while True:
-        roadmap = review_roadmap(roadmap)
-
-        roadmap_text = render_roadmap_markdown(roadmap)
-        parsed_roadmap = parse_roadmap_text(roadmap_text)
-
-        errors = validate_roadmap(parsed_roadmap)
-
-        if not errors:
-            print()
-            print("Roadmap validation passed.")
-            break
-
-        print()
-        print("Roadmap validation failed:")
-
-        for error in errors:
-            print(f"  • {error}")
-
-        print()
-        print("Return to review to fix these problems.")
-
-    roadmap_path = Path("roadmap.md")
-    roadmap_path.write_text(
-        render_roadmap_markdown(roadmap),
-        encoding="utf-8",
-    )
-
-    print()
-    print(f"Roadmap saved to: {roadmap_path.resolve()}")
 
 
 def choose_roadmap_path():
@@ -495,30 +453,6 @@ def run_sync(roadmap_path):
         return True
 
 
-def run_roadmap_edit(roadmap_path):
-    """Edit an existing roadmap and save the changes."""
-
-    roadmap_path = Path(roadmap_path)
-
-    if not roadmap_path.exists():
-        print(f"Roadmap not found: {roadmap_path}")
-        return False
-
-    roadmap = parse_roadmap(roadmap_path)
-    builder_roadmap = roadmap_to_builder_dict(roadmap)
-    builder_roadmap = review_roadmap(builder_roadmap)
-
-
-    roadmap_text = render_roadmap_markdown(builder_roadmap)
-
-    roadmap_path.write_text(
-        roadmap_text,
-        encoding="utf-8",
-    )
-
-    print()
-    print(f"Roadmap saved: {roadmap_path}")
-    return True
 
 
 def main():
@@ -559,11 +493,6 @@ def main():
     )
 
     subparsers.add_parser(
-        "new-roadmap",
-        help="Start a new interactive roadmap.",
-    )
-
-    subparsers.add_parser(
         "initial-sync",
         help="Perform the first synchronization of the roadmap with Github.",
     ).add_argument(
@@ -580,10 +509,6 @@ def main():
             command = args.command or workflow
 
             command_aliases = {
-                "roadmap": "new-roadmap",
-                "new": "new-roadmap",
-                "new roadmap": "new-roadmap",
-                "2": "new-roadmap",
                 "initial": "initial-sync",
                 "initial sync": "initial-sync",
                 "3": "initial-sync",
@@ -601,14 +526,6 @@ def main():
 
             if command is not None:
                 command = command_aliases.get(command, command)
-
-            if workflow == "1":
-                print("Coming soon.")
-                continue
-
-            if command == "new-roadmap":
-                run_new_roadmap()
-                continue
 
             if command == "initial-sync":
                 roadmap_path = choose_roadmap_path()
@@ -630,59 +547,10 @@ def main():
                 run_check(roadmap_path)
                 continue
 
-            # if command == "configure-sync":
-            #     roadmap_path = choose_roadmap_path()
-            #     roadmap = parse_roadmap(roadmap_path)
-            #     roadmap_structure = detect_roadmap_structure(roadmap)
-            #     github_representation = choose_github_representation(roadmap_structure)
-            #     roadmap.github_representation = github_representation
-            #     hierarchy_issue_title_style = None
-            #     builder_roadmap = roadmap_to_builder_dict(roadmap)
-            #     builder_roadmap = review_roadmap(builder_roadmap)
-            #     roadmap_text = render_roadmap_markdown(builder_roadmap)
-            #     roadmap_path.write_text(
-            #         roadmap_text,
-            #         encoding="utf-8",
-            #     )
-            #     roadmap = parse_roadmap(roadmap_path)
-            #     errors = validate_roadmap(roadmap)
-            #     if errors:
-            #         print()
-            #         print("Roadmap validation failed:")
-            #
-            #         for error in errors:
-            #             print(f"  • {error}")
-            #
-            #         continue
-            #
-            #         print()
-            #         print("Roadmap validation passed.")
-            #
-            #     if github_representation["section"] in (
-            #             "issue",
-            #             "both",
-            #     ) or github_representation["feature"] in ("issue", "both"):
-            #         hierarchy_issue_title_style = choose_hierarchy_issue_title_style()
-            #     roadmap.hierarchy_issue_title_style = hierarchy_issue_title_style
-            #     write_github_representation_to_roadmap(
-            #         roadmap_path,
-            #         roadmap,
-            #     )
-            #
-            #     if hierarchy_issue_title_style:
-            #         write_hierarchy_issue_title_style_to_roadmap(
-            #             roadmap_path,
-            #             hierarchy_issue_title_style,
-            #         )
-            #     run_update_sync(roadmap_path)
-            #     continue
 
             if command == "update-sync":
                 roadmap_path = choose_roadmap_path()
-                # run_roadmap_edit(roadmap_path)
-                if run_roadmap_edit(roadmap_path):
-                    run_update_sync(roadmap_path)
-
+                run_update_sync(roadmap_path)
                 continue
 
             if command == "exit":
@@ -701,10 +569,6 @@ def main():
     if args.command == "preview":
         run_preview(Path(args.roadmap))
         return
-
-    if args.command == "new-roadmap":
-        run_new_roadmap()
-
 
 def run_update_sync(roadmap_path):
     """Run the normal roadmap update synchronization workflow."""

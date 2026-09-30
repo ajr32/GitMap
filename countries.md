@@ -25,90 +25,105 @@ Hierarchy-Issue-Title-Style: type_prefix
 #### 0.1.1.2.1 Mumbai
 <!-- GitMap-ID: puredsio -->
 
-# 0.2 Antarctica
+#### 0.1.1.2.2 New Delhi
+<!-- GitMap-ID: joredsou -->
 
-## 0.2.1 China
+# 0.2 test m
+
+## 0.2.1 test s
+<!-- GitMap-ID: moredsor -->
+
+### 0.2.1.1 test f
+<!-- GitMap-ID: noredsoq -->
+
+#### 0.2.1.1.1 test i
+<!-- GitMap-ID: koredsot -->
+
+# 0.3 Antarctica
+
+## 0.3.1 China
 <!-- GitMap-ID: curedsib -->
 
-### 0.2.1.1 Shanghai
+### 0.3.1.1 Shanghai
 <!-- GitMap-ID: duredsia -->
 
-#### 0.2.1.1.1 New Delhi
+#### 0.3.1.1.1 New Delhi
 <!-- GitMap-ID: ruredsim -->
 
-### 0.2.1.2 Beijing
+### 0.3.1.2 Beijing
 <!-- GitMap-ID: euredsiz -->
 
-#### 0.2.1.2.1 test
+#### 0.3.1.2.1 test
+<!-- GitMap-ID: loredsos -->
 
-# 0.3 North America
+# 0.4 North America
 
-## 0.3.1 Mexico
+## 0.4.1 Mexico
 <!-- GitMap-ID: ivredshv -->
 
-### 0.3.1.1 Virginia
+### 0.4.1.1 Virginia
 <!-- GitMap-ID: jvredshu -->
 
-### 0.3.1.2 Connecticut
+### 0.4.1.2 Connecticut
 <!-- GitMap-ID: kvredsht -->
 
-#### 0.3.1.2.1 Boston
+#### 0.4.1.2.1 Boston
 <!-- GitMap-ID: uuredsij -->
 
 **Work Steps:**
-- [ ] 0.3.1.2.1 (a) Mass Pike
-- [ ] 0.3.1.2.1 (b) Boston Common
+- [ ] 0.4.1.2.1 (a) Mass Pike
+- [ ] 0.4.1.2.1 (b) Boston Common
 
-#### 0.3.1.2.2 Westfield
+#### 0.4.1.2.2 Westfield
 <!-- GitMap-ID: vuredsii -->
 
 **Work Steps:**
-- [ ] 0.3.1.2.2 (a) High School
-- [ ] 0.3.1.2.2 (b) YMCA
-- [ ] 0.3.1.2.2 (c) house
+- [ ] 0.4.1.2.2 (a) High School
+- [ ] 0.4.1.2.2 (b) YMCA
+- [ ] 0.4.1.2.2 (c) house
 
-#### 0.3.1.2.3 Worcester
+#### 0.4.1.2.3 Worcester
 <!-- GitMap-ID: goredsox -->
 
-## 0.3.2 Canada
+## 0.4.2 Canada
 <!-- GitMap-ID: lvredshs -->
 
-### 0.3.2.1 Quebec
+### 0.4.2.1 Quebec
 <!-- GitMap-ID: mvredshr -->
 
-#### 0.3.2.1.1 Quebec City
+#### 0.4.2.1.1 Quebec City
 <!-- GitMap-ID: horedsow -->
 
-### 0.3.2.2 Ontario
+### 0.4.2.2 Ontario
 <!-- GitMap-ID: nvredshq -->
 
-#### 0.3.2.2.1 Toronto
+#### 0.4.2.2.1 Toronto
 <!-- GitMap-ID: yuredsif -->
 
-#### 0.3.2.2.2 Ottawa
+#### 0.4.2.2.2 Ottawa
 <!-- GitMap-ID: zuredsie -->
 
-## 0.3.3 Hawaii
+## 0.4.3 Hawaii
 <!-- GitMap-ID: qoredson -->
 
-## 0.3.4 USA
+## 0.4.4 USA
 <!-- GitMap-ID: ioredsov -->
 
-# 0.4 South America
+# 0.5 South America
 
-## 0.4.1 Argentina
+## 0.5.1 Argentina
 <!-- GitMap-ID: ovredshp -->
 
-### 0.4.1.1 Northern
+### 0.5.1.1 Northern
 <!-- GitMap-ID: pvredsho -->
 
-### 0.4.1.2 Southern
+### 0.5.1.2 Southern
 <!-- GitMap-ID: qvredshn -->
 
-#### 0.4.1.2.1 Ushuaia
+#### 0.5.1.2.1 Ushuaia
 <!-- GitMap-ID: buredsic -->
 
-# 0.5 testing
+# 0.6 testing
 
-#### 0.5.0.0.1 test
+#### 0.6.0.0.1 test
 <!-- GitMap-ID: poredsoo -->
