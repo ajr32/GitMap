@@ -1,6 +1,6 @@
+from gitmap.gui.confirmation import confirm_remove_item
 from gitmap.models import Milestone, Requirement
 from gitmap.roadmap_numbering import renumber_siblings
-from gitmap.gui.confirmation import confirm_remove_item
 
 # =============================================================================
 # GITMAP REMOVE ITEM CONTROLLER
@@ -36,6 +36,7 @@ def get_remove_target(editor):
     # Structural rows use the main roadmap object.
     return getattr(editor, "roadmap_object", None)
 
+
 # =============================================================================
 # PART B — DETERMINE STRUCTURAL PARENT AND SIBLING LIST
 # =============================================================================
@@ -47,7 +48,6 @@ def find_structural_parent(roadmap, target):
         return roadmap, roadmap.milestones
 
     for milestone in roadmap.milestones:
-
         # Sections live beneath Milestones.
         if target in milestone.sections:
             return milestone, milestone.sections
@@ -57,7 +57,6 @@ def find_structural_parent(roadmap, target):
             return milestone, milestone.issues
 
         for section in milestone.sections:
-
             # Features live beneath Sections.
             if target in section.features:
                 return section, section.features
@@ -67,12 +66,12 @@ def find_structural_parent(roadmap, target):
                 return section, section.issues
 
             for feature in section.features:
-
                 # Issues may live beneath Features.
                 if target in feature.issues:
                     return feature, feature.issues
 
     return None, None
+
 
 # =============================================================================
 # PART C — REMOVE STRUCTURAL ITEM
@@ -130,6 +129,7 @@ def remove_structural_item(editor):
 
     return True
 
+
 # =============================================================================
 # PART D — REMOVE REQUIREMENT
 # =============================================================================
@@ -167,24 +167,6 @@ def remove_requirement(editor):
 
     return True
 
-# =============================================================================
-# PART E — ROUTE REMOVE REQUEST
-# =============================================================================
-def remove_selected_item(editor):
-    """Route Delete to the correct removal handler."""
-
-    target = get_remove_target(editor)
-
-    if target is None:
-        return False
-
-    # Requirements have their own removal path.
-    if isinstance(target, Requirement):
-        return remove_requirement(editor)
-
-    # Milestones, Sections, Features, and normal Issues use the
-    # structural removal path.
-    return remove_structural_item(editor)
 
 # =============================================================================
 # PART E — REMOVE WORK STEP
@@ -226,6 +208,7 @@ def remove_work_step(editor):
 
     return True
 
+
 # =============================================================================
 # PART F — ROUTE REMOVE REQUEST
 # =============================================================================
@@ -245,10 +228,7 @@ def remove_selected_item(editor):
     # Check membership in the selected parent Issue instead of relying on class.
     parent_issue = getattr(editor, "roadmap_object", None)
 
-    if (
-        parent_issue is not None
-        and target in getattr(parent_issue, "work_steps", [])
-    ):
+    if parent_issue is not None and target in getattr(parent_issue, "work_steps", []):
         return remove_work_step(editor)
 
     # Everything else is one of the structural roadmap items.

@@ -1,12 +1,8 @@
-# import copy
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
-from gitmap.builder.builder import (
-    render_roadmap_markdown,
-    roadmap_to_builder_dict,
-)
+from gitmap.builder.builder import render_roadmap_markdown
 
 
 def save_roadmap(window, state, save_as=False):
@@ -32,9 +28,7 @@ def save_roadmap(window, state, save_as=False):
             path += ".md"
 
     try:
-        builder_roadmap = roadmap_to_builder_dict(state.active_roadmap)
-
-        markdown = render_roadmap_markdown(builder_roadmap)
+        markdown = render_roadmap_markdown(state.active_roadmap)
 
         Path(path).write_text(
             markdown + "\n",
@@ -50,6 +44,5 @@ def save_roadmap(window, state, save_as=False):
         return False
 
     state.active_roadmap_path = str(path)
-    # state.sync_baseline_roadmap = copy.deepcopy(state.active_roadmap)
 
     return True

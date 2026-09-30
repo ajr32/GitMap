@@ -22,7 +22,7 @@ from gitmap.mapping_mod.mapping_milestones import (
     find_existing_milestone,
     get_existing_milestones,
 )
-from gitmap.mapping_mod.mapping_state import iter_roadmap_issues
+from gitmap.roadmap_traversal import iter_roadmap_issues
 
 DEFAULT_LABEL_COLOR = "0366d6"
 FIRST_GITMAP_ID = "goredsox"
@@ -154,19 +154,14 @@ def detect_new_roadmap_items(roadmap, existing_issues):
 
     new_items = []
 
-    for milestone in roadmap.milestones:
-        issue_locations = [(issue, None, None) for issue in milestone.issues]
-
-        for section in milestone.sections:
-            issue_locations.extend((issue, section, None) for issue in section.issues)
-
-            for feature in section.features:
-                issue_locations.extend(
-                    (issue, section, feature) for issue in feature.issues
-                )
-
-        for issue, section, feature in issue_locations:
-            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
 
         existing = find_existing_issue(
             mapping,
@@ -195,50 +190,41 @@ def detect_changed_roadmap_items(roadmap, existing_issues):
 
     changed = []
 
-    for milestone in roadmap.milestones:
-        issue_locations = [(issue, None, None) for issue in milestone.issues]
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
 
-        for section in milestone.sections:
-            issue_locations.extend((issue, section, None) for issue in section.issues)
+        existing = find_existing_issue(mapping, existing_issues)
 
-            for feature in section.features:
-                issue_locations.extend(
-                    (issue, section, feature) for issue in feature.issues
-                )
+        if existing is None:
+            continue
 
-        for issue, section, feature in issue_locations:
-            mapping = map_issue(
-                issue,
-                milestone,
-                section,
-                feature,
+        expected_body = build_issue_body(mapping)
+
+        changes = []
+
+        if existing.title != mapping.title:
+            changes.append("title")
+
+        existing_body = normalize_work_step_checkboxes(existing.body or "")
+        expected_body = normalize_work_step_checkboxes(expected_body)
+
+        if existing_body.strip() != expected_body.strip():
+            changes.append("body")
+
+        if changes:
+            changed.append(
+                {
+                    "issue": issue,
+                    "github_issue": existing,
+                    "changes": changes,
+                }
             )
-            existing = find_existing_issue(mapping, existing_issues)
-
-            if existing is None:
-                continue
-
-            expected_body = build_issue_body(mapping)
-
-            changes = []
-
-            if existing.title != mapping.title:
-                changes.append("title")
-
-            existing_body = normalize_work_step_checkboxes(existing.body or "")
-            expected_body = normalize_work_step_checkboxes(expected_body)
-
-            if existing_body.strip() != expected_body.strip():
-                changes.append("body")
-
-            if changes:
-                changed.append(
-                    {
-                        "issue": issue,
-                        "github_issue": existing,
-                        "changes": changes,
-                    }
-                )
 
     return changed
 
@@ -248,41 +234,29 @@ def detect_matching_roadmap_items(roadmap, existing_issues):
 
     matching = []
 
-    for milestone in roadmap.milestones:
-        issue_locations = [
-            (issue, None, None)
-            for issue in milestone.issues
-        ]
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
 
-        for section in milestone.sections:
-            issue_locations.extend(
-                (issue, section, None)
-                for issue in section.issues
-            )
+        existing = find_existing_issue(mapping, existing_issues)
 
-            for feature in section.features:
-                issue_locations.extend(
-                    (issue, section, feature)
-                    for issue in feature.issues
-                )
+        if existing is None:
+            continue
 
-        for issue, section, feature in issue_locations:
-            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
+        expected_body = build_issue_body(mapping)
+        existing_body = normalize_work_step_checkboxes(existing.body or "")
+        expected_body = normalize_work_step_checkboxes(expected_body)
 
-            existing = find_existing_issue(mapping, existing_issues)
-
-            if existing is None:
-                continue
-
-            expected_body = build_issue_body(mapping)
-            existing_body = normalize_work_step_checkboxes(existing.body or "")
-            expected_body = normalize_work_step_checkboxes(expected_body)
-
-            if (
-                existing.title == mapping.title
-                and existing_body.strip() == expected_body.strip()
-            ):
-                matching.append(issue)
+        if (
+            existing.title == mapping.title
+            and existing_body.strip() == expected_body.strip()
+        ):
+            matching.append(issue)
 
     return matching
 
@@ -292,48 +266,36 @@ def detect_renumbered_roadmap_items(roadmap, existing_issues):
 
     renumbered = []
 
-    for milestone in roadmap.milestones:
-        issue_locations = [
-            (issue, None, None)
-            for issue in milestone.issues
-        ]
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        if not issue.gitmap_id:
+            continue
 
-        for section in milestone.sections:
-            issue_locations.extend(
-                (issue, section, None)
-                for issue in section.issues
-            )
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
 
-            for feature in section.features:
-                issue_locations.extend(
-                    (issue, section, feature)
-                    for issue in feature.issues
-                )
+        existing = find_existing_issue_by_gitmap_id(
+            mapping,
+            existing_issues,
+        )
 
-        for issue, section, feature in issue_locations:
-            if not issue.gitmap_id:
-                continue
+        if existing is None:
+            continue
 
-            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
+        body = existing.body or ""
+        old_number = None
 
-            existing = find_existing_issue_by_gitmap_id(
-                mapping,
-                existing_issues,
-            )
+        for line in body.splitlines():
+            if line.startswith("GitMap:"):
+                old_number = line.removeprefix("GitMap:").strip()
+                break
 
-            if existing is None:
-                continue
-
-            body = existing.body or ""
-            old_number = None
-
-            for line in body.splitlines():
-                if line.startswith("GitMap:"):
-                    old_number = line.removeprefix("GitMap:").strip()
-                    break
-
-            if old_number and old_number != issue.number:
-                renumbered.append((issue, old_number, issue.number))
+        if old_number and old_number != issue.number:
+            renumbered.append((issue, old_number, issue.number))
 
     return renumbered
 

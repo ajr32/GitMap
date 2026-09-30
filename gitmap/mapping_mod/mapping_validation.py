@@ -9,7 +9,7 @@ from gitmap.mapping_mod.mapping_issues import (
     get_existing_issues,
     get_gitmap_id_from_github_issue,
 )
-from gitmap.mapping_mod.mapping_state import iter_roadmap_issues
+from gitmap.roadmap_traversal import iter_roadmap_issues
 
 
 def validate_synchronization_plan(roadmap, existing_issues):
@@ -68,47 +68,35 @@ def validate_synchronization_plan(roadmap, existing_issues):
 
                 break
 
-    for milestone in roadmap.milestones:
-        issue_locations = [
-            (issue, None, None)
-            for issue in milestone.issues
-        ]
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
 
-        for section in milestone.sections:
-            issue_locations.extend(
-                (issue, section, None)
-                for issue in section.issues
+        # Permanent identity wins. If the GitMap-ID uniquely
+        # identifies an existing issue, legacy number collisions
+        # do not make the match ambiguous.
+        permanent_match = find_existing_issue_by_gitmap_id(
+            mapping,
+            existing_issues,
+        )
+
+        if permanent_match is not None:
+            continue
+
+        matches = github_by_number.get(issue.number, [])
+
+        if len(matches) > 1:
+            github_numbers = ", ".join(f"#{match.number}" for match in matches)
+
+            conflicts.append(
+                f"Roadmap item {issue.number} matches multiple "
+                f"GitHub issues: {github_numbers}"
             )
-
-            for feature in section.features:
-                issue_locations.extend(
-                    (issue, section, feature)
-                    for issue in feature.issues
-                )
-
-        for issue, section, feature in issue_locations:
-            mapping = map_issue(issue, milestone, section, feature, roadmap=roadmap)
-
-            # Permanent identity wins. If the GitMap-ID uniquely
-            # identifies an existing issue, legacy number collisions
-            # do not make the match ambiguous.
-            permanent_match = find_existing_issue_by_gitmap_id(
-                mapping,
-                existing_issues,
-            )
-
-            if permanent_match is not None:
-                continue
-
-            matches = github_by_number.get(issue.number, [])
-
-            if len(matches) > 1:
-                github_numbers = ", ".join(f"#{match.number}" for match in matches)
-
-                conflicts.append(
-                    f"Roadmap item {issue.number} matches multiple "
-                    f"GitHub issues: {github_numbers}"
-                )
 
     # Check for ambiguous milestone mappings.
     milestone_by_name = {}

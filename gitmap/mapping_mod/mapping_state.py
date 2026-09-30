@@ -1,4 +1,12 @@
-from gitmap.mapping_mod.mapping_issues import get_existing_issues, is_gitmap_managed_issue
+from gitmap.mapping_mod.mapping_issues import (
+    get_existing_issues,
+    is_gitmap_managed_issue,
+)
+from gitmap.roadmap_traversal import (
+    iter_roadmap_features,
+    iter_roadmap_issues,
+    iter_roadmap_sections,
+)
 
 
 def preserve_issue_numbers(matches):
@@ -40,8 +48,7 @@ def associate_issues_with_sections(existing_issues, roadmap):
 
     section_names = {
         section.title.removesuffix(" (DONE)"): section
-        for milestone in roadmap.milestones
-        for section in milestone.sections
+        for section, _ in iter_roadmap_sections(roadmap)
     }
 
     for issue in existing_issues:
@@ -63,9 +70,7 @@ def associate_issues_with_features(existing_issues, roadmap):
 
     feature_names = {
         feature.title.removesuffix(" (DONE)"): feature
-        for milestone in roadmap.milestones
-        for section in milestone.sections
-        for feature in section.features
+        for feature, _, _ in iter_roadmap_features(roadmap)
     }
 
     for issue in existing_issues:
@@ -152,19 +157,3 @@ def rebuild_roadmap_state(repository, roadmap):
         "work_steps": restore_work_step_relationships(existing_issues),
         "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
     }
-
-
-def iter_roadmap_issues(roadmap):
-    """Yield every roadmap issue with its structural context."""
-
-    for milestone in roadmap.milestones:
-        for issue in getattr(milestone, "issues", []):
-            yield issue, milestone, None, None
-
-        for section in getattr(milestone, "sections", []):
-            for issue in getattr(section, "issues", []):
-                yield issue, milestone, section, None
-
-            for feature in getattr(section, "features", []):
-                for issue in getattr(feature, "issues", []):
-                    yield issue, milestone, section, feature

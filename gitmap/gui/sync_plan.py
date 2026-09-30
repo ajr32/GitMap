@@ -1,61 +1,53 @@
-from gitmap.mapping_mod.mapping_issues import (
-    collect_hierarchy_issue_mappings,
+from gitmap.mapping_mod.mapping_issues import collect_hierarchy_issue_mappings
+from gitmap.roadmap_traversal import (
+    iter_roadmap_features,
+    iter_roadmap_issues,
+    iter_roadmap_sections,
 )
 
-from gitmap.mapping_mod.mapping_issues import collect_hierarchy_issue_mappings
 
 def collect_roadmap_items(roadmap):
     """Collect GitMap-managed roadmap items for change comparison."""
 
     items = {}
 
-    for milestone in roadmap.milestones:
+    for section, milestone in iter_roadmap_sections(roadmap):
         milestone_parent_id = f"milestone:{milestone.number}:{milestone.title}"
 
-        for section in milestone.sections:
-            if section.gitmap_id:
-                items[section.gitmap_id] = {
-                    "type": "section",
-                    "number": section.number,
-                    "title": section.title,
-                    "parent_id": milestone_parent_id,
-                }
+        if section.gitmap_id:
+            items[section.gitmap_id] = {
+                "type": "section",
+                "number": section.number,
+                "title": section.title,
+                "parent_id": milestone_parent_id,
+            }
 
-            for feature in section.features:
-                if feature.gitmap_id:
-                    items[feature.gitmap_id] = {
-                        "type": "feature",
-                        "number": feature.number,
-                        "title": feature.title,
-                        "parent_id": section.gitmap_id,
-                    }
+    for feature, _, section in iter_roadmap_features(roadmap):
+        if feature.gitmap_id:
+            items[feature.gitmap_id] = {
+                "type": "feature",
+                "number": feature.number,
+                "title": feature.title,
+                "parent_id": section.gitmap_id,
+            }
 
-                for issue in feature.issues:
-                    if issue.gitmap_id:
-                        items[issue.gitmap_id] = {
-                            "type": "issue",
-                            "number": issue.number,
-                            "title": issue.title,
-                            "parent_id": feature.gitmap_id,
-                        }
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        if not issue.gitmap_id:
+            continue
 
-            for issue in section.issues:
-                if issue.gitmap_id:
-                    items[issue.gitmap_id] = {
-                        "type": "issue",
-                        "number": issue.number,
-                        "title": issue.title,
-                        "parent_id": section.gitmap_id,
-                    }
+        if feature is not None:
+            parent_id = feature.gitmap_id
+        elif section is not None:
+            parent_id = section.gitmap_id
+        else:
+            parent_id = f"milestone:{milestone.number}:{milestone.title}"
 
-        for issue in milestone.issues:
-            if issue.gitmap_id:
-                items[issue.gitmap_id] = {
-                    "type": "issue",
-                    "number": issue.number,
-                    "title": issue.title,
-                    "parent_id": milestone_parent_id,
-                }
+        items[issue.gitmap_id] = {
+            "type": "issue",
+            "number": issue.number,
+            "title": issue.title,
+            "parent_id": parent_id,
+        }
 
     return items
 
@@ -73,33 +65,27 @@ def compare_roadmaps(before_roadmap, after_roadmap):
     renumbered_ids = {
         item_id
         for item_id in common_ids
-        if before_items[item_id]["number"]
-        != after_items[item_id]["number"]
+        if before_items[item_id]["number"] != after_items[item_id]["number"]
     }
 
     retitled_ids = {
         item_id
         for item_id in common_ids
-        if before_items[item_id]["title"]
-        != after_items[item_id]["title"]
+        if before_items[item_id]["title"] != after_items[item_id]["title"]
     }
 
     hierarchy_ids = {
         item_id
         for item_id in common_ids
-        if before_items[item_id]["parent_id"]
-        != after_items[item_id]["parent_id"]
+        if before_items[item_id]["parent_id"] != after_items[item_id]["parent_id"]
     }
 
     unchanged_ids = {
         item_id
         for item_id in common_ids
-        if before_items[item_id]["number"]
-        == after_items[item_id]["number"]
-        and before_items[item_id]["title"]
-        == after_items[item_id]["title"]
-        and before_items[item_id]["parent_id"]
-        == after_items[item_id]["parent_id"]
+        if before_items[item_id]["number"] == after_items[item_id]["number"]
+        and before_items[item_id]["title"] == after_items[item_id]["title"]
+        and before_items[item_id]["parent_id"] == after_items[item_id]["parent_id"]
     }
 
     return {
@@ -117,26 +103,17 @@ def compare_roadmaps(before_roadmap, after_roadmap):
 def find_roadmap_item_by_id(roadmap, gitmap_id):
     """Find a roadmap object by its permanent GitMap ID."""
 
-    for milestone in roadmap.milestones:
-        for issue in milestone.issues:
-            if issue.gitmap_id == gitmap_id:
-                return issue
+    for issue, _, _, _ in iter_roadmap_issues(roadmap):
+        if issue.gitmap_id == gitmap_id:
+            return issue
 
-        for section in milestone.sections:
-            if section.gitmap_id == gitmap_id:
-                return section
+    for section, _ in iter_roadmap_sections(roadmap):
+        if section.gitmap_id == gitmap_id:
+            return section
 
-            for issue in section.issues:
-                if issue.gitmap_id == gitmap_id:
-                    return issue
-
-            for feature in section.features:
-                if feature.gitmap_id == gitmap_id:
-                    return feature
-
-                for issue in feature.issues:
-                    if issue.gitmap_id == gitmap_id:
-                        return issue
+    for feature, _, _ in iter_roadmap_features(roadmap):
+        if feature.gitmap_id == gitmap_id:
+            return feature
 
     return None
 
@@ -150,9 +127,7 @@ def build_sync_plan(before_roadmap, after_roadmap):
     )
 
     changed_ids = (
-        comparison["renumbered"]
-        | comparison["retitled"]
-        | comparison["hierarchy"]
+        comparison["renumbered"] | comparison["retitled"] | comparison["hierarchy"]
     )
 
     added_issues = []
@@ -201,22 +176,15 @@ def build_sync_plan(before_roadmap, after_roadmap):
         "removed_ids": comparison["removed"],
     }
 
+
 def get_hierarchy_mappings(roadmap, hierarchy_items):
     """Return GitHub hierarchy mappings for selected roadmap items."""
 
     if not hierarchy_items:
         return []
 
-    item_ids = {
-        item.gitmap_id
-        for item in hierarchy_items
-        if item.gitmap_id
-    }
+    item_ids = {item.gitmap_id for item in hierarchy_items if item.gitmap_id}
 
     mappings = collect_hierarchy_issue_mappings(roadmap)
 
-    return [
-        mapping
-        for mapping in mappings
-        if mapping.gitmap_id in item_ids
-    ]
+    return [mapping for mapping in mappings if mapping.gitmap_id in item_ids]

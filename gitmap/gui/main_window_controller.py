@@ -22,15 +22,14 @@ from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.settings_controller import load_settings_dialog
 from gitmap.gui.sync_dialog import load_sync_dialog
-from gitmap.parser import parse_roadmap
-from gitmap.settings import load_github_username
-
 from gitmap.gui.sync_plan import build_sync_plan
 from gitmap.mapping_mod.mapping_issues import (
     collect_hierarchy_issue_mappings,
     get_existing_issues,
     sync_issues,
 )
+from gitmap.parser import parse_roadmap
+from gitmap.settings import load_github_username
 
 
 class MainWindowState:
@@ -125,7 +124,7 @@ def setup_main_window(window):
     cancel_button = window.findChild(QPushButton, "cancel_button")
     settings_button = window.findChild(QPushButton, "settings_button")
     sync_to_github_button = window.findChild(QPushButton, "sync_to_github_button")
-    
+
     edit_button.hide()
     review_button.hide()
     cancel_button.hide()
@@ -159,17 +158,6 @@ def setup_main_window(window):
         )
 
     new_roadmap_button.clicked.connect(create_new_roadmap)
-
-    def refresh_main_roadmap():
-        if not state.roadmap_is_active:
-            return
-
-        roadmap_name.setText(state.active_roadmap.name)
-
-        populate_roadmap_tree(
-            roadmap_tree,
-            state.active_roadmap,
-        )
 
     # -------------------------------------------------------------------------
     # Open Roadmap
@@ -327,9 +315,7 @@ def setup_main_window(window):
 
         try:
             if create_new:
-                repository = create_repository(
-                    repository_name
-                )
+                repository = create_repository(repository_name)
 
             else:
                 info = RepositoryInfo(
@@ -359,10 +345,8 @@ def setup_main_window(window):
                     state.active_roadmap,
                 )
 
-                all_hierarchy_mappings = (
-                    collect_hierarchy_issue_mappings(
-                        state.active_roadmap,
-                    )
+                all_hierarchy_mappings = collect_hierarchy_issue_mappings(
+                    state.active_roadmap,
                 )
 
                 sync_issues(
@@ -388,10 +372,7 @@ def setup_main_window(window):
                     state.active_roadmap,
                 )
 
-                issues_to_sync = (
-                        plan["added_issues"]
-                        + plan["changed_issues"]
-                )
+                issues_to_sync = plan["added_issues"] + plan["changed_issues"]
 
                 if issues_to_sync:
                     sync_issues(
@@ -432,10 +413,7 @@ def setup_main_window(window):
         QMessageBox.information(
             window,
             "GitHub Sync Complete",
-            (
-                "GitMap successfully synchronized with:\n\n"
-                f"{repository.full_name}"
-            ),
+            (f"GitMap successfully synchronized with:\n\n{repository.full_name}"),
         )
 
     sync_to_github_button.clicked.connect(open_github_sync)

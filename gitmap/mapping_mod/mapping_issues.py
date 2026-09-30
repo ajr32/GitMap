@@ -22,6 +22,7 @@ from gitmap.mapping_mod.mapping_milestones import (
 )
 from gitmap.parser import write_github_representation_to_roadmap
 from gitmap.roadmap_menus import choose_github_representation
+from gitmap.roadmap_traversal import iter_roadmap_issues
 
 
 def get_existing_issues(repository, roadmap=None):
@@ -196,6 +197,7 @@ def create_hierarchy_issue(repository, mapping, milestone, labels=None):
         labels=labels or [],
     )
 
+
 def sync_hierarchy_issue(
     repository,
     mapping,
@@ -344,21 +346,14 @@ def apply_roadmap_label_to_existing_issues(repository, roadmap):
     existing_issues = get_existing_issues(repository)
 
     for milestone in roadmap.milestones:
-        issue_locations = [
-            (issue, None, None)
-            for issue in milestone.issues
-        ]
+        issue_locations = [(issue, None, None) for issue in milestone.issues]
 
         for section in milestone.sections:
-            issue_locations.extend(
-                (issue, section, None)
-                for issue in section.issues
-            )
+            issue_locations.extend((issue, section, None) for issue in section.issues)
 
             for feature in section.features:
                 issue_locations.extend(
-                    (issue, section, feature)
-                    for issue in feature.issues
+                    (issue, section, feature) for issue in feature.issues
                 )
 
         for issue, section, feature in issue_locations:
@@ -476,126 +471,46 @@ def sync_issues(
         )
         results.extend(hierarchy_results)
 
-    for milestone in roadmap.milestones:
-        for issue in milestone.issues:
-            if issues_to_sync is not None and id(issue) not in issues_to_sync:
-                continue
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        if issues_to_sync is not None and id(issue) not in issues_to_sync:
+            continue
 
-            progress += 1
-            print(
-                f"[{progress}/{progress_total}] Processing {issue.number} {issue.title}"
+        progress += 1
+        print(f"[{progress}/{progress_total}] Processing {issue.number} {issue.title}")
+
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
+
+        try:
+            expected_operation = (
+                "update"
+                if update_issues is not None and id(issue) in update_issues
+                else "create"
             )
 
-            mapping = map_issue(issue, milestone)
-            try:
-                expected_operation = (
-                    "update"
-                    if update_issues is not None and id(issue) in update_issues
-                    else "create"
-                )
+            result, created = sync_issue(
+                repository,
+                mapping,
+                expected_operation=expected_operation,
+            )
 
-                result, created = sync_issue(
-                    repository,
-                    mapping,
-                    expected_operation=expected_operation,
-                )
+            results.append((result, created))
 
-                results.append((result, created))
+        except Exception as error:
+            remaining = progress_total - progress
 
-            except Exception as error:
-                remaining = progress_total - progress
-
-                raise SynchronizationError(
-                    message=f"Failed to synchronize {issue.number} {issue.title}",
-                    completed=len(results),
-                    failed=issue,
-                    remaining=remaining,
-                    original_error=error,
-                ) from error
-
-        for section in milestone.sections:
-            for issue in section.issues:
-                if issues_to_sync is not None and id(issue) not in issues_to_sync:
-                    continue
-
-                progress += 1
-                print(
-                    f"[{progress}/{progress_total}] "
-                    f"Processing {issue.number} {issue.title}"
-                )
-
-                mapping = map_issue(
-                    issue,
-                    milestone,
-                    section,
-                    roadmap=roadmap,
-                )
-
-                try:
-                    expected_operation = (
-                        "update"
-                        if update_issues is not None and id(issue) in update_issues
-                        else "create"
-                    )
-
-                    result, created = sync_issue(
-                        repository,
-                        mapping,
-                        expected_operation=expected_operation,
-                    )
-
-                    results.append((result, created))
-
-                except Exception as error:
-                    remaining = progress_total - progress
-
-                    raise SynchronizationError(
-                        message=f"Failed to synchronize {issue.number} {issue.title}",
-                        completed=len(results),
-                        failed=issue,
-                        remaining=remaining,
-                        original_error=error,
-                    ) from error
-
-            for feature in section.features:
-                for issue in feature.issues:
-                    if issues_to_sync is not None and id(issue) not in issues_to_sync:
-                        continue
-
-                    progress += 1
-                    print(
-                        f"[{progress}/{progress_total}] "
-                        f"Processing {issue.number} {issue.title}"
-                    )
-
-                    mapping = map_issue(
-                        issue, milestone, section, feature, roadmap=roadmap
-                    )
-
-                    try:
-                        expected_operation = (
-                            "update"
-                            if update_issues is not None and id(issue) in update_issues
-                            else "create"
-                        )
-
-                        result, created = sync_issue(
-                            repository,
-                            mapping,
-                            expected_operation=expected_operation,
-                        )
-                        results.append((result, created))
-
-                    except Exception as error:
-                        remaining = progress_total - progress
-
-                        raise SynchronizationError(
-                            message=f"Failed to synchronize {issue.number} {issue.title}",
-                            completed=len(results),
-                            failed=issue,
-                            remaining=remaining,
-                            original_error=error,
-                        ) from error
+            raise SynchronizationError(
+                message=f"Failed to synchronize {issue.number} {issue.title}",
+                completed=len(results),
+                failed=issue,
+                remaining=remaining,
+                original_error=error,
+            ) from error
     sync_sub_issue_relationships(
         repository,
         roadmap,
