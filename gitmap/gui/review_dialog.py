@@ -322,7 +322,6 @@ def load_review_dialog(before_roadmap, after_roadmap):
 
             for item in unchanged_items:
                 changes_list.addItem(f"{item['number']}  {item['title']}")
-                changes_list.addItem(f"{item['number']}  {item['title']}")
 
     for name, button in filter_buttons.items():
         button.clicked.connect(

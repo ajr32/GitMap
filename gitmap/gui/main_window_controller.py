@@ -379,6 +379,7 @@ def setup_main_window(window):
                         issues_to_sync=[],
                         hierarchy_mappings_to_sync=all_hierarchy_mappings,
                         hierarchy_expected_operation="create",
+                        progress_total=len(all_hierarchy_mappings),
                     )
 
             else:
@@ -405,10 +406,9 @@ def setup_main_window(window):
                         repository,
                         state.active_roadmap,
                         issues_to_sync=[],
-                        hierarchy_mappings_to_sync=(
-                            plan["added_hierarchy_mappings"]
-                        ),
+                        hierarchy_mappings_to_sync=plan["added_hierarchy_mappings"],
                         hierarchy_expected_operation="create",
+                        progress_total=len(plan["added_hierarchy_mappings"]),
                     )
 
                 if plan["changed_hierarchy_mappings"]:
@@ -416,10 +416,9 @@ def setup_main_window(window):
                         repository,
                         state.active_roadmap,
                         issues_to_sync=[],
-                        hierarchy_mappings_to_sync=(
-                            plan["changed_hierarchy_mappings"]
-                        ),
+                        hierarchy_mappings_to_sync=plan["changed_hierarchy_mappings"],
                         hierarchy_expected_operation="update",
+                        progress_total=len(plan["changed_hierarchy_mappings"]),
                     )
 
         except Exception as error:
