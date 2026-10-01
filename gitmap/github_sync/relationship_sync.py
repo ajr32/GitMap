@@ -134,6 +134,33 @@ def sync_section_issue_relationships(repository, roadmap, existing_issues):
                 )
 
 
+def find_current_gitmap_parent(
+    repository,
+    child_issue,
+    managed_parent_issues,
+):
+    """
+    Find the current GitMap-managed parent of a GitHub Issue.
+
+    Only parents supplied in managed_parent_issues are inspected, so
+    unrelated GitHub relationships are never treated as GitMap-owned.
+    """
+
+    for parent_issue in managed_parent_issues:
+        sub_issues = get_sub_issues(
+            repository,
+            parent_issue,
+        )
+
+        if any(
+            sub_issue["id"] == child_issue.id
+            for sub_issue in sub_issues
+        ):
+            return parent_issue
+
+    return None
+
+
 def sync_sub_issue_relationships(
     repository,
     roadmap,
