@@ -23,6 +23,9 @@ def build_sync_plan(before_roadmap, after_roadmap):
     added_hierarchy = []
     changed_hierarchy = []
 
+    removed_issues = []
+    removed_hierarchy = []
+
     for item_id in comparison["added"]:
         item = find_roadmap_item_by_id(
             after_roadmap,
@@ -55,6 +58,20 @@ def build_sync_plan(before_roadmap, after_roadmap):
         elif item_type in ("section", "feature"):
             changed_hierarchy.append(item)
 
+    for item_id in comparison["removed"]:
+        before_item = comparison["before_items"].get(item_id)
+
+        if before_item is None:
+            continue
+
+        item_type = before_item["type"]
+
+        if item_type == "issue":
+            removed_issues.append(item_id)
+
+        elif item_type in ("section", "feature"):
+            removed_hierarchy.append(item_id)
+
     return {
         "added_issues": added_issues,
         "changed_issues": changed_issues,
@@ -68,7 +85,8 @@ def build_sync_plan(before_roadmap, after_roadmap):
             after_roadmap,
             changed_hierarchy,
         ),
-        "removed_ids": comparison["removed"],
+        "removed_issues": removed_issues,
+        "removed_hierarchy": removed_hierarchy,
     }
 
 

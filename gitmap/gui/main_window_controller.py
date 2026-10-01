@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
+from gitmap.github_sync.removed_issue_sync import sync_removed_issues
 from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
 from gitmap.github_sync.issue_lookup import get_existing_issues
 from gitmap.github_sync.issue_sync import (
@@ -25,6 +26,8 @@ from gitmap.gui.new_roadmap_controller import (
     build_roadmap_from_answers,
     load_structure_dialog,
 )
+
+from gitmap.gui.removal_confirmation import confirm_sync_removals
 from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.roadmap_editor_controller import open_builder
 from gitmap.gui.roadmap_structure import infer_roadmap_structure
@@ -84,6 +87,24 @@ def setup_main_window(window):
         )
 
     state.refresh_main_roadmap = refresh_main_roadmap
+
+    def find_github_issues_by_gitmap_ids(existing_issues, gitmap_ids):
+        """Find GitHub Issues matching permanent GitMap IDs."""
+
+        wanted_ids = set(gitmap_ids)
+        matches = []
+
+        for issue in existing_issues:
+            body = issue.body or ""
+
+            for gitmap_id in wanted_ids:
+                marker = f"GitMap-ID: {gitmap_id}"
+
+                if marker in body:
+                    matches.append(issue)
+                    break
+
+        return matches
 
     def collect_all_normal_issues(roadmap):
         """Collect every normal GitHub-syncable Issue in the roadmap."""
@@ -375,6 +396,25 @@ def setup_main_window(window):
                     state.sync_baseline_roadmap,
                     state.active_roadmap,
                 )
+
+                removed_issue_ids = plan["removed_issues"] + plan["removed_hierarchy"]
+
+                if removed_issue_ids:
+                    if not confirm_sync_removals(
+                        window,
+                        plan["removed_issues"],
+                        plan["removed_hierarchy"],
+                    ):
+                        return
+
+                    removed_github_issues = find_github_issues_by_gitmap_ids(
+                        existing_issues,
+                        removed_issue_ids,
+                    )
+
+                    sync_removed_issues(
+                        removed_github_issues,
+                    )
 
                 issues_to_sync = plan["added_issues"] + plan["changed_issues"]
 

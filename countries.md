@@ -22,11 +22,11 @@ Hierarchy-Issue-Title-Style: type_prefix
 #### 0.1.1.1.2 Forbidden City
 <!-- GitMap-ID: nuredsiq -->
 
+#### 0.1.1.1.3 New Delhi
+<!-- GitMap-ID: joredsou -->
+
 ### 0.1.1.2 Northern
 <!-- GitMap-ID: hvredshw -->
-
-#### 0.1.1.2.1 New Delhi
-<!-- GitMap-ID: joredsou -->
 
 # 0.2 test m
 
@@ -47,13 +47,13 @@ Hierarchy-Issue-Title-Style: type_prefix
 ### 0.3.1.1 Shanghai
 <!-- GitMap-ID: duredsia -->
 
-#### 0.3.1.1.1 New Delhi
-<!-- GitMap-ID: ruredsim -->
-
 ### 0.3.1.2 Beijing
 <!-- GitMap-ID: euredsiz -->
 
-#### 0.3.1.2.1 test
+#### 0.3.1.2.1 New Delhi
+<!-- GitMap-ID: ruredsim -->
+
+#### 0.3.1.2.2 test
 <!-- GitMap-ID: loredsos -->
 
 # 0.4 North America
@@ -85,19 +85,13 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 0.4.2 Canada
 <!-- GitMap-ID: lvredshs -->
 
-### 0.4.2.1 Quebec
-<!-- GitMap-ID: mvredshr -->
-
-#### 0.4.2.1.1 Quebec City
-<!-- GitMap-ID: horedsow -->
-
-### 0.4.2.2 Ontario
+### 0.4.2.1 Ontario
 <!-- GitMap-ID: nvredshq -->
 
-#### 0.4.2.2.1 Toronto
+#### 0.4.2.1.1 Toronto
 <!-- GitMap-ID: yuredsif -->
 
-#### 0.4.2.2.2 Ottawa
+#### 0.4.2.1.2 Ottawa
 <!-- GitMap-ID: zuredsie -->
 
 ## 0.4.3 Hawaii
@@ -106,7 +100,13 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 0.4.4 USA
 <!-- GitMap-ID: ioredsov -->
 
-### 0.4.4.1 Virginia
+### 0.4.4.1 Quebec
+<!-- GitMap-ID: mvredshr -->
+
+#### 0.4.4.1.1 Quebec City
+<!-- GitMap-ID: horedsow -->
+
+### 0.4.4.2 Virginia
 <!-- GitMap-ID: jvredshu -->
 
 # 0.5 South America
