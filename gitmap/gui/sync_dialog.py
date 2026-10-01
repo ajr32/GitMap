@@ -13,9 +13,7 @@ def load_sync_dialog():
     ui_file = QFile(str(ui_path))
 
     if not ui_file.open(QFile.ReadOnly):
-        raise RuntimeError(
-            f"Unable to open Sync UI: {ui_path}"
-        )
+        raise RuntimeError(f"Unable to open Sync UI: {ui_path}")
 
     loader = QUiLoader()
     dialog = loader.load(ui_file)
@@ -23,9 +21,7 @@ def load_sync_dialog():
     ui_file.close()
 
     if dialog is None:
-        raise RuntimeError(
-            f"Unable to load Sync UI: {ui_path}"
-        )
+        raise RuntimeError(f"Unable to load Sync UI: {ui_path}")
 
     # -------------------------------------------------------------------------
     # Repository Choice
@@ -41,13 +37,9 @@ def load_sync_dialog():
                 "GitMap will create this repository on GitHub."
             )
 
-    dialog.existing_repository.toggled.connect(
-        update_repository_mode
-    )
+    dialog.existing_repository.toggled.connect(update_repository_mode)
 
-    dialog.new_repository.toggled.connect(
-        update_repository_mode
-    )
+    dialog.new_repository.toggled.connect(update_repository_mode)
 
     update_repository_mode()
 
@@ -55,9 +47,7 @@ def load_sync_dialog():
     # Cancel
     # -------------------------------------------------------------------------
 
-    dialog.cancel_button.clicked.connect(
-        dialog.reject
-    )
+    dialog.cancel_button.clicked.connect(dialog.reject)
 
     # -------------------------------------------------------------------------
     # Continue
@@ -75,14 +65,10 @@ def load_sync_dialog():
             return
 
         dialog.repository = repository
-        dialog.create_repository = (
-            dialog.new_repository.isChecked()
-        )
+        dialog.create_repository = dialog.new_repository.isChecked()
 
         dialog.accept()
 
-    dialog.continue_button.clicked.connect(
-        continue_sync
-    )
+    dialog.continue_button.clicked.connect(continue_sync)
 
     return dialog

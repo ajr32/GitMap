@@ -1,6 +1,4 @@
-import subprocess
 from dataclasses import dataclass
-from getpass import getpass
 
 from github import Auth, Github, GithubException
 
@@ -47,13 +45,12 @@ def verify_repository(info):
 
     return repository
 
+
 def create_repository(repository_name):
     """Create a new repository for the authenticated GitHub user."""
 
     if not repository_name:
-        raise ValueError(
-            "Repository name is required."
-        )
+        raise ValueError("Repository name is required.")
 
     token = get_github_token()
     auth = Auth.Token(token)
@@ -82,41 +79,7 @@ def create_repository(repository_name):
             ) from None
 
         raise ValueError(
-            f"GitHub could not create repository "
-            f"'{repository_name}'."
+            f"GitHub could not create repository '{repository_name}'."
         ) from None
 
     return repository
-
-
-
-def collect_repository_info():
-    """Ask the user which GitHub repository GitMap should use."""
-
-    print("\nChoose Repository")
-    print("1. Use an existing repository")
-    print("2. Create a new repository")
-
-    choice = input("\nChoose an option: ").strip()
-
-    if choice == "1":
-        username = input("GitHub username: ").strip()
-        repository = input("Repository name: ").strip()
-
-        if "/" in username or "/" in repository:
-            raise ValueError(
-                "Enter the GitHub username and repository name separately."
-            )
-
-        if not username or not repository:
-            raise ValueError("GitHub username and repository name are required.")
-
-        return RepositoryInfo(
-            username=username,
-            repository=repository,
-        )
-
-    if choice == "2":
-        raise NotImplementedError("Create repository will be implemented in #260.")
-
-    raise ValueError("Choose 1 or 2.")

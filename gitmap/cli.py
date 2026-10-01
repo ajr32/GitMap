@@ -9,11 +9,8 @@ from gitmap.github_mapping import (
     assign_missing_gitmap_ids,
     summarize_roadmap_differences,
 )
-from gitmap.github_setup import (
-    collect_repository_info,
-    get_github_token,
-    verify_repository,
-)
+from gitmap.cli.sync import collect_repository_info
+from gitmap.github_sync.repository import get_github_token, verify_repository
 from gitmap.github_sync.issue_sync import (
     SynchronizationError,
     apply_roadmap_label_to_existing_issues,

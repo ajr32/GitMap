@@ -1,5 +1,5 @@
-from gitmap.roadmap.comparison import compare_roadmaps
 from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
+from gitmap.roadmap.comparison import compare_roadmaps
 from gitmap.roadmap.traversal import (
     find_roadmap_item_by_id,
 )
@@ -60,6 +60,14 @@ def build_sync_plan(before_roadmap, after_roadmap):
         "changed_issues": changed_issues,
         "added_hierarchy": added_hierarchy,
         "changed_hierarchy": changed_hierarchy,
+        "added_hierarchy_mappings": get_hierarchy_mappings(
+            after_roadmap,
+            added_hierarchy,
+        ),
+        "changed_hierarchy_mappings": get_hierarchy_mappings(
+            after_roadmap,
+            changed_hierarchy,
+        ),
         "removed_ids": comparison["removed"],
     }
 
