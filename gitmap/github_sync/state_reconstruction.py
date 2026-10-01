@@ -1,8 +1,5 @@
-from gitmap.mapping_mod.mapping_issues import (
-    get_existing_issues,
-    is_gitmap_managed_issue,
-)
-from gitmap.roadmap_traversal import (
+from gitmap.github_sync.issue_lookup import get_existing_issues, is_gitmap_managed_issue
+from gitmap.roadmap.traversal import (
     iter_roadmap_features,
     iter_roadmap_issues,
     iter_roadmap_sections,

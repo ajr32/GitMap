@@ -1,6 +1,6 @@
 from github import GithubException
 
-from gitmap.mapping_mod.mapping import (
+from gitmap.github_sync.github_representation import (
     LabelMapping,
     map_feature_label,
     map_issue_labels,

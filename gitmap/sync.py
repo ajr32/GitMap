@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from gitmap.mapping_mod.mapping_issues import collect_hierarchy_issue_mappings
+from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
 from gitmap.models import Roadmap
 
 

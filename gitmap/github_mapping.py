@@ -2,27 +2,26 @@ import re
 
 from github import Github
 
-from gitmap.mapping_mod.mapping import (
+from gitmap.github_sync.github_representation import (
     LabelMapping,
     MilestoneMapping,
     map_issue,
 )
-from gitmap.mapping_mod.mapping_issues import (
+from gitmap.github_sync.issue_sync import (
     build_issue_body,
-    detect_changed_hierarchy_issues,
-    find_existing_issue,
-    find_existing_issue_by_gitmap_id,
-    get_gitmap_id_from_github_issue,
 )
-from gitmap.mapping_mod.mapping_labels import (
+from gitmap.github_sync.issue_lookup import get_gitmap_id_from_github_issue, find_existing_issue_by_gitmap_id, \
+    find_existing_issue
+from gitmap.github_sync.hierarchy_sync import detect_changed_hierarchy_issues
+from gitmap.github_sync.label_sync import (
     find_existing_label,
     get_existing_labels,
 )
-from gitmap.mapping_mod.mapping_milestones import (
+from gitmap.github_sync.milestone_sync import (
     find_existing_milestone,
     get_existing_milestones,
 )
-from gitmap.roadmap_traversal import iter_roadmap_issues
+from gitmap.roadmap.traversal import iter_roadmap_issues
 
 DEFAULT_LABEL_COLOR = "0366d6"
 FIRST_GITMAP_ID = "goredsox"
@@ -357,7 +356,7 @@ def detect_removed_roadmap_items(roadmap, existing_issues):
 if __name__ == "__main__":
     from pathlib import Path
 
-    from gitmap.parser import parse_roadmap
+    from gitmap.roadmap.parser import parse_roadmap
 
     roadmap = parse_roadmap(Path("roadmap.md"))
 

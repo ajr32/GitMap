@@ -1,4 +1,3 @@
-import copy
 from pathlib import Path
 
 from PySide6.QtCore import QFile
@@ -6,7 +5,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QTreeWidget
 
 from gitmap.gui.roadmap_tree import populate_roadmap_tree
-from gitmap.gui.sync_plan import compare_roadmaps
+from gitmap.roadmap.comparison import compare_roadmaps
 
 
 def load_review_dialog(before_roadmap, after_roadmap):
@@ -86,17 +85,13 @@ def load_review_dialog(before_roadmap, after_roadmap):
     # Always populate the Before tree.
     populate_roadmap_tree(before_tree, before_roadmap)
 
-    # Compare copies so the editor-only is_modified flag
-    # does not count as an actual roadmap change.
-    before_compare = copy.deepcopy(before_roadmap)
-    after_compare = copy.deepcopy(after_roadmap)
-
-    before_compare.is_modified = False
-    after_compare.is_modified = False
-
     # Show the centered "No Changes" message only when
-    # the two roadmaps are otherwise identical.
-    if before_compare == after_compare:
+    # the shared comparison service found no changes.
+    has_changes = bool(
+        added_ids or removed_ids or renumbered_ids or retitled_ids or hierarchy_ids
+    )
+
+    if not has_changes:
         after_tree.clear()
         no_changes_label.show()
         no_changes_label.raise_()

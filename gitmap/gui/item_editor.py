@@ -48,7 +48,7 @@ from PySide6.QtWidgets import (
 
 from gitmap.gui.confirmation import confirm_numbering_changes
 from gitmap.models import Feature, Issue, Milestone, Requirement, Section
-from gitmap.roadmap_numbering import (
+from gitmap.roadmap.numbering import (
     collect_numbering_changes,
     remember_original_numbers,
     renumber_siblings,

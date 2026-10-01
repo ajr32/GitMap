@@ -14,25 +14,23 @@ from gitmap.github_setup import (
     get_github_token,
     verify_repository,
 )
-from gitmap.mapping_mod.mapping_issues import (
+from gitmap.github_sync.issue_sync import (
     SynchronizationError,
     apply_roadmap_label_to_existing_issues,
-    collect_hierarchy_issue_mappings,
-    get_existing_issues,
-    get_gitmap_id_from_github_issue,
     sync_issues,
-    sync_removed_issues,
-    sync_sub_issue_relationships,
 )
-from gitmap.mapping_mod.mapping_labels import sync_labels
-from gitmap.mapping_mod.mapping_lock import acquire_sync_lock, release_sync_lock
-from gitmap.mapping_mod.mapping_validation import (
+from gitmap.github_sync.removed_issue_sync import sync_removed_issues
+from gitmap.github_sync.issue_lookup import get_existing_issues, get_gitmap_id_from_github_issue
+from gitmap.github_sync.relationship_sync import sync_sub_issue_relationships
+from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
+from gitmap.github_sync.label_sync import sync_labels
+from gitmap.github_sync.sync_lock import acquire_sync_lock, release_sync_lock
+from gitmap.github_sync.sync_validation import (
     validate_synchronization_plan,
     verify_synchronization_results,
 )
-from gitmap.parser import (
+from gitmap.roadmap.parser import (
     parse_roadmap,
-    parse_roadmap_text,
     write_github_representation_to_roadmap,
     write_gitmap_ids_to_roadmap,
     write_hierarchy_issue_title_style_to_roadmap,
@@ -41,7 +39,7 @@ from gitmap.roadmap_menus import (
     choose_github_representation,
     choose_hierarchy_issue_title_style,
 )
-from gitmap.validators import validate_roadmap
+from gitmap.roadmap.validators import validate_roadmap
 
 console = Console()
 

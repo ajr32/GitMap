@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 )
 
 from gitmap.github_setup import RepositoryInfo, create_repository, verify_repository
-from gitmap.gui.builder_controller import open_builder
+from gitmap.gui.roadmap_editor_controller import open_builder
 from gitmap.gui.cancel_changes import cancel_changes
 from gitmap.gui.editor_controller import open_editor
 from gitmap.gui.new_roadmap_controller import (
@@ -23,12 +23,12 @@ from gitmap.gui.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.settings_controller import load_settings_dialog
 from gitmap.gui.sync_dialog import load_sync_dialog
 from gitmap.gui.sync_plan import build_sync_plan
-from gitmap.mapping_mod.mapping_issues import (
-    collect_hierarchy_issue_mappings,
-    get_existing_issues,
+from gitmap.github_sync.issue_sync import (
     sync_issues,
 )
-from gitmap.parser import parse_roadmap
+from gitmap.github_sync.issue_lookup import get_existing_issues
+from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
+from gitmap.roadmap.parser import parse_roadmap
 from gitmap.settings import load_github_username
 
 

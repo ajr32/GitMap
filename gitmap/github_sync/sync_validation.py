@@ -1,15 +1,14 @@
 import time
 
 from gitmap.github_mapping import normalize_work_step_checkboxes
-from gitmap.mapping_mod.mapping import map_issue, map_milestone
-from gitmap.mapping_mod.mapping_issues import (
-    build_hierarchy_issue_body,
+from gitmap.github_sync.github_representation import map_issue, map_milestone
+from gitmap.github_sync.issue_sync import (
     build_issue_body,
-    find_existing_issue_by_gitmap_id,
-    get_existing_issues,
-    get_gitmap_id_from_github_issue,
 )
-from gitmap.roadmap_traversal import iter_roadmap_issues
+from gitmap.github_sync.issue_lookup import get_existing_issues, get_gitmap_id_from_github_issue, \
+    find_existing_issue_by_gitmap_id
+from gitmap.github_sync.hierarchy_sync import build_hierarchy_issue_body
+from gitmap.roadmap.traversal import iter_roadmap_issues
 
 
 def validate_synchronization_plan(roadmap, existing_issues):

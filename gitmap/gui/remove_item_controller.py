@@ -1,6 +1,6 @@
 from gitmap.gui.confirmation import confirm_remove_item
 from gitmap.models import Issue, Milestone, Requirement, Section
-from gitmap.roadmap_numbering import renumber_siblings
+from gitmap.roadmap.numbering import renumber_siblings
 
 # =============================================================================
 # GITMAP REMOVE ITEM CONTROLLER

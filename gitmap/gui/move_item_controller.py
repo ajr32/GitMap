@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from gitmap.models import Feature, Issue, Milestone, Roadmap, Section
-from gitmap.roadmap_numbering import (
+from gitmap.roadmap.numbering import (
     collect_numbering_changes,
     remember_original_numbers,
     renumber_siblings,

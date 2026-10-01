@@ -1,4 +1,4 @@
-from gitmap.mapping_mod.mapping import map_milestone
+from gitmap.github_sync.github_representation import map_milestone
 
 
 def find_existing_milestone(mapping, existing_milestones):

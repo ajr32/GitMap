@@ -10,13 +10,13 @@ from PySide6.QtWidgets import QPushButton, QTreeWidgetItem
 
 from gitmap.gui.editor_mode import set_editor_mode
 from gitmap.models import Feature, Issue, Milestone, Section
-from gitmap.roadmap_numbering import (
+from gitmap.roadmap.numbering import (
     generate_feature_number,
     generate_issue_number,
     generate_milestone_number,
     generate_section_number,
 )
-from gitmap.github_mapping import assign_missing_gitmap_ids
+
 
 # =============================================================================
 # PART A — VALID ADD TYPES

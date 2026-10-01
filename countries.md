@@ -16,16 +16,16 @@ Hierarchy-Issue-Title-Style: type_prefix
 ### 0.1.1.1 Southwestern
 <!-- GitMap-ID: gvredshx -->
 
-#### 0.1.1.1.1 Forbidden City
+#### 0.1.1.1.1 Mumbai
+<!-- GitMap-ID: puredsio -->
+
+#### 0.1.1.1.2 Forbidden City
 <!-- GitMap-ID: nuredsiq -->
 
 ### 0.1.1.2 Northern
 <!-- GitMap-ID: hvredshw -->
 
-#### 0.1.1.2.1 Mumbai
-<!-- GitMap-ID: puredsio -->
-
-#### 0.1.1.2.2 New Delhi
+#### 0.1.1.2.1 New Delhi
 <!-- GitMap-ID: joredsou -->
 
 # 0.2 test m
@@ -61,28 +61,25 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 0.4.1 Mexico
 <!-- GitMap-ID: ivredshv -->
 
-### 0.4.1.1 Virginia
-<!-- GitMap-ID: jvredshu -->
-
-### 0.4.1.2 Connecticut
+### 0.4.1.1 Connecticut
 <!-- GitMap-ID: kvredsht -->
 
-#### 0.4.1.2.1 Boston
+#### 0.4.1.1.1 Boston
 <!-- GitMap-ID: uuredsij -->
 
 **Work Steps:**
-- [ ] 0.4.1.2.1 (a) Mass Pike
-- [ ] 0.4.1.2.1 (b) Boston Common
+- [ ] 0.4.1.1.1 (a) Mass Pike
+- [ ] 0.4.1.1.1 (b) Boston Common
 
-#### 0.4.1.2.2 Westfield
+#### 0.4.1.1.2 Westfield
 <!-- GitMap-ID: vuredsii -->
 
 **Work Steps:**
-- [ ] 0.4.1.2.2 (a) High School
-- [ ] 0.4.1.2.2 (b) YMCA
-- [ ] 0.4.1.2.2 (c) house
+- [ ] 0.4.1.1.2 (a) High School
+- [ ] 0.4.1.1.2 (b) YMCA
+- [ ] 0.4.1.1.2 (c) house
 
-#### 0.4.1.2.3 Worcester
+#### 0.4.1.1.3 Worcester
 <!-- GitMap-ID: goredsox -->
 
 ## 0.4.2 Canada
@@ -108,6 +105,9 @@ Hierarchy-Issue-Title-Style: type_prefix
 
 ## 0.4.4 USA
 <!-- GitMap-ID: ioredsov -->
+
+### 0.4.4.1 Virginia
+<!-- GitMap-ID: jvredshu -->
 
 # 0.5 South America
 
