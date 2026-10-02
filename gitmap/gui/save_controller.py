@@ -44,5 +44,6 @@ def save_roadmap(window, state, save_as=False):
         return False
 
     state.active_roadmap_path = str(path)
+    state.active_roadmap.is_modified = False
 
     return True

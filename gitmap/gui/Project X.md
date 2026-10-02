@@ -15,8 +15,8 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 1.1.1 Section A
 <!-- GitMap-ID: goredsox -->
 
+#### 1.1.1.0.1 And We're Back
+<!-- GitMap-ID: ioredsov -->
+
 ## 1.1.2 Section B
 <!-- GitMap-ID: horedsow -->
-
-#### 1.1.2.0.1 And We're Back
-<!-- GitMap-ID: ioredsov -->

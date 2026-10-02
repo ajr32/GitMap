@@ -10,24 +10,6 @@ Hierarchy-Issue-Title-Style: type_prefix
 
 # 0.1 Asia
 
-## 0.1.1 India
-<!-- GitMap-ID: furedsiy -->
-
-### 0.1.1.1 Southwestern
-<!-- GitMap-ID: gvredshx -->
-
-#### 0.1.1.1.1 Mumbai
-<!-- GitMap-ID: puredsio -->
-
-#### 0.1.1.1.2 Forbidden City
-<!-- GitMap-ID: nuredsiq -->
-
-#### 0.1.1.1.3 New Delhi
-<!-- GitMap-ID: joredsou -->
-
-### 0.1.1.2 Northern
-<!-- GitMap-ID: hvredshw -->
-
 # 0.2 test m
 
 ## 0.2.1 test s
@@ -64,7 +46,7 @@ Hierarchy-Issue-Title-Style: type_prefix
 ### 0.4.1.1 Connecticut
 <!-- GitMap-ID: kvredsht -->
 
-#### 0.4.1.1.1 Boston
+#### 0.4.1.1.1 Boston Test
 <!-- GitMap-ID: uuredsij -->
 
 **Work Steps:**
