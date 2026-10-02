@@ -1,4 +1,4 @@
-from gitmap.gui.app import main
+from gitmap.gui.application.app import main
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
-from gitmap.github_sync.issue_lookup import get_existing_issues, is_gitmap_managed_issue
-from gitmap.roadmap.traversal import (
+from gitmap.github_sync.issues.issue_lookup import is_gitmap_managed_issue
+from gitmap.roadmap.model.traversal import (
     iter_roadmap_features,
     iter_roadmap_issues,
     iter_roadmap_sections,
@@ -142,15 +142,3 @@ def find_unmatched_roadmap_items(roadmap, existing_issues):
     return unmatched
 
 
-def rebuild_roadmap_state(repository, roadmap):
-    """Rebuild GitMap project state from existing GitHub data."""
-
-    existing_issues = get_existing_issues(repository)
-
-    return {
-        "milestones": associate_issues_with_milestones(existing_issues),
-        "sections": associate_issues_with_sections(existing_issues, roadmap),
-        "features": associate_issues_with_features(existing_issues, roadmap),
-        "work_steps": restore_work_step_relationships(existing_issues),
-        "unmatched": find_unmatched_roadmap_items(roadmap, existing_issues),
-    }

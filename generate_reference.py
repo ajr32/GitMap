@@ -1,5 +1,6 @@
-import os
 import ast
+import os
+
 
 def extract_functions_from_project(project_root, output_file_path):
     """
