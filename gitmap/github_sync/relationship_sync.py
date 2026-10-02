@@ -1,5 +1,7 @@
-from gitmap.github_sync.issue_lookup import get_existing_issues
-
+from gitmap.github_sync.issue_lookup import (
+    find_github_issue_by_gitmap_id,
+    get_existing_issues,
+)
 
 def get_sub_issues(repository, parent_issue):
     """Return the existing GitHub sub-issues for an Issue."""
@@ -56,18 +58,6 @@ def remove_sub_issue(repository, parent_issue, child_issue):
     )
 
     return True
-
-def find_github_issue_by_gitmap_id(gitmap_id, existing_issues):
-    """Find a GitHub Issue by its permanent GitMap ID."""
-
-    marker = f"GitMap-ID: {gitmap_id}"
-
-    for issue in existing_issues:
-        if marker in (issue.body or ""):
-            return issue
-
-    return None
-
 
 def sync_section_feature_relationships(repository, roadmap, existing_issues):
     """Create Section-to-Feature GitHub sub-issue relationships."""

@@ -5,6 +5,7 @@ def sync_removed_issues(
     removed_issues,
     progress_start=0,
     progress_total=None,
+    progress_callback=None,
 ):
     """Close GitHub issues that were removed from the roadmap."""
 
@@ -20,10 +21,13 @@ def sync_removed_issues(
 
         progress += 1
 
-        print(
-            f"[{progress}/{progress_total}] "
-            f"Closing removed issue #{issue.number} {issue.title}"
-        )
+        if progress_callback is not None:
+            progress_callback(
+                "Removed Issues",
+                progress - progress_start,
+                progress_total - progress_start,
+                f"Closing #{issue.number} {issue.title}",
+            )
 
         try:
             issue.edit(state="closed")

@@ -3,11 +3,11 @@
 # =============================================================================
 # Stable navigation labels:
 #
-#   Part A   - Infer structure settings for an existing parsed Roadmap
+#   Part A   - Restore/infer structure settings for an existing parsed Roadmap
 #     A1     - Detect Sections
-#     A2     - Detect Issues directly under Sections
+#     A2     - Restore/infer Issues directly under Sections
 #     A3     - Detect Features
-#     A4     - Detect Issues directly under Features
+#     A4     - Restore/infer Issues directly under Features
 #
 # Existing Part labels are STABLE. If code is inserted later, use A5, A2A,
 # etc. Do not renumber/reletter existing Parts unless we explicitly decide to
@@ -15,61 +15,69 @@
 #
 # WHY THIS FILE EXISTS:
 # A brand-new Roadmap gets its structure settings from the Structure Dialog.
-# An EXISTING Markdown roadmap may not have those questionnaire answers
-# available, so GitMap examines the hierarchy that the parser actually found
-# and reconstructs the relevant structure flags.
+# An EXISTING Markdown roadmap needs those settings reconstructed after parsing.
 #
-# IMPORTANT LIMITATION:
-# This is inference from EXISTING CONTENT. If a structure is allowed but has
-# never actually been used in the Markdown yet, this function cannot discover
-# that permission from absence alone. Persistent metadata could solve that in
-# the future if needed.
+# GitMap already persists Section/Feature tracking choices in
+# roadmap.github_representation. Those explicit settings are authoritative when
+# present. Content inference is retained only as a compatibility fallback for
+# older roadmaps that do not contain the representation metadata.
 # =============================================================================
 
+
+def _representation_allows_issues(representation, hierarchy_type):
+    """Return whether explicit representation permits child Issues.
+
+    None means there is no explicit setting for this hierarchy type and the
+    caller should fall back to inference from existing content.
+    """
+
+    if not isinstance(representation, dict):
+        return None
+
+    if hierarchy_type not in representation:
+        return None
+
+    return representation.get(hierarchy_type) in ("issue", "both")
+
+
 # =============================================================================
-# PART A — INFER STRUCTURE SETTINGS FROM AN EXISTING ROADMAP
-# =============================================================================
-# Called after parse_roadmap() opens an existing Markdown roadmap.
-#
-# This function updates four Roadmap flags:
-#   use_sections
-#   allow_issues_under_sections
-#   use_features
-#   allow_issues_under_features
-#
-# `any(...)` means: scan the relevant hierarchy and set the flag True as soon
-# as at least one matching child collection contains something.
+# PART A — RESTORE/INFER STRUCTURE SETTINGS FROM AN EXISTING ROADMAP
 # =============================================================================
 def infer_roadmap_structure(roadmap):
-    """Infer structure settings from an existing parsed roadmap."""
+    """Restore explicit structure settings, falling back to content inference."""
+
+    representation = getattr(roadmap, "github_representation", None)
 
     # -------------------------------------------------------------------------
     # PART A1 — DETECT SECTIONS
     # -------------------------------------------------------------------------
-    # If ANY Milestone contains at least one Section, this roadmap uses the
-    # Section level.
-    # -------------------------------------------------------------------------
-    roadmap.use_sections = any(milestone.sections for milestone in roadmap.milestones)
+    roadmap.use_sections = any(
+        milestone.sections
+        for milestone in roadmap.milestones
+    )
 
     # -------------------------------------------------------------------------
-    # PART A2 — DETECT ISSUES DIRECTLY UNDER SECTIONS
+    # PART A2 — RESTORE/INFER ISSUES DIRECTLY UNDER SECTIONS
     # -------------------------------------------------------------------------
-    # Walk every Section under every Milestone. If at least one Section has an
-    # Issue directly attached to it, remember that this hierarchy is in use.
-    #
-    # This is different from Issues underneath Features.
-    # -------------------------------------------------------------------------
-    roadmap.allow_issues_under_sections = any(
-        section.issues
-        for milestone in roadmap.milestones
-        for section in milestone.sections
+    section_permission = _representation_allows_issues(
+        representation,
+        "section",
+    )
+
+    if section_permission is None:
+        # Compatibility fallback for older roadmaps without persisted settings.
+        section_permission = any(
+            section.issues
+            for milestone in roadmap.milestones
+            for section in milestone.sections
+        )
+
+    roadmap.allow_issues_under_sections = (
+        roadmap.use_sections and section_permission
     )
 
     # -------------------------------------------------------------------------
     # PART A3 — DETECT FEATURES
-    # -------------------------------------------------------------------------
-    # Walk every Section. If any Section contains Features, the Roadmap uses
-    # the Feature hierarchy level.
     # -------------------------------------------------------------------------
     roadmap.use_features = any(
         section.features
@@ -78,18 +86,22 @@ def infer_roadmap_structure(roadmap):
     )
 
     # -------------------------------------------------------------------------
-    # PART A4 — DETECT ISSUES DIRECTLY UNDER FEATURES
+    # PART A4 — RESTORE/INFER ISSUES DIRECTLY UNDER FEATURES
     # -------------------------------------------------------------------------
-    # Walk every Feature under every Section/Milestone. If at least one
-    # Feature contains Issues, remember that Feature -> Issue hierarchy is in
-    # use.
-    #
-    # The Add UI later consults these inferred flags when deciding which item
-    # types should be offered for an existing roadmap.
-    # -------------------------------------------------------------------------
-    roadmap.allow_issues_under_features = any(
-        feature.issues
-        for milestone in roadmap.milestones
-        for section in milestone.sections
-        for feature in section.features
+    feature_permission = _representation_allows_issues(
+        representation,
+        "feature",
+    )
+
+    if feature_permission is None:
+        # Compatibility fallback for older roadmaps without persisted settings.
+        feature_permission = any(
+            feature.issues
+            for milestone in roadmap.milestones
+            for section in milestone.sections
+            for feature in section.features
+        )
+
+    roadmap.allow_issues_under_features = (
+        roadmap.use_features and feature_permission
     )

@@ -26,6 +26,19 @@ def has_existing_gitmap_issues(repository):
 
     return bool(get_existing_issues(repository))
 
+def find_github_issues_by_gitmap_ids(existing_issues, gitmap_ids):
+    """Find GitMap-managed GitHub Issues by permanent GitMap ID."""
+
+    wanted_ids = set(gitmap_ids)
+    matches = []
+
+    for issue in existing_issues:
+        gitmap_id = get_gitmap_id_from_github_issue(issue)
+
+        if gitmap_id in wanted_ids:
+            matches.append(issue)
+
+    return matches
 
 def get_gitmap_id_from_github_issue(issue) -> str:
     """Return the permanent GitMap ID stored in a GitHub issue body."""
@@ -39,17 +52,26 @@ def get_gitmap_id_from_github_issue(issue) -> str:
     return ""
 
 
-def find_existing_issue_by_gitmap_id(mapping, existing_issues):
-    """Find an existing GitHub issue by permanent GitMap ID."""
+def find_github_issue_by_gitmap_id(gitmap_id, existing_issues):
+    """Find a GitHub Issue by its permanent GitMap ID."""
 
-    if not mapping.gitmap_id:
+    if not gitmap_id:
         return None
 
     for issue in existing_issues:
-        if get_gitmap_id_from_github_issue(issue) == mapping.gitmap_id:
+        if get_gitmap_id_from_github_issue(issue) == gitmap_id:
             return issue
 
     return None
+
+
+def find_existing_issue_by_gitmap_id(mapping, existing_issues):
+    """Find an existing GitHub issue by permanent GitMap ID."""
+
+    return find_github_issue_by_gitmap_id(
+        mapping.gitmap_id,
+        existing_issues,
+    )
 
 
 def find_existing_issue(mapping, existing_issues):

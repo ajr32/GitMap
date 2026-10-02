@@ -10,8 +10,9 @@ from PySide6.QtWidgets import (
 )
 
 from gitmap.github_sync.removed_issue_sync import sync_removed_issues
-from gitmap.github_sync.hierarchy_sync import collect_hierarchy_issue_mappings
-from gitmap.github_sync.issue_lookup import get_existing_issues
+from gitmap.github_sync.label_sync import sync_labels
+from gitmap.github_sync.milestone_sync import sync_milestones
+from gitmap.github_sync.relationship_sync import sync_sub_issue_relationships
 from gitmap.github_sync.issue_sync import (
     sync_issues,
 )
@@ -27,6 +28,10 @@ from gitmap.gui.new_roadmap_controller import (
     load_structure_dialog,
 )
 
+from gitmap.github_sync.issue_lookup import (
+    find_github_issues_by_gitmap_ids,
+    get_existing_issues,
+)
 from gitmap.gui.removal_confirmation import confirm_sync_removals
 from gitmap.gui.review_dialog import load_review_dialog
 from gitmap.gui.roadmap_editor_controller import open_builder
@@ -34,7 +39,11 @@ from gitmap.gui.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.settings_controller import load_settings_dialog
 from gitmap.gui.sync_dialog import load_sync_dialog
-from gitmap.gui.sync_plan import build_sync_plan
+from gitmap.github_sync.sync_plan import (
+    build_initial_sync_plan,
+    build_sync_plan,
+)
+from gitmap.github_sync.sync_validation import validate_synchronization_plan
 from gitmap.roadmap.parser import parse_roadmap
 from gitmap.settings import load_github_username
 
@@ -44,7 +53,7 @@ class MainWindowState:
 
     active_roadmap_path: str | None = None
     active_roadmap: object | None = None
-    sync_baseline_roadmap: object | None = None
+    review_baseline_roadmap: object | None = None
 
     selected_roadmap_object: object | None = None
 
@@ -87,40 +96,6 @@ def setup_main_window(window):
         )
 
     state.refresh_main_roadmap = refresh_main_roadmap
-
-    def find_github_issues_by_gitmap_ids(existing_issues, gitmap_ids):
-        """Find GitHub Issues matching permanent GitMap IDs."""
-
-        wanted_ids = set(gitmap_ids)
-        matches = []
-
-        for issue in existing_issues:
-            body = issue.body or ""
-
-            for gitmap_id in wanted_ids:
-                marker = f"GitMap-ID: {gitmap_id}"
-
-                if marker in body:
-                    matches.append(issue)
-                    break
-
-        return matches
-
-    def collect_all_normal_issues(roadmap):
-        """Collect every normal GitHub-syncable Issue in the roadmap."""
-
-        issues = []
-
-        for milestone in roadmap.milestones:
-            issues.extend(milestone.issues)
-
-            for section in milestone.sections:
-                issues.extend(section.issues)
-
-                for feature in section.features:
-                    issues.extend(feature.issues)
-
-        return issues
 
     # -------------------------------------------------------------------------
     # Main Window roadmap selection
@@ -168,7 +143,7 @@ def setup_main_window(window):
 
         state.active_roadmap_path = None
         state.active_roadmap = roadmap
-        state.sync_baseline_roadmap = copy.deepcopy(roadmap)
+        state.review_baseline_roadmap = copy.deepcopy(roadmap)
         state.selected_roadmap_object = None
 
         roadmap_name.setText(roadmap.name)
@@ -218,8 +193,9 @@ def setup_main_window(window):
         state.active_roadmap_path = roadmap_path
         state.active_roadmap = roadmap
 
-        # Untouched copy of the roadmap as it existed when opened.
-        state.sync_baseline_roadmap = copy.deepcopy(roadmap)
+        # Local review baseline: the roadmap as it existed when this editing session began.
+        # This is intentionally separate from GitHub remote synchronization state.
+        state.review_baseline_roadmap = copy.deepcopy(roadmap)
 
         roadmap_name.setText(roadmap.name)
         populate_roadmap_tree(roadmap_tree, roadmap)
@@ -272,7 +248,7 @@ def setup_main_window(window):
             return
 
         state.review_window = load_review_dialog(
-            state.sync_baseline_roadmap,
+            state.review_baseline_roadmap,
             state.active_roadmap,
         )
 
@@ -290,7 +266,7 @@ def setup_main_window(window):
 
         restored_roadmap = cancel_changes(
             window,
-            state.sync_baseline_roadmap,
+            state.review_baseline_roadmap,
         )
 
         if restored_roadmap is None:
@@ -365,86 +341,108 @@ def setup_main_window(window):
             )
 
             if not existing_issues:
-                # First sync for this roadmap/repository.
-                all_issues = collect_all_normal_issues(
+                # First synchronization still gets a complete plan so the exact
+                # work that will execute can be validated before any sync mutation.
+                plan = build_initial_sync_plan(
+                    state.active_roadmap,
+                )
+            else:
+                # Temporary bridge: the sync plan still compares against the
+                # local review baseline until remote-state planning replaces it.
+                plan = build_sync_plan(
+                    state.review_baseline_roadmap,
                     state.active_roadmap,
                 )
 
-                all_hierarchy_mappings = collect_hierarchy_issue_mappings(
-                    state.active_roadmap,
+            conflicts = validate_synchronization_plan(
+                plan,
+                state.active_roadmap,
+                existing_issues,
+            )
+
+            if conflicts:
+                QMessageBox.critical(
+                    window,
+                    "GitHub Sync Validation Failed",
+                    "GitMap found problems that must be fixed before "
+                    "synchronization can continue:\n\n"
+                    + "\n".join(f"• {conflict}" for conflict in conflicts),
+                )
+                return
+
+            removed_issue_ids = plan["removed_issues"]
+            removed_hierarchy_ids = plan["removed_hierarchy"]
+            removed_ids = removed_issue_ids + removed_hierarchy_ids
+
+            removed_github_issues = []
+            removed_github_hierarchy = []
+
+            if removed_ids:
+                removed_github_issues = find_github_issues_by_gitmap_ids(
+                    existing_issues,
+                    removed_issue_ids,
+                )
+                removed_github_hierarchy = find_github_issues_by_gitmap_ids(
+                    existing_issues,
+                    removed_hierarchy_ids,
                 )
 
+                # Confirmation also happens before mutation. Cancelling here leaves
+                # labels, milestones, Issues, and relationships untouched.
+                if not confirm_sync_removals(
+                    window,
+                    removed_github_issues,
+                    removed_github_hierarchy,
+                ):
+                    return
+
+            # Nothing above this point mutates synchronization state. Once
+            # validation and confirmation pass, execute the exact prepared plan.
+            sync_milestones(repository, state.active_roadmap)
+            sync_labels(repository, state.active_roadmap)
+
+            if removed_ids:
+                sync_removed_issues(
+                    removed_github_issues + removed_github_hierarchy,
+                )
+
+            issues_to_sync = plan["added_issues"] + plan["changed_issues"]
+
+            if issues_to_sync:
                 sync_issues(
                     repository,
                     state.active_roadmap,
-                    issues_to_sync=all_issues,
-                    update_issues=[],
+                    issues_to_sync=issues_to_sync,
+                    update_issues=plan["changed_issues"],
                 )
 
-                if all_hierarchy_mappings:
-                    sync_issues(
-                        repository,
-                        state.active_roadmap,
-                        issues_to_sync=[],
-                        hierarchy_mappings_to_sync=all_hierarchy_mappings,
-                        hierarchy_expected_operation="create",
-                        progress_total=len(all_hierarchy_mappings),
-                    )
-
-            else:
-                plan = build_sync_plan(
-                    state.sync_baseline_roadmap,
+            if plan["added_hierarchy_mappings"]:
+                sync_issues(
+                    repository,
                     state.active_roadmap,
+                    issues_to_sync=[],
+                    hierarchy_mappings_to_sync=plan["added_hierarchy_mappings"],
+                    hierarchy_expected_operation="create",
+                    progress_total=len(plan["added_hierarchy_mappings"]),
                 )
 
-                removed_issue_ids = plan["removed_issues"] + plan["removed_hierarchy"]
+            if plan["changed_hierarchy_mappings"]:
+                sync_issues(
+                    repository,
+                    state.active_roadmap,
+                    issues_to_sync=[],
+                    hierarchy_mappings_to_sync=plan["changed_hierarchy_mappings"],
+                    hierarchy_expected_operation="update",
+                    progress_total=len(plan["changed_hierarchy_mappings"]),
+                )
 
-                if removed_issue_ids:
-                    if not confirm_sync_removals(
-                        window,
-                        plan["removed_issues"],
-                        plan["removed_hierarchy"],
-                    ):
-                        return
-
-                    removed_github_issues = find_github_issues_by_gitmap_ids(
-                        existing_issues,
-                        removed_issue_ids,
-                    )
-
-                    sync_removed_issues(
-                        removed_github_issues,
-                    )
-
-                issues_to_sync = plan["added_issues"] + plan["changed_issues"]
-
-                if issues_to_sync:
-                    sync_issues(
-                        repository,
-                        state.active_roadmap,
-                        issues_to_sync=issues_to_sync,
-                        update_issues=plan["changed_issues"],
-                    )
-
-                if plan["added_hierarchy_mappings"]:
-                    sync_issues(
-                        repository,
-                        state.active_roadmap,
-                        issues_to_sync=[],
-                        hierarchy_mappings_to_sync=plan["added_hierarchy_mappings"],
-                        hierarchy_expected_operation="create",
-                        progress_total=len(plan["added_hierarchy_mappings"]),
-                    )
-
-                if plan["changed_hierarchy_mappings"]:
-                    sync_issues(
-                        repository,
-                        state.active_roadmap,
-                        issues_to_sync=[],
-                        hierarchy_mappings_to_sync=plan["changed_hierarchy_mappings"],
-                        hierarchy_expected_operation="update",
-                        progress_total=len(plan["changed_hierarchy_mappings"]),
-                    )
+            # Relationships remain a final synchronization stage. The structured
+            # plan already has relationship fields; a later planning phase can
+            # populate them before this executor is converted to consume them.
+            sync_sub_issue_relationships(
+                repository,
+                state.active_roadmap,
+            )
 
         except Exception as error:
             QMessageBox.critical(

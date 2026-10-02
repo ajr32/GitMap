@@ -14,22 +14,24 @@ def confirm_sync_removals(
         return True
 
     lines = [
-        "GitMap will remove the following items from GitHub:",
+        "GitMap will close the following Issues on GitHub:",
         "",
     ]
 
     if removed_issues:
         lines.append(f"Normal Issues: {len(removed_issues)}")
 
-        for item_id in removed_issues:
-            lines.append(f"  • {item_id}")
+        for issue in removed_issues:
+            lines.append(f"  • #{issue.number} — {issue.title}")
 
     if removed_hierarchy:
-        lines.append("")
+        if removed_issues:
+            lines.append("")
+
         lines.append(f"Hierarchy Issues: {len(removed_hierarchy)}")
 
-        for item_id in removed_hierarchy:
-            lines.append(f"  • {item_id}")
+        for issue in removed_hierarchy:
+            lines.append(f"  • #{issue.number} — {issue.title}")
 
     lines.extend(
         [
