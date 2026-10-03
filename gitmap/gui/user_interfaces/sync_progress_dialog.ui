@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SyncProgressDialog</class>
+ <widget class="QDialog" name="SyncProgressDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x><y>0</y><width>620</width><height>470</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size><width>560</width><height>420</height></size>
+  </property>
+  <property name="windowTitle">
+   <string>GitHub Synchronization</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="main_layout">
+   <item>
+    <widget class="QLabel" name="title_label">
+     <property name="text">
+      <string>Synchronizing with GitHub</string>
+     </property>
+     <property name="styleSheet">
+      <string>font-size: 16pt; font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="status_label">
+     <property name="text">
+      <string>Preparing synchronization...</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="stage_group">
+     <property name="title">
+      <string>Current Stage</string>
+     </property>
+     <layout class="QVBoxLayout" name="stage_layout">
+      <item>
+       <widget class="QProgressBar" name="stage_progress">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="format">
+         <string>%v / %m</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="overall_group">
+     <property name="title">
+      <string>Overall Progress</string>
+     </property>
+     <layout class="QVBoxLayout" name="overall_layout">
+      <item>
+       <widget class="QProgressBar" name="overall_progress">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="format">
+         <string>%v / %m</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="activity_group">
+     <property name="title">
+      <string>Recent Activity</string>
+     </property>
+     <layout class="QVBoxLayout" name="activity_layout">
+      <item>
+       <widget class="QListWidget" name="activity_list">
+        <property name="minimumSize">
+         <size><width>0</width><height>160</height></size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::FocusPolicy::NoFocus</enum>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="button_layout">
+     <item>
+      <spacer name="button_spacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size><width>40</width><height>20</height></size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="close_button">
+       <property name="text">
+        <string>Close</string>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

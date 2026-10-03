@@ -1,8 +1,3 @@
-from pathlib import Path
-
-from PySide6.QtCore import QFile
-from PySide6.QtUiTools import QUiLoader
-
 from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.editor.structure_questions import QUESTIONS
 from gitmap.roadmap.model.models import Roadmap
@@ -251,6 +246,12 @@ def load_structure_dialog():
 
     dialog.button_forward.clicked.connect(go_forward)
     dialog.button_back.clicked.connect(go_back)
+
+    dialog.button_forward.setDefault(True)
+    dialog.button_forward.setAutoDefault(True)
+
+    dialog.button_back.setDefault(False)
+    dialog.button_back.setAutoDefault(False)
 
     show_question(0)
 

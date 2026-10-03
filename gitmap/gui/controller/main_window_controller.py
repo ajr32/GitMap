@@ -9,42 +9,19 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
-from gitmap.github_sync.issues.issue_lookup import (
-    find_github_issues_by_gitmap_ids,
-    get_existing_issues,
-)
-from gitmap.github_sync.issues.issue_sync import (
-    sync_issues,
-)
-from gitmap.github_sync.metadata.label_sync import sync_labels
-from gitmap.github_sync.metadata.milestone_sync import sync_milestones
-from gitmap.github_sync.issues.relationship_sync import sync_sub_issue_relationships
-from gitmap.github_sync.issues.removed_issue_sync import sync_removed_issues
-from gitmap.github_sync.repository.repository import (
-    RepositoryInfo,
-    create_repository,
-    verify_repository,
-)
-from gitmap.github_sync.planning.sync_plan import (
-    build_initial_sync_plan,
-    build_sync_plan,
-)
-from gitmap.github_sync.planning.sync_validation import validate_synchronization_plan
 from gitmap.gui.dialogs.cancel_changes import cancel_changes
 from gitmap.gui.controller.editor_controller import open_editor
 from gitmap.gui.controller.new_roadmap_controller import (
     build_roadmap_from_answers,
     load_structure_dialog,
 )
-from gitmap.gui.dialogs.removal_confirmation import confirm_sync_removals
 from gitmap.gui.review.review_dialog import load_review_dialog
 from gitmap.gui.controller.roadmap_editor_controller import open_builder
 from gitmap.gui.editor.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.shared.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.controller.settings_controller import load_settings_dialog
-from gitmap.gui.sync.sync_dialog import load_sync_dialog
+from gitmap.gui.sync.sync_controller import run_github_sync
 from gitmap.roadmap.markdown.parser import parse_roadmap
-from gitmap.settings import load_github_username
 
 
 class MainWindowState:
@@ -295,166 +272,4 @@ def setup_main_window(window):
     # Sync to GitHub
     # -------------------------------------------------------------------------
 
-    def open_github_sync():
-        dialog = load_sync_dialog()
-
-        if not dialog.exec():
-            return
-
-        repository_name = dialog.repository
-        create_new = dialog.create_repository
-        username = load_github_username()
-
-        if not username:
-            QMessageBox.warning(
-                window,
-                "GitHub Settings Required",
-                "Open Settings and enter your GitHub username first.",
-            )
-            return
-
-        try:
-            if create_new:
-                repository = create_repository(repository_name)
-
-            else:
-                info = RepositoryInfo(
-                    username=username,
-                    repository=repository_name,
-                )
-
-                repository = verify_repository(info)
-
-        except ValueError as error:
-            QMessageBox.critical(
-                window,
-                "GitHub Repository Error",
-                str(error),
-            )
-            return
-
-        try:
-            existing_issues = get_existing_issues(
-                repository,
-                state.active_roadmap,
-            )
-
-            if not existing_issues:
-                # First synchronization still gets a complete plan so the exact
-                # work that will execute can be validated before any sync mutation.
-                plan = build_initial_sync_plan(
-                    state.active_roadmap,
-                )
-            else:
-                # Temporary bridge: the sync plan still compares against the
-                # local review baseline until remote-state planning replaces it.
-                plan = build_sync_plan(
-                    state.review_baseline_roadmap,
-                    state.active_roadmap,
-                )
-
-            conflicts = validate_synchronization_plan(
-                plan,
-                state.active_roadmap,
-                existing_issues,
-            )
-
-            if conflicts:
-                QMessageBox.critical(
-                    window,
-                    "GitHub Sync Validation Failed",
-                    "GitMap found problems that must be fixed before "
-                    "synchronization can continue:\n\n"
-                    + "\n".join(f"• {conflict}" for conflict in conflicts),
-                )
-                return
-
-            removed_issue_ids = plan["removed_issues"]
-            removed_hierarchy_ids = plan["removed_hierarchy"]
-            removed_ids = removed_issue_ids + removed_hierarchy_ids
-
-            removed_github_issues = []
-            removed_github_hierarchy = []
-
-            if removed_ids:
-                removed_github_issues = find_github_issues_by_gitmap_ids(
-                    existing_issues,
-                    removed_issue_ids,
-                )
-                removed_github_hierarchy = find_github_issues_by_gitmap_ids(
-                    existing_issues,
-                    removed_hierarchy_ids,
-                )
-
-                # Confirmation also happens before mutation. Cancelling here leaves
-                # labels, milestones, Issues, and relationships untouched.
-                if not confirm_sync_removals(
-                    window,
-                    removed_github_issues,
-                    removed_github_hierarchy,
-                ):
-                    return
-
-            # Nothing above this point mutates synchronization state. Once
-            # validation and confirmation pass, execute the exact prepared plan.
-            sync_milestones(repository, state.active_roadmap)
-            sync_labels(repository, state.active_roadmap)
-
-            if removed_ids:
-                sync_removed_issues(
-                    removed_github_issues + removed_github_hierarchy,
-                )
-
-            issues_to_sync = plan["added_issues"] + plan["changed_issues"]
-
-            if issues_to_sync:
-                sync_issues(
-                    repository,
-                    state.active_roadmap,
-                    issues_to_sync=issues_to_sync,
-                    update_issues=plan["changed_issues"],
-                )
-
-            if plan["added_hierarchy_mappings"]:
-                sync_issues(
-                    repository,
-                    state.active_roadmap,
-                    issues_to_sync=[],
-                    hierarchy_mappings_to_sync=plan["added_hierarchy_mappings"],
-                    hierarchy_expected_operation="create",
-                    progress_total=len(plan["added_hierarchy_mappings"]),
-                )
-
-            if plan["changed_hierarchy_mappings"]:
-                sync_issues(
-                    repository,
-                    state.active_roadmap,
-                    issues_to_sync=[],
-                    hierarchy_mappings_to_sync=plan["changed_hierarchy_mappings"],
-                    hierarchy_expected_operation="update",
-                    progress_total=len(plan["changed_hierarchy_mappings"]),
-                )
-
-            # Relationships remain a final synchronization stage. The structured
-            # plan already has relationship fields; a later planning phase can
-            # populate them before this executor is converted to consume them.
-            sync_sub_issue_relationships(
-                repository,
-                state.active_roadmap,
-            )
-
-        except Exception as error:
-            QMessageBox.critical(
-                window,
-                "GitHub Sync Failed",
-                str(error),
-            )
-            return
-
-        QMessageBox.information(
-            window,
-            "GitHub Sync Complete",
-	        f"GitMap successfully synchronized with:\n\n{repository.full_name}",
-        )
-
-    sync_to_github_button.clicked.connect(open_github_sync)
+    sync_to_github_button.clicked.connect(lambda: run_github_sync(window, state))

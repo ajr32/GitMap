@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
@@ -405,7 +405,7 @@ color: rgb(255, 238, 230);</string>
     </property>
     <property name="styleSheet">
      <string notr="true">color: rgb(0, 0, 0);
-font: 10pt "Segoe UI";
+font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(255, 0, 0);</string>
     </property>
     <property name="text">
@@ -428,6 +428,38 @@ background-color: rgb(255, 0, 0);</string>
      <string>Move</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="review_button">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>300</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Review Changes</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="sync_button">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>300</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Sync Changes</string>
+    </property>
+   </widget>
    <zorder>item_type_label</zorder>
    <zorder>apply_button</zorder>
    <zorder>label_7</zorder>
@@ -445,6 +477,8 @@ background-color: rgb(255, 0, 0);</string>
    <zorder>delete_button</zorder>
    <zorder>cancel_button</zorder>
    <zorder>move_button</zorder>
+   <zorder>review_button</zorder>
+   <zorder>sync_button</zorder>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -505,6 +539,6 @@ background-color: rgb(255, 0, 0);</string>
   <zorder>preview_frame</zorder>
   <zorder>frame_2</zorder>
  </widget>
- <resources />
- <connections />
+ <resources/>
+ <connections/>
 </ui>

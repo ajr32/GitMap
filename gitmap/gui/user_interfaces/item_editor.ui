@@ -441,6 +441,38 @@ background-color: rgb(255, 0, 0);</string>
      <string>Move</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="review_button">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>300</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Review Changes</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="sync_button">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>300</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Sync Changes</string>
+    </property>
+   </widget>
    <zorder>item_type_label</zorder>
    <zorder>apply_button</zorder>
    <zorder>label_7</zorder>
@@ -459,6 +491,8 @@ background-color: rgb(255, 0, 0);</string>
    <zorder>go_away</zorder>
    <zorder>cancel_button</zorder>
    <zorder>move_button</zorder>
+   <zorder>review_button</zorder>
+   <zorder>sync_button</zorder>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">

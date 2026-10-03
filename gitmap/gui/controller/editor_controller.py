@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
+from gitmap.gui.sync.sync_controller import run_github_sync
+from gitmap.gui.review.review_dialog import load_review_dialog
 from gitmap.gui.controller.add_item_controller import (
     continue_add_item,
     finish_add,
@@ -64,11 +66,6 @@ def open_editor(
     context_tree = editor.findChild(QTreeWidget, "context_tree")
     context_tree.clear()
 
-    editor.refresh_preview = refresh_preview
-
-    context_tree = editor.findChild(QTreeWidget, "context_tree")
-    context_tree.clear()
-
     # =========================================================================
     # EDITOR MODE
     # =========================================================================
@@ -113,7 +110,9 @@ def open_editor(
     )
     save_button = editor.findChild(QPushButton, "save_button")
     save_exit_button = editor.findChild(QPushButton, "save_exit_button")
-
+    review_button = editor.findChild(QPushButton, "review_button")
+    sync_button = editor.findChild(QPushButton, "sync_button")
+    
     # =========================================================================
     # DELETE
     # =========================================================================
@@ -275,6 +274,33 @@ def open_editor(
             )
 
     move_button.clicked.connect(start_move_mode)
+
+    # =========================================================================
+    # REVIEW
+    # =========================================================================
+    def review_current_changes():
+        if state is None:
+            return
+
+        state.review_window = load_review_dialog(
+            state.review_baseline_roadmap,
+            roadmap,
+        )
+
+        state.review_window.show()
+
+    review_button.clicked.connect(review_current_changes)
+
+    # =========================================================================
+    # SYNC
+    # =========================================================================
+    def sync_current_changes():
+        if state is None:
+            return
+
+        run_github_sync(editor, state)
+
+    sync_button.clicked.connect(sync_current_changes)
 
     # =========================================================================
     # SAVE
