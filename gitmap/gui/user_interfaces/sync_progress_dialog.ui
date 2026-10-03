@@ -4,11 +4,17 @@
  <widget class="QDialog" name="SyncProgressDialog">
   <property name="geometry">
    <rect>
-    <x>0</x><y>0</y><width>620</width><height>470</height>
+    <x>0</x>
+    <y>0</y>
+    <width>820</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
-   <size><width>560</width><height>420</height></size>
+   <size>
+    <width>720</width>
+    <height>450</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>GitHub Synchronization</string>
@@ -16,7 +22,9 @@
   <property name="modal">
    <bool>true</bool>
   </property>
+
   <layout class="QVBoxLayout" name="main_layout">
+
    <item>
     <widget class="QLabel" name="title_label">
      <property name="text">
@@ -27,6 +35,7 @@
      </property>
     </widget>
    </item>
+
    <item>
     <widget class="QLabel" name="status_label">
      <property name="text">
@@ -37,6 +46,7 @@
      </property>
     </widget>
    </item>
+
    <item>
     <widget class="QGroupBox" name="stage_group">
      <property name="title">
@@ -56,6 +66,7 @@
      </layout>
     </widget>
    </item>
+
    <item>
     <widget class="QGroupBox" name="overall_group">
      <property name="title">
@@ -68,35 +79,75 @@
          <number>0</number>
         </property>
         <property name="format">
-         <string>%v / %m</string>
+         <string>%p%</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
+
    <item>
-    <widget class="QGroupBox" name="activity_group">
-     <property name="title">
-      <string>Recent Activity</string>
+    <layout class="QHBoxLayout" name="details_layout">
+     <property name="stretch">
+      <string>35,65</string>
      </property>
-     <layout class="QVBoxLayout" name="activity_layout">
-      <item>
-       <widget class="QListWidget" name="activity_list">
-        <property name="minimumSize">
-         <size><width>0</width><height>160</height></size>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+
+     <item>
+      <widget class="QGroupBox" name="stages_group">
+       <property name="title">
+        <string>Stages</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>220</width>
+         <height>190</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="stages_layout">
+        <item>
+         <widget class="QListWidget" name="stages_list">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QGroupBox" name="activity_group">
+       <property name="title">
+        <string>Activity</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>420</width>
+         <height>190</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="activity_layout">
+        <item>
+         <widget class="QListWidget" name="activity_list">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+    </layout>
    </item>
+
    <item>
     <layout class="QHBoxLayout" name="button_layout">
      <item>
@@ -105,10 +156,14 @@
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
-        <size><width>40</width><height>20</height></size>
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
        </property>
       </spacer>
      </item>
+
      <item>
       <widget class="QPushButton" name="close_button">
        <property name="text">
@@ -122,10 +177,13 @@
        </property>
       </widget>
      </item>
+
     </layout>
    </item>
+
   </layout>
  </widget>
+
  <resources/>
  <connections/>
 </ui>

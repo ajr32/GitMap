@@ -19,21 +19,21 @@ QUESTIONS = [
                     "based on the item's parent. This is definitely the easier option."
                 ),
             },
-            {
-                "text": "Manual numbering",
-                "value": "manual",
-                "example": """# Example Roadmap
-
-## 2.4 First Milestone
-
-### 2.4.7 First Section
-
-#### 2.4.7.3 First Item""",
-                "explanation": (
-                    "You would be responsible for entering roadmap numbers yourself. "
-                    "However, child numbers must extend their parent's number."
-                ),
-            },
+#             {
+#                 "text": "Manual numbering",
+#                 "value": "manual",
+#                 "example": """# Example Roadmap
+#
+# ## 2.4 First Milestone
+#
+# ### 2.4.7 First Section
+#
+# #### 2.4.7.3 First Item""",
+#                 "explanation": (
+#                     "You would be responsible for entering roadmap numbers yourself. "
+#                     "However, child numbers must extend their parent's number."
+#                 ),
+#             },
         ],
     },
     {

@@ -3,6 +3,7 @@ from gitmap.github_sync.issues.issue_lookup import (
     get_existing_issues,
 )
 
+
 def get_sub_issues(repository, parent_issue):
     """Return the existing GitHub sub-issues for an Issue."""
 
@@ -17,14 +18,6 @@ def get_sub_issues(repository, parent_issue):
 def add_sub_issue(repository, parent_issue, child_issue):
     """Add a GitHub Issue as a sub-issue of another Issue."""
 
-    sub_issues = get_sub_issues(
-        repository,
-        parent_issue,
-    )
-
-    if any(sub_issue["id"] == child_issue.id for sub_issue in sub_issues):
-        return False
-
     repository._requester.requestJsonAndCheck(
         "POST",
         f"{repository.url}/issues/{parent_issue.number}/sub_issues",
@@ -33,21 +26,9 @@ def add_sub_issue(repository, parent_issue, child_issue):
         },
     )
 
-    return True
 
 def remove_sub_issue(repository, parent_issue, child_issue):
     """Remove a GitHub Issue from a GitMap-managed parent Issue."""
-
-    sub_issues = get_sub_issues(
-        repository,
-        parent_issue,
-    )
-
-    if not any(
-        sub_issue["id"] == child_issue.id
-        for sub_issue in sub_issues
-    ):
-        return False
 
     repository._requester.requestJsonAndCheck(
         "DELETE",
@@ -57,50 +38,62 @@ def remove_sub_issue(repository, parent_issue, child_issue):
         },
     )
 
-    return True
 
-def sync_section_feature_relationships(repository, roadmap, existing_issues):
-    """Create Section-to-Feature GitHub sub-issue relationships."""
+def count_desired_relationships(roadmap):
+    """Count parent/child relationships represented by the roadmap."""
+
+    total = 0
 
     for milestone in roadmap.milestones:
         for section in milestone.sections:
-            parent_issue = find_github_issue_by_gitmap_id(
+            total += len(section.features)
+            total += len(section.issues)
+
+            for feature in section.features:
+                total += len(feature.issues)
+
+    return total
+
+
+def _build_desired_relationships(roadmap, existing_issues):
+    """
+    Build the desired GitMap parent relationship for each GitHub child Issue.
+
+    Returns:
+        desired_parents:
+            child_issue.id -> (child_issue, desired_parent_issue)
+
+        managed_parent_issues:
+            GitHub Issues that GitMap is allowed to manage as parents.
+    """
+
+    desired_parents = {}
+    managed_parent_issues = []
+
+    for milestone in roadmap.milestones:
+        for section in milestone.sections:
+            section_issue = find_github_issue_by_gitmap_id(
                 section.gitmap_id,
                 existing_issues,
             )
 
-            if parent_issue is None:
-                continue
+            if section_issue is not None:
+                managed_parent_issues.append(section_issue)
 
             for feature in section.features:
-                child_issue = find_github_issue_by_gitmap_id(
+                feature_issue = find_github_issue_by_gitmap_id(
                     feature.gitmap_id,
                     existing_issues,
                 )
 
-                if child_issue is None:
-                    continue
+                if feature_issue is not None:
+                    managed_parent_issues.append(feature_issue)
 
-                add_sub_issue(
-                    repository,
-                    parent_issue,
-                    child_issue,
-                )
-
-
-def sync_feature_issue_relationships(repository, roadmap, existing_issues):
-    """Create Feature-to-Issue GitHub sub-issue relationships."""
-
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            for feature in section.features:
-                parent_issue = find_github_issue_by_gitmap_id(
-                    feature.gitmap_id,
-                    existing_issues,
-                )
-
-                if parent_issue is None:
-                    continue
+                    if section_issue is not None:
+                        desired_parents[feature_issue.id] = (
+                            feature_issue,
+                            section_issue,
+                        )
 
                 for issue in feature.issues:
                     child_issue = find_github_issue_by_gitmap_id(
@@ -108,28 +101,14 @@ def sync_feature_issue_relationships(repository, roadmap, existing_issues):
                         existing_issues,
                     )
 
-                    if child_issue is None:
-                        continue
-
-                    add_sub_issue(
-                        repository,
-                        parent_issue,
-                        child_issue,
-                    )
-
-
-def sync_section_issue_relationships(repository, roadmap, existing_issues):
-    """Create Section-to-Issue GitHub sub-issue relationships."""
-
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            parent_issue = find_github_issue_by_gitmap_id(
-                section.gitmap_id,
-                existing_issues,
-            )
-
-            if parent_issue is None:
-                continue
+                    if (
+                        child_issue is not None
+                        and feature_issue is not None
+                    ):
+                        desired_parents[child_issue.id] = (
+                            child_issue,
+                            feature_issue,
+                        )
 
             for issue in section.issues:
                 child_issue = find_github_issue_by_gitmap_id(
@@ -137,90 +116,131 @@ def sync_section_issue_relationships(repository, roadmap, existing_issues):
                     existing_issues,
                 )
 
-                if child_issue is None:
-                    continue
+                if (
+                    child_issue is not None
+                    and section_issue is not None
+                ):
+                    desired_parents[child_issue.id] = (
+                        child_issue,
+                        section_issue,
+                    )
 
-                add_sub_issue(
-                    repository,
-                    parent_issue,
-                    child_issue,
-                )
+    return desired_parents, managed_parent_issues
 
 
-def find_current_gitmap_parent(
+def _build_current_parent_map(
     repository,
-    child_issue,
     managed_parent_issues,
+    progress_callback=None,
 ):
     """
-    Find the current GitMap-managed parent of a GitHub Issue.
+    Fetch every managed parent's sub-issues exactly once.
 
-    Only parents supplied in managed_parent_issues are inspected, so
-    unrelated GitHub relationships are never treated as GitMap-owned.
+    Returns:
+        child_issue_id -> parent_issue
     """
 
-    for parent_issue in managed_parent_issues:
+    current_parent_by_child_id = {}
+
+    total = len(managed_parent_issues)
+
+    for current, parent_issue in enumerate(
+        managed_parent_issues,
+        start=1,
+    ):
+        if progress_callback is not None:
+            progress_callback(
+                "Relationship Inspection",
+                current - 1,
+                total,
+                f"Checking relationships for {parent_issue.title}",
+            )
+
         sub_issues = get_sub_issues(
             repository,
             parent_issue,
         )
 
-        if any(
-            sub_issue["id"] == child_issue.id
-            for sub_issue in sub_issues
-        ):
-            return parent_issue
+        for sub_issue in sub_issues:
+            child_id = sub_issue.get("id")
 
-    return None
+            if child_id is not None:
+                current_parent_by_child_id[child_id] = parent_issue
+
+        if progress_callback is not None:
+            progress_callback(
+                "Relationship Inspection",
+                current,
+                total,
+                f"Checked relationships for {parent_issue.title}",
+            )
+
+    return current_parent_by_child_id
 
 
-def sync_sub_issue_relationships(repository, roadmap, progress_callback=None):
-    """Reconcile GitHub parent/child Issue relationships."""
-    existing_issues = get_existing_issues(repository, roadmap=roadmap)
-    managed_parent_issues = []
-    desired_parents = {}
+def sync_sub_issue_relationships(
+    repository,
+    roadmap,
+    progress_callback=None,
+):
+    """
+    Reconcile GitHub parent/child Issue relationships.
 
-    for milestone in roadmap.milestones:
-        for section in milestone.sections:
-            section_issue = find_github_issue_by_gitmap_id(section.gitmap_id, existing_issues)
-            if section_issue is not None:
-                managed_parent_issues.append(section_issue)
+    GitHub relationship state is fetched once per managed parent and
+    then reconciled from that in-memory snapshot.
+    """
 
-            for feature in section.features:
-                feature_issue = find_github_issue_by_gitmap_id(feature.gitmap_id, existing_issues)
-                if feature_issue is not None:
-                    managed_parent_issues.append(feature_issue)
-                    desired_parents[feature_issue.id] = (feature_issue, section_issue)
+    existing_issues = get_existing_issues(
+        repository,
+        roadmap=roadmap,
+    )
 
-                for issue in feature.issues:
-                    child_issue = find_github_issue_by_gitmap_id(issue.gitmap_id, existing_issues)
-                    if child_issue is not None:
-                        desired_parents[child_issue.id] = (child_issue, feature_issue)
+    (
+        desired_parents,
+        managed_parent_issues,
+    ) = _build_desired_relationships(
+        roadmap,
+        existing_issues,
+    )
 
-            for issue in section.issues:
-                child_issue = find_github_issue_by_gitmap_id(issue.gitmap_id, existing_issues)
-                if child_issue is not None:
-                    desired_parents[child_issue.id] = (child_issue, section_issue)
+    current_parent_by_child_id = _build_current_parent_map(
+        repository,
+        managed_parent_issues,
+    )
 
-    # Include managed children that currently have a managed parent but
-    # no longer have a desired parent in the roadmap.
-    for child_issue in existing_issues:
-        if child_issue.id in desired_parents:
+    # Anything currently parented by GitMap but no longer represented
+    # in the roadmap must have its GitMap-managed parent removed.
+    existing_by_id = {
+        issue.id: issue
+        for issue in existing_issues
+    }
+
+    for child_id, current_parent in current_parent_by_child_id.items():
+        if child_id in desired_parents:
             continue
-        current_parent = find_current_gitmap_parent(
-            repository, child_issue, managed_parent_issues
-        )
-        if current_parent is not None:
-            desired_parents[child_issue.id] = (child_issue, None)
+
+        child_issue = existing_by_id.get(child_id)
+
+        if child_issue is not None:
+            desired_parents[child_id] = (
+                child_issue,
+                None,
+            )
 
     total = len(desired_parents)
     results = []
 
-    for current, (child_issue, desired_parent) in enumerate(
-        desired_parents.values(), start=1
+    for current, (
+        child_id,
+        relationship,
+    ) in enumerate(
+        desired_parents.items(),
+        start=1,
     ):
-        current_parent = find_current_gitmap_parent(
-            repository, child_issue, managed_parent_issues
+        child_issue, desired_parent = relationship
+
+        current_parent = current_parent_by_child_id.get(
+            child_id
         )
 
         if (
@@ -229,33 +249,84 @@ def sync_sub_issue_relationships(repository, roadmap, progress_callback=None):
             and current_parent.id == desired_parent.id
         ):
             action = "unchanged"
-        elif current_parent is None and desired_parent is not None:
-            add_sub_issue(repository, desired_parent, child_issue)
+
+        elif (
+            current_parent is None
+            and desired_parent is not None
+        ):
+            add_sub_issue(
+                repository,
+                desired_parent,
+                child_issue,
+            )
+
+            current_parent_by_child_id[child_id] = desired_parent
             action = "added"
-        elif current_parent is not None and desired_parent is None:
-            remove_sub_issue(repository, current_parent, child_issue)
+
+        elif (
+            current_parent is not None
+            and desired_parent is None
+        ):
+            remove_sub_issue(
+                repository,
+                current_parent,
+                child_issue,
+            )
+
+            current_parent_by_child_id.pop(
+                child_id,
+                None,
+            )
+
             action = "removed"
-        elif current_parent is not None and desired_parent is not None:
-            remove_sub_issue(repository, current_parent, child_issue)
-            add_sub_issue(repository, desired_parent, child_issue)
+
+        elif (
+            current_parent is not None
+            and desired_parent is not None
+        ):
+            remove_sub_issue(
+                repository,
+                current_parent,
+                child_issue,
+            )
+
+            add_sub_issue(
+                repository,
+                desired_parent,
+                child_issue,
+            )
+
+            current_parent_by_child_id[child_id] = desired_parent
             action = "reparented"
+
         else:
             action = "unchanged"
 
         if desired_parent is None:
-            message = f"{action}: removed parent from {child_issue.title}"
+            message = (
+                f"{action}: removed parent from "
+                f"{child_issue.title}"
+            )
         else:
-            message = f"{action}: {desired_parent.title} → {child_issue.title}"
+            message = (
+                f"{action}: "
+                f"{desired_parent.title} → {child_issue.title}"
+            )
 
         if progress_callback is not None:
             progress_callback(
-                "Parent/Child Relationships", current, total, message
+                "Parent/Child Relationships",
+                current,
+                total,
+                message,
             )
 
-        results.append({
-            "child": child_issue,
-            "parent": desired_parent,
-            "action": action,
-        })
+        results.append(
+            {
+                "child": child_issue,
+                "parent": desired_parent,
+                "action": action,
+            }
+        )
 
     return results

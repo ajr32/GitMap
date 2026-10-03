@@ -1,4 +1,3 @@
-from collections import deque
 from dataclasses import dataclass
 
 
@@ -15,12 +14,12 @@ class SyncProgressEvent:
 
 
 class SyncProgressReporter:
-    """Collect structured sync progress and a short recent-activity history."""
+    """Track structured synchronization progress."""
 
-    def __init__(self, overall_total=None, history_limit=8, callback=None):
+    def __init__(self, overall_total=None, callback=None):
         self.overall_total = overall_total
         self.overall_current = 0
-        self.history = deque(maxlen=history_limit)
+        self.history = []
         self.callback = callback
         self.last_event = None
         self._stage_positions = {}
@@ -30,8 +29,15 @@ class SyncProgressReporter:
 
         previous = self._stage_positions.get(stage, 0)
         delta = max(0, current - previous)
+
         self._stage_positions[stage] = max(previous, current)
         self.overall_current += delta
+
+        if (
+            self.overall_total is not None
+            and self.overall_current > self.overall_total
+        ):
+            self.overall_current = self.overall_total
 
         event = SyncProgressEvent(
             stage=stage,

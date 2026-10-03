@@ -11,6 +11,59 @@ from gitmap.github_sync.issues.github_representation import (
 
 DEFAULT_LABEL_COLOR = "0366d6"
 
+def create_missing_labels(
+    repository,
+    mappings,
+    progress_callback=None,
+):
+    """Create missing labels and return all available labels."""
+
+    existing_labels = get_existing_labels(repository)
+    labels = list(existing_labels)
+
+    total = len(mappings)
+
+    for current, mapping in enumerate(mappings, start=1):
+        existing = find_existing_label(mapping, labels)
+
+        if existing:
+            message = f"Label unchanged: {mapping.name}"
+
+        else:
+            message = f"Creating label: {mapping.name}"
+
+            try:
+                label = repository.create_label(
+                    name=mapping.name,
+                    color=DEFAULT_LABEL_COLOR,
+                )
+
+            except GithubException as error:
+                if error.status == 422:
+                    existing_labels = get_existing_labels(repository)
+
+                    label = find_existing_label(
+                        mapping,
+                        existing_labels,
+                    )
+
+                    if label is None:
+                        raise
+                else:
+                    raise
+
+            labels.append(label)
+
+        if progress_callback is not None:
+            progress_callback(
+                "Labels",
+                current,
+                total,
+                message,
+            )
+
+    return labels
+
 
 def find_existing_label(mapping, existing_labels):
     """Find an existing GitHub label with the same name."""
@@ -39,46 +92,55 @@ def get_existing_labels(repository):
     return list(repository.get_labels())
 
 
-def create_missing_labels(repository, mappings):
-    """Create missing labels and return all available labels."""
+# def create_missing_labels(repository, mappings):
+#     """Create missing labels and return all available labels."""
+#
+#     existing_labels = get_existing_labels(repository)
+#     labels = list(existing_labels)
+#
+#     for mapping in mappings:
+#         existing = find_existing_label(mapping, labels)
+#
+#         if existing:
+#             continue
+#
+#
+#         try:
+#             print(f"Creating label: {mapping.name!r} length={len(mapping.name)}")
+#
+#             label = repository.create_label(
+#                 name=mapping.name,
+#                 color=DEFAULT_LABEL_COLOR,
+#             )
+#         except GithubException as error:
+#             if error.status == 422:
+#                 existing_labels = get_existing_labels(repository)
+#                 label = find_existing_label(mapping, existing_labels)
+#
+#                 if label is None:
+#                     raise
+#             else:
+#                 raise
+#
+#         labels.append(label)
+#
+#     return labels
+#
 
-    existing_labels = get_existing_labels(repository)
-    labels = list(existing_labels)
-
-    for mapping in mappings:
-        existing = find_existing_label(mapping, labels)
-
-        if existing:
-            continue
-
-
-        try:
-            print(f"Creating label: {mapping.name!r} length={len(mapping.name)}")
-
-            label = repository.create_label(
-                name=mapping.name,
-                color=DEFAULT_LABEL_COLOR,
-            )
-        except GithubException as error:
-            if error.status == 422:
-                existing_labels = get_existing_labels(repository)
-                label = find_existing_label(mapping, existing_labels)
-
-                if label is None:
-                    raise
-            else:
-                raise
-
-        labels.append(label)
-
-    return labels
-
-
-def sync_labels(repository, roadmap):
+def sync_labels(
+    repository,
+    roadmap,
+    progress_callback=None,
+):
     """Create any missing structural labels for a roadmap."""
 
     mappings = collect_label_mappings(roadmap)
-    return create_missing_labels(repository, mappings)
+
+    return create_missing_labels(
+        repository,
+        mappings,
+        progress_callback=progress_callback,
+    )
 
 
 def collect_label_mappings(roadmap):
