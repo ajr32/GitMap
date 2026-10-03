@@ -609,7 +609,7 @@ Load the GitMap desktop interface from the Qt Designer file while keeping applic
 
 **Work Steps:**
 - [ ] 0.9.1.0.1.1 (a) Create `gitmap/gui/app_old.py`
-- [ ] 0.9.1.0.1.2 (b) Create `../application/main_window.ui`
+- [ ] 0.9.1.0.1.2 (b) Create `../user_interfaces`
 - [ ] 0.9.1.0.1.3 (c) Create the GUI module entry point
 - [ ] 0.9.1.0.1.4 (d) Create the `QApplication`
 - [ ] 0.9.1.0.1.5 (e) Locate `main_window.ui` relative to `app_old.py`

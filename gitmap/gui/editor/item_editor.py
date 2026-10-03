@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
+from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.dialogs.confirmation import confirm_numbering_changes
 from gitmap.roadmap.model.models import Feature, Issue, Milestone, Requirement, Section
 from gitmap.roadmap.structure.numbering import (
@@ -361,15 +362,8 @@ def apply_editor_changes(editor):
 def load_item_editor():
     """Load the roadmap Item Editor window."""
 
-    ui_path = Path(__file__).with_name("item_editor.ui")
+    editor = load_ui("item_editor.ui",__file__)
 
-    ui_file = QFile(str(ui_path))
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
-
-    loader = QUiLoader()
-    editor = loader.load(ui_file)
-
-    ui_file.close()
 
     apply_button = editor.findChild(QPushButton, "apply_button")
     apply_button.clicked.connect(

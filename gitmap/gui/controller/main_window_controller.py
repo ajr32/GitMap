@@ -454,7 +454,7 @@ def setup_main_window(window):
         QMessageBox.information(
             window,
             "GitHub Sync Complete",
-            (f"GitMap successfully synchronized with:\n\n{repository.full_name}"),
+	        f"GitMap successfully synchronized with:\n\n{repository.full_name}",
         )
 
     sync_to_github_button.clicked.connect(open_github_sync)

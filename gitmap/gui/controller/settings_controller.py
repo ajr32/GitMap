@@ -8,6 +8,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QLineEdit, QMessageBox
 
+from gitmap.gui.application.ui_loader import load_ui
 from gitmap.settings import (
     load_github_token,
     load_github_username,
@@ -20,24 +21,7 @@ GITHUB_API_VERSION = "2026-03-10"
 def load_settings_dialog():
     """Load and configure the Settings dialog."""
 
-    ui_path = Path(__file__).with_name("settings_dialog.ui")
-
-    ui_file = QFile(str(ui_path))
-
-    if not ui_file.open(QFile.ReadOnly):
-        raise RuntimeError(
-            f"Unable to open settings UI: {ui_path}"
-        )
-
-    loader = QUiLoader()
-    dialog = loader.load(ui_file)
-
-    ui_file.close()
-
-    if dialog is None:
-        raise RuntimeError(
-            f"Unable to load settings UI: {ui_path}"
-        )
+    dialog = load_ui("settings_dialog.ui",__file__)
 
     # -------------------------------------------------------------------------
     # Load Saved Settings

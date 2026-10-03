@@ -1,27 +1,13 @@
-from pathlib import Path
 
-from PySide6.QtCore import QFile
-from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QMessageBox
+
+from gitmap.gui.application.ui_loader import load_ui
 
 
 def load_sync_dialog():
     """Load the GitHub Sync dialog."""
 
-    ui_path = Path(__file__).with_name("sync_dialog.ui")
-
-    ui_file = QFile(str(ui_path))
-
-    if not ui_file.open(QFile.ReadOnly):
-        raise RuntimeError(f"Unable to open Sync UI: {ui_path}")
-
-    loader = QUiLoader()
-    dialog = loader.load(ui_file)
-
-    ui_file.close()
-
-    if dialog is None:
-        raise RuntimeError(f"Unable to load Sync UI: {ui_path}")
+    dialog = load_ui("sync_dialog.ui", __file__)
 
     # -------------------------------------------------------------------------
     # Repository Choice

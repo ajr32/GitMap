@@ -1,9 +1,6 @@
-from pathlib import Path
-
-from PySide6.QtCore import QFile
-from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QTreeWidgetItem
 
+from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.controller.editor_controller import open_editor
 from gitmap.gui.editor.item_editor import apply_editor_changes
 from gitmap.roadmap.model.models import Milestone
@@ -12,17 +9,7 @@ from gitmap.roadmap.model.models import Milestone
 def load_builder():
     """Load item_builder.ui."""
 
-    ui_path = Path(__file__).with_name("item_builder.ui")
-
-    ui_file = QFile(str(ui_path))
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
-
-    loader = QUiLoader()
-    builder = loader.load(ui_file)
-
-    ui_file.close()
-
-    return builder
+    return load_ui("item_builder.ui", __file__)
 
 
 def open_builder(roadmap, state=None):

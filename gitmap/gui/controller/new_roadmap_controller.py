@@ -3,6 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 
+from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.editor.structure_questions import QUESTIONS
 from gitmap.roadmap.model.models import Roadmap
 
@@ -10,14 +11,7 @@ from gitmap.roadmap.model.models import Roadmap
 def load_structure_dialog():
     """Load and configure the New Roadmap questionnaire."""
 
-    ui_path = Path(__file__).with_name("structure_dialog.ui")
-
-    ui_file = QFile(str(ui_path))
-    ui_file.open(QFile.OpenModeFlag.ReadOnly)
-
-    loader = QUiLoader()
-    dialog = loader.load(ui_file)
-    ui_file.close()
+    dialog = load_ui("structure_dialog.ui",__file__)
 
     current_question = 0
     question = QUESTIONS[current_question]
