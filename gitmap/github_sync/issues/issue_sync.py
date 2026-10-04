@@ -48,7 +48,6 @@ def build_issue_body(mapping):
     return body
 
 
-
 def create_issue(repository, mapping, milestone, labels):
     """Create a GitHub issue from an issue mapping."""
 
@@ -133,6 +132,7 @@ def sync_issue(repository, mapping, expected_operation=None):
 
     return issue, True
 
+
 def sync_issues(
     repository,
     roadmap,
@@ -144,6 +144,7 @@ def sync_issues(
     progress_total=None,
     roadmap_path=None,
     progress_callback=None,
+    result_collector=None,
 ):
     """Synchronize the requested normal and hierarchy Issues.
 
@@ -215,6 +216,22 @@ def sync_issues(
 
             results.append((result, created))
 
+            if result_collector is not None:
+                description = f"{issue.number} {issue.title}"
+
+                if created:
+                    result_collector.created(
+                        "Issue",
+                        description,
+                        f"GitHub #{result.number}",
+                    )
+                else:
+                    result_collector.updated(
+                        "Issue",
+                        description,
+                        f"GitHub #{result.number}",
+                    )
+
         except Exception as error:
             remaining = progress_total - progress
 
@@ -226,6 +243,7 @@ def sync_issues(
                 original_error=error,
             ) from error
     return results
+
 
 @dataclass
 class SynchronizationError(Exception):
@@ -245,6 +263,7 @@ class SynchronizationError(Exception):
         self.failed = failed
         self.remaining = remaining
         self.original_error = original_error
+
 
 def resolve_issue_targets(repository, mapping):
     """Resolve the GitHub milestone and labels for an issue."""

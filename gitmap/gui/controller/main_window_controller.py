@@ -9,17 +9,17 @@ from PySide6.QtWidgets import (
     QTreeWidget,
 )
 
-from gitmap.gui.dialogs.cancel_changes import cancel_changes
 from gitmap.gui.controller.editor_controller import open_editor
 from gitmap.gui.controller.new_roadmap_controller import (
     build_roadmap_from_answers,
     load_structure_dialog,
 )
-from gitmap.gui.review.review_dialog import load_review_dialog
 from gitmap.gui.controller.roadmap_editor_controller import open_builder
-from gitmap.gui.editor.roadmap_structure import infer_roadmap_structure
-from gitmap.gui.shared.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.controller.settings_controller import load_settings_dialog
+from gitmap.gui.dialogs.cancel_changes import cancel_changes
+from gitmap.gui.editor.roadmap_structure import infer_roadmap_structure
+from gitmap.gui.review.review_dialog import load_review_dialog
+from gitmap.gui.shared.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.sync.sync_controller import run_github_sync
 from gitmap.roadmap.markdown.parser import parse_roadmap
 

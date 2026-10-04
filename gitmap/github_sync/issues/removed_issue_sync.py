@@ -6,6 +6,7 @@ def sync_removed_issues(
     progress_start=0,
     progress_total=None,
     progress_callback=None,
+    result_collector=None,
 ):
     """Close GitHub issues that were removed from the roadmap."""
 
@@ -33,6 +34,12 @@ def sync_removed_issues(
             issue.edit(state="closed")
             results.append(issue)
 
+            if result_collector is not None:
+                result_collector.closed(
+                    "Issue",
+                    f"#{issue.number} {issue.title}",
+                )
+
         except Exception as error:
             remaining = progress_total - progress
 
@@ -44,4 +51,4 @@ def sync_removed_issues(
                 original_error=error,
             ) from error
 
-    return results
+        return results

@@ -116,6 +116,7 @@ def _start_sync_worker(
     # Worker -> GUI-thread handler.
     worker.progress.connect(gui_handler.update_progress)
     worker.finished.connect(gui_handler.sync_finished)
+    worker.finished.connect(state.refresh_main_roadmap)
     worker.failed.connect(gui_handler.sync_failed)
 
     # Either terminal result stops the worker thread.
