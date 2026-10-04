@@ -1,5 +1,6 @@
 from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.editor.structure_questions import QUESTIONS
+from gitmap.gui.shared.error_display import show_error
 from gitmap.roadmap.model.models import Roadmap
 
 
@@ -201,6 +202,11 @@ def load_structure_dialog():
             name = dialog.project_name.text().strip()
 
             if not name:
+                show_error(
+                    dialog,
+                    "Project Name Required",
+                    "Enter a project name before continuing.",
+                )
                 return
 
             answers["project_name"] = name

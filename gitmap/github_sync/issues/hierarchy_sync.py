@@ -153,7 +153,7 @@ def sync_hierarchy_issues(
         results.append((result, created))
 
         if result_collector is not None:
-            description = f"{mapping.number} {mapping.title}"
+            description = f"{mapping.title}"
 
             item_type = mapping.hierarchy_type.title()
 

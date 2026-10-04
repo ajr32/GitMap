@@ -30,8 +30,10 @@ from gitmap.gui.controller.move_item_controller import (
     position_index_from_choice,
 )
 from gitmap.gui.controller.remove_item_controller import remove_selected_item
+from gitmap.gui.shared.error_display import show_error
 from gitmap.gui.shared.roadmap_tree import populate_roadmap_tree
 from gitmap.gui.controller.save_controller import save_roadmap
+from gitmap.roadmap.structure.validators import validate_roadmap
 
 MODEL_ROLE = Qt.ItemDataRole.UserRole
 
@@ -307,6 +309,17 @@ def open_editor(
     # =========================================================================
     def save_current_roadmap():
         if state is None:
+            return False
+
+        validation_errors = validate_roadmap(roadmap)
+
+        if validation_errors:
+            show_error(
+                editor,
+                "Roadmap Cannot Be Saved",
+                "GitMap found problems that need to be fixed before saving.",
+                details=[f"• {error}" for error in validation_errors],
+            )
             return False
 
         save_as = False

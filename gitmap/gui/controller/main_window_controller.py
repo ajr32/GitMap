@@ -1,9 +1,6 @@
 import copy
-import traceback
-
 from PySide6.QtWidgets import (
     QFileDialog,
-    QMessageBox,
     QPushButton,
     QTextEdit,
     QTreeWidget,
@@ -19,6 +16,7 @@ from gitmap.gui.controller.settings_controller import load_settings_dialog
 from gitmap.gui.dialogs.cancel_changes import cancel_changes
 from gitmap.gui.editor.roadmap_structure import infer_roadmap_structure
 from gitmap.gui.review.review_dialog import load_review_dialog
+from gitmap.gui.shared.error_display import show_error
 from gitmap.gui.shared.roadmap_tree import MODEL_ROLE, populate_roadmap_tree
 from gitmap.gui.sync.sync_controller import run_github_sync
 from gitmap.roadmap.markdown.parser import parse_roadmap
@@ -154,15 +152,13 @@ def setup_main_window(window):
             roadmap = parse_roadmap(roadmap_path)
             infer_roadmap_structure(roadmap)
 
-        except (OSError, UnicodeError) as error:
-            traceback.print_exc()
-
-            QMessageBox.critical(
+        except (OSError, UnicodeError, ValueError, TypeError) as error:
+            show_error(
                 window,
                 "Unable to Open Roadmap",
-                f"GitMap could not open the selected roadmap.\n\n"
-                f"File: {roadmap_path}\n\n"
-                f"Error: {error}",
+                "GitMap could not open the selected roadmap.",
+                error=error,
+                diagnostic=f"File: {roadmap_path}",
             )
             return
 
