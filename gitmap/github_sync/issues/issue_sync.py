@@ -174,6 +174,7 @@ def sync_issues(
             progress_start=progress_start,
             progress_total=progress_total,
             progress_callback=progress_callback,
+            result_collector=result_collector,
         )
         results.extend(hierarchy_results)
 

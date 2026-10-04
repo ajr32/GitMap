@@ -1,7 +1,19 @@
-from gitmap.github_sync.issues.github_representation import MilestoneMapping, should_use_section_issue, \
-	should_use_feature_issue, map_section_issue, map_feature_issue
-from gitmap.github_sync.issues.issue_lookup import get_existing_issues, find_existing_issue, classify_existing_issue
-from gitmap.github_sync.metadata.milestone_sync import get_existing_milestones, find_existing_milestone
+from gitmap.github_sync.issues.github_representation import (
+    MilestoneMapping,
+    map_feature_issue,
+    map_section_issue,
+    should_use_feature_issue,
+    should_use_section_issue,
+)
+from gitmap.github_sync.issues.issue_lookup import (
+    classify_existing_issue,
+    find_existing_issue,
+    get_existing_issues,
+)
+from gitmap.github_sync.metadata.milestone_sync import (
+    find_existing_milestone,
+    get_existing_milestones,
+)
 
 
 def build_hierarchy_issue_body(mapping):
@@ -94,6 +106,7 @@ def sync_hierarchy_issues(
     progress_start=0,
     progress_total=None,
     progress_callback=None,
+    result_collector=None,
 ):
     """Synchronize Section and Feature hierarchy issues."""
 
@@ -138,6 +151,24 @@ def sync_hierarchy_issues(
         )
 
         results.append((result, created))
+
+        if result_collector is not None:
+            description = f"{mapping.number} {mapping.title}"
+
+            item_type = mapping.hierarchy_type.title()
+
+            if created:
+                result_collector.created(
+                    item_type,
+                    description,
+                    f"GitHub #{result.number}",
+                )
+            else:
+                result_collector.updated(
+                    item_type,
+                    description,
+                    f"GitHub #{result.number}",
+                )
 
     return results
 

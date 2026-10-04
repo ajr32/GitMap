@@ -14,13 +14,7 @@ class SyncResult:
 class SyncResultCollector:
     """Collect the outcome of one GitHub synchronization session."""
 
-    VALID_STATUSES = {
-        "created",
-        "updated",
-        "closed",
-        "skipped",
-        "failed",
-    }
+    VALID_STATUSES = {"created", "updated", "closed", "skipped", "failed"}
 
     def __init__(self, roadmap_name, repository_name):
         self.roadmap_name = roadmap_name
@@ -31,14 +25,7 @@ class SyncResultCollector:
     def add(self, status, item_type, description, detail=None):
         if status not in self.VALID_STATUSES:
             raise ValueError(f"Unknown synchronization result status: {status}")
-
-        result = SyncResult(
-            status=status,
-            item_type=item_type,
-            description=description,
-            detail=detail,
-        )
-
+        result = SyncResult(status, item_type, description, detail)
         self.results.append(result)
         return result
 
@@ -70,30 +57,23 @@ class SyncResultCollector:
             "",
         ]
 
-        sections = (
+        for status, heading in (
             ("created", "CREATED"),
             ("updated", "UPDATED"),
             ("closed", "CLOSED"),
             ("skipped", "SKIPPED"),
             ("failed", "FAILED"),
-        )
-
-        for status, heading in sections:
+        ):
             lines.append(heading)
-
             matches = [result for result in self.results if result.status == status]
-
             if not matches:
                 lines.append("  None")
             else:
                 for result in matches:
                     line = f"  {result.item_type}: {result.description}"
-
                     if result.detail:
                         line += f" — {result.detail}"
-
                     lines.append(line)
-
             lines.append("")
 
         lines.extend(
@@ -106,19 +86,12 @@ class SyncResultCollector:
                 f"  Failed: {self.count('failed')}",
             ]
         )
-
         return "\n".join(lines)
 
     def save(self, directory):
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)
-
         timestamp = self.started_at.strftime("%Y-%m-%d_%H%M%S")
         path = directory / f"sync_{timestamp}.log"
-
-        path.write_text(
-            self.render(),
-            encoding="utf-8",
-        )
-
+        path.write_text(self.render(), encoding="utf-8")
         return path

@@ -10,61 +10,46 @@ from gitmap.gui.sync.sync_progress_dialog import (
 
 
 class SyncGuiHandler(QObject):
-    """
-    Handle worker signals on the GUI thread.
-
-    Background synchronization workers should emit data only.
-    All interaction with Qt widgets and dialogs happens here.
-    """
+    """Handle synchronization worker signals on the GUI thread."""
 
     def __init__(
         self,
         parent,
         progress_dialog,
-        preparation_complete_callback=None,
+        sync_complete_callback=None,
     ):
         super().__init__(parent)
-
         self.parent_widget = parent
         self.progress_dialog = progress_dialog
-        self.preparation_complete_callback = preparation_complete_callback
+        self.sync_complete_callback = sync_complete_callback
         self.completed_preparation = None
 
     @Slot(object, object)
     def update_progress(self, event, history):
-        """Display a worker progress event."""
-        update_sync_progress(
-            self.progress_dialog,
-            event,
-            history,
-        )
+        update_sync_progress(self.progress_dialog, event, history)
 
     @Slot(str)
     def preparation_failed(self, message):
-	    """Handle failure while preparing synchronization."""
-
-	    fail_current_sync_stage(self.progress_dialog)
-
-	    finish_sync_progress(
-		    self.progress_dialog,
-		    "Synchronization preparation failed.",
-		    successful=False,
-	    )
-
-	    QMessageBox.critical(
-		    self.parent_widget,
-		    "GitHub Sync Failed",
-		    message,
-	    )
+        fail_current_sync_stage(self.progress_dialog)
+        finish_sync_progress(
+            self.progress_dialog,
+            "Synchronization preparation failed.",
+            successful=False,
+        )
+        QMessageBox.critical(
+            self.parent_widget,
+            "GitHub Sync Failed",
+            message,
+        )
 
     @Slot(object)
     def validation_failed(self, conflicts):
-        """Display synchronization-plan validation problems."""
+        fail_current_sync_stage(self.progress_dialog)
         finish_sync_progress(
             self.progress_dialog,
             "Synchronization validation failed.",
+            successful=False,
         )
-
         QMessageBox.critical(
             self.parent_widget,
             "GitHub Sync Validation Failed",
@@ -75,7 +60,6 @@ class SyncGuiHandler(QObject):
 
     @Slot(object)
     def preparation_complete(self, preparation):
-        """Handle a successfully prepared synchronization."""
         removed_items = (
             preparation.removed_github_issues
             + preparation.removed_github_hierarchy
@@ -87,7 +71,6 @@ class SyncGuiHandler(QObject):
                 preparation.removed_github_issues,
                 preparation.removed_github_hierarchy,
             )
-
             if not confirmed:
                 finish_sync_progress(
                     self.progress_dialog,
@@ -97,33 +80,43 @@ class SyncGuiHandler(QObject):
 
         self.completed_preparation = preparation
 
+    @Slot(str, str)
+    def display_results(self, rendered_results, log_path):
+        """Append the final structured result log to the activity area."""
+        self.progress_dialog.activity_list.addItem("")
+        for line in rendered_results.splitlines():
+            self.progress_dialog.activity_list.addItem(line)
+
+        if log_path:
+            self.progress_dialog.activity_list.addItem("")
+            self.progress_dialog.activity_list.addItem(
+                f"Log saved: {log_path}"
+            )
+
+        self.progress_dialog.activity_list.scrollToBottom()
+
     @Slot(str)
     def sync_finished(self, repository_full_name):
-	    """Handle successful synchronization."""
+        if self.sync_complete_callback is not None:
+            self.sync_complete_callback()
 
-	    finish_sync_progress(
-		    self.progress_dialog,
-		    f"Synchronization complete: {repository_full_name}",
-	    )
-
-	    # Keep the completed progress dialog visible until the user closes it.
-	    self.progress_dialog.raise_()
-	    self.progress_dialog.activateWindow()
+        finish_sync_progress(
+            self.progress_dialog,
+            f"Synchronization complete: {repository_full_name}",
+        )
+        self.progress_dialog.raise_()
+        self.progress_dialog.activateWindow()
 
     @Slot(str)
     def sync_failed(self, message):
-	    """Handle failure during synchronization."""
-
-	    fail_current_sync_stage(self.progress_dialog)
-
-	    finish_sync_progress(
-		    self.progress_dialog,
-		    "Synchronization failed.",
-		    successful=False,
-	    )
-
-	    QMessageBox.critical(
-		    self.parent_widget,
-		    "GitHub Sync Failed",
-		    message,
-	    )
+        fail_current_sync_stage(self.progress_dialog)
+        finish_sync_progress(
+            self.progress_dialog,
+            "Synchronization failed.",
+            successful=False,
+        )
+        QMessageBox.critical(
+            self.parent_widget,
+            "GitHub Sync Failed",
+            message,
+        )
