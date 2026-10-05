@@ -1,12 +1,8 @@
 """Common graphical error reporting for GitMap."""
 
-import logging
-import traceback
-
 from PySide6.QtWidgets import QMessageBox
 
-
-logger = logging.getLogger(__name__)
+from gitmap.gui.shared.error_log import log_error, log_exception
 
 
 def show_error(
@@ -17,15 +13,11 @@ def show_error(
     error=None,
     diagnostic=None,
 ):
-    """Show a friendly GUI error while preserving developer diagnostics.
-
-    Args:
-        parent: Parent Qt widget for the message box.
-        title: Short title shown in the message box.
-        message: User-facing explanation of what went wrong.
-        error: Optional exception associated with the failure.
-        diagnostic: Optional additional technical context.
-    """
+    """Show a friendly GUI error while preserving developer diagnostics."""
+    if error is not None:
+        log_exception(title, error, diagnostic=diagnostic)
+    elif diagnostic:
+        log_error(title, diagnostic=diagnostic)
 
     details = []
 
@@ -34,15 +26,6 @@ def show_error(
 
     if error is not None:
         details.append(f"{type(error).__name__}: {error}")
-
-        # Keep the full traceback in normal diagnostic output/logging.
-        logger.exception("%s: %s", title, message, exc_info=error)
-
-        # logger.exception() is only useful when logging is configured, so
-        # preserve the existing development-friendly console traceback too.
-        traceback.print_exception(type(error), error, error.__traceback__)
-    elif diagnostic:
-        logger.error("%s: %s\n%s", title, message, diagnostic)
 
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Icon.Critical)

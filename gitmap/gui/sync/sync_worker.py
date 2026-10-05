@@ -1,5 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 
+from gitmap.gui.shared.error_log import log_exception
+
 from gitmap.github_sync.issues.hierarchy_sync import collect_hierarchy_issue_mappings
 from gitmap.github_sync.issues.issue_sync import sync_issues
 from gitmap.github_sync.issues.relationship_sync import (
@@ -80,6 +82,11 @@ class SyncWorker(QObject):
             path = self.results.save(self.log_directory)
             log_path = str(path)
         except Exception as error:
+            log_exception(
+                "Could not save synchronization results log",
+                error,
+                diagnostic=f"Repository: {self.repository.full_name}",
+            )
             self.results.failed("Log", "Save synchronization log", str(error))
             log_path = ""
 
@@ -89,6 +96,12 @@ class SyncWorker(QObject):
         try:
             self._execute()
         except Exception as error:
+            log_exception(
+                "GitHub synchronization failed",
+                error,
+                diagnostic=f"Repository: {self.repository.full_name}",
+            )
+
             # Individual operations record their own failures where possible.
             # This entry guarantees that every terminal worker failure is visible.
             self.results.failed("Synchronization", "Synchronization stopped", str(error))

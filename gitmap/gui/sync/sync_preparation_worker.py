@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, Signal
 
+from gitmap.gui.shared.error_log import log_exception
+
 from gitmap.github_sync.issues.issue_lookup import find_github_issues_by_gitmap_ids, get_existing_issues
 from gitmap.github_sync.planning.sync_plan import build_initial_sync_plan, build_sync_plan
 from gitmap.github_sync.planning.sync_validation import validate_synchronization_plan
@@ -41,6 +43,11 @@ class SyncPreparationWorker(QObject):
         try:
             preparation = self._prepare()
         except Exception as error:
+            log_exception(
+                "GitHub synchronization preparation failed",
+                error,
+                diagnostic=f"Repository: {self.repository_name}",
+            )
             self.failed.emit(str(error))
             return
 

@@ -447,6 +447,18 @@ def parse_roadmap_text(text: str) -> Roadmap:
 
             current_description_target.description += stripped
 
+    if not found_title or not name.strip():
+        raise ValueError(
+            "The selected file does not appear to be a valid GitMap roadmap: "
+            "no roadmap title was found."
+        )
+
+    if not milestones:
+        raise ValueError(
+            "The selected file does not appear to be a valid GitMap roadmap: "
+            "no milestones were found."
+        )
+
     overview = "\n".join(overview_lines)
 
     return Roadmap(

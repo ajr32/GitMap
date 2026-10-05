@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from PySide6.QtWidgets import QFileDialog, QMessageBox
+from PySide6.QtWidgets import QFileDialog
 
+from gitmap.gui.shared.error_display import show_error
 from gitmap.roadmap.markdown.serializer import render_roadmap_markdown
 
 
@@ -36,10 +37,12 @@ def save_roadmap(window, state, save_as=False):
         )
 
     except (OSError, ValueError, TypeError) as error:
-        QMessageBox.critical(
+        show_error(
             window,
             "Save Failed",
-            f"GitMap could not save the roadmap:\n\n{error}",
+            "GitMap could not save the roadmap.",
+            error=error,
+            diagnostic=f"File: {path}",
         )
         return False
 
