@@ -214,6 +214,21 @@ def move_item(roadmap, target, destination, insert_index):
             destination.attribute,
         )
 
+    changes = collect_numbering_changes(roadmap.milestones)
+
+    print("\n=== NUMBERING CHANGES DEBUG ===")
+    for change in changes:
+        print(
+            repr(change["old_number"]),
+            "->",
+            repr(change["new_number"]),
+            "|",
+            repr(change["title"]),
+        )
+    print("=== END NUMBERING CHANGES DEBUG ===\n")
+
+    return changes
+
     return collect_numbering_changes(roadmap.milestones)
 
 

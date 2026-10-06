@@ -48,6 +48,7 @@ from PySide6.QtWidgets import (
 
 from gitmap.gui.application.ui_loader import load_ui
 from gitmap.gui.dialogs.confirmation import confirm_numbering_changes
+from gitmap.roadmap.model.identity import assign_missing_gitmap_ids
 from gitmap.roadmap.model.models import Feature, Issue, Milestone, Requirement, Section
 from gitmap.roadmap.structure.numbering import (
     collect_numbering_changes,
@@ -55,7 +56,6 @@ from gitmap.roadmap.structure.numbering import (
     renumber_siblings,
     restore_original_numbers,
 )
-from gitmap.roadmap.model.identity import assign_missing_gitmap_ids
 
 
 # =============================================================================
@@ -228,7 +228,27 @@ def apply_editor_changes(editor):
         # The insertion has been applied temporarily so the numbering backend can
         # calculate every affected number. Ask for approval before keeping it.
         # ---------------------------------------------------------------------
+
+        print("\n=== ITEM EDITOR NUMBERING ===")
+        print("Adding:", type(new_model).__name__, new_model.number, new_model.title)
+        print(
+            "Parent:",
+            type(editor.add_parent_model).__name__,
+            getattr(editor.add_parent_model, "number", "<roadmap>"),
+        )
+        print("Sibling count:", len(siblings))
+
         numbering_changes = collect_numbering_changes(siblings)
+
+        for change in numbering_changes:
+            print(
+                change["old_number"],
+                "->",
+                change["new_number"],
+                "|",
+                change["title"],
+            )
+        print("=== END ITEM EDITOR NUMBERING ===\n")
 
         if numbering_changes:
             confirmed = confirm_numbering_changes(
@@ -362,8 +382,7 @@ def apply_editor_changes(editor):
 def load_item_editor():
     """Load the roadmap Item Editor window."""
 
-    editor = load_ui("item_editor.ui",__file__)
-
+    editor = load_ui("item_editor.ui", __file__)
 
     apply_button = editor.findChild(QPushButton, "apply_button")
     apply_button.clicked.connect(

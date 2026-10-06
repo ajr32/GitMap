@@ -1,7 +1,5 @@
 from PySide6.QtCore import QObject, Signal
 
-from gitmap.gui.shared.error_log import log_exception
-
 from gitmap.github_sync.issues.hierarchy_sync import collect_hierarchy_issue_mappings
 from gitmap.github_sync.issues.issue_sync import sync_issues
 from gitmap.github_sync.issues.relationship_sync import (
@@ -13,6 +11,7 @@ from gitmap.github_sync.metadata.label_sync import collect_label_mappings, sync_
 from gitmap.github_sync.metadata.milestone_sync import sync_milestones
 from gitmap.github_sync.sync_progress import SyncProgressReporter
 from gitmap.github_sync.sync_results import SyncResultCollector
+from gitmap.gui.shared.error_log import log_exception
 from gitmap.roadmap.model.traversal import iter_roadmap_issues
 
 
@@ -49,15 +48,12 @@ class SyncWorker(QObject):
         self.relationship_count = count_desired_relationships(roadmap)
         self.all_normal_issues = [
             issue
-            for issue, _milestone, _section, _feature
-            in iter_roadmap_issues(roadmap)
+            for issue, _milestone, _section, _feature in iter_roadmap_issues(roadmap)
         ]
         self.all_hierarchy_mappings = collect_hierarchy_issue_mappings(roadmap)
         self.label_count = len(collect_label_mappings(roadmap))
         self.milestone_count = len(roadmap.milestones)
-        self.removal_count = len(
-            removed_github_issues + removed_github_hierarchy
-        )
+        self.removal_count = len(removed_github_issues + removed_github_hierarchy)
 
         base_total = (
             self.milestone_count
@@ -81,30 +77,47 @@ class SyncWorker(QObject):
         try:
             path = self.results.save(self.log_directory)
             log_path = str(path)
+
         except Exception as error:
             log_exception(
                 "Could not save synchronization results log",
                 error,
                 diagnostic=f"Repository: {self.repository.full_name}",
+                log_directory=self.log_directory,
             )
-            self.results.failed("Log", "Save synchronization log", str(error))
+
+            self.results.failed(
+                "Log",
+                "Save synchronization log",
+                str(error),
+            )
             log_path = ""
 
-        self.results_ready.emit(self.results.render(), log_path)
+        self.results_ready.emit(
+            self.results.render(),
+            log_path,
+        )
 
     def run(self):
         try:
             self._execute()
+
         except Exception as error:
             log_exception(
                 "GitHub synchronization failed",
                 error,
                 diagnostic=f"Repository: {self.repository.full_name}",
+                log_directory=self.log_directory,
             )
 
             # Individual operations record their own failures where possible.
             # This entry guarantees that every terminal worker failure is visible.
-            self.results.failed("Synchronization", "Synchronization stopped", str(error))
+            self.results.failed(
+                "Synchronization",
+                "Synchronization stopped",
+                str(error),
+            )
+
             self._emit_results()
             self.failed.emit(str(error))
             return
@@ -166,7 +179,9 @@ class SyncWorker(QObject):
     def _sync_normal_issues(self):
         total = len(self.all_normal_issues)
         if total == 0:
-            self.reporter.report("normal_issues", 0, 0, "No GitHub issues to synchronize.")
+            self.reporter.report(
+                "normal_issues", 0, 0, "No GitHub issues to synchronize."
+            )
             return
 
         self.reporter.report("normal_issues", 0, total, "Checking GitHub issues...")
@@ -207,16 +222,16 @@ class SyncWorker(QObject):
     def _sync_hierarchy(self):
         total = len(self.all_hierarchy_mappings)
         if total == 0:
-            self.reporter.report("hierarchy", 0, 0, "No hierarchy items to synchronize.")
+            self.reporter.report(
+                "hierarchy", 0, 0, "No hierarchy items to synchronize."
+            )
             return
 
         self.reporter.report("hierarchy", 0, total, "Checking hierarchy items...")
         added = self.plan["added_hierarchy_mappings"]
         changed = self.plan["changed_hierarchy_mappings"]
         changed_ids = {
-            mapping.gitmap_id
-            for mapping in added + changed
-            if mapping.gitmap_id
+            mapping.gitmap_id for mapping in added + changed if mapping.gitmap_id
         }
         current = 0
 
@@ -265,10 +280,14 @@ class SyncWorker(QObject):
     def _sync_relationships(self):
         total = self.relationship_count
         if total == 0:
-            self.reporter.report("relationships", 0, 0, "No relationships to synchronize.")
+            self.reporter.report(
+                "relationships", 0, 0, "No relationships to synchronize."
+            )
             return
 
-        self.reporter.report("relationships", 0, total, "Checking GitHub relationships...")
+        self.reporter.report(
+            "relationships", 0, total, "Checking GitHub relationships..."
+        )
         sync_sub_issue_relationships(
             self.repository,
             self.roadmap,

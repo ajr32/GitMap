@@ -12,10 +12,11 @@ from gitmap.settings import load_github_username
 
 
 def _sync_log_directory(state):
-    """Return the per-roadmap synchronization log directory."""
+    """Return the per-roadmap GitMap log directory."""
     if state.active_roadmap_path:
-        return Path(state.active_roadmap_path).parent / ".gitmap" / "sync_logs"
-    return Path.cwd() / ".gitmap" / "sync_logs"
+        return Path(state.active_roadmap_path).parent / ".gitmap" / "logs"
+
+    return Path.cwd() / ".gitmap" / "logs"
 
 
 def run_github_sync(parent, state):
@@ -64,6 +65,16 @@ def run_github_sync(parent, state):
     worker.validation_failed.connect(gui_handler.validation_failed)
     worker.failed.connect(gui_handler.preparation_failed)
 
+    gui_handler.preparation_approved.connect(
+        lambda preparation: _start_sync_worker(
+            parent,
+            state,
+            progress_dialog,
+            gui_handler,
+            preparation,
+        )
+    )
+
     worker.prepared.connect(thread.quit)
     worker.validation_failed.connect(thread.quit)
     worker.failed.connect(thread.quit)
@@ -71,19 +82,6 @@ def run_github_sync(parent, state):
     thread.finished.connect(worker.deleteLater)
     thread.finished.connect(thread.deleteLater)
 
-    def start_sync_after_preparation():
-        preparation = gui_handler.completed_preparation
-        if preparation is None:
-            return
-        _start_sync_worker(
-            parent,
-            state,
-            progress_dialog,
-            gui_handler,
-            preparation,
-        )
-
-    thread.finished.connect(start_sync_after_preparation)
     thread.started.connect(worker.run)
     thread.start()
 

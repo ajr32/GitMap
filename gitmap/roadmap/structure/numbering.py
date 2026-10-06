@@ -6,6 +6,7 @@ def generate_milestone_number(starting_series, sibling_index):
 
     return f"{starting_series}.{sibling_index}"
 
+
 def generate_section_number(milestone_number, sibling_index):
     """Generate a section number beneath a milestone."""
     return f"{milestone_number}.{sibling_index}"
@@ -14,6 +15,7 @@ def generate_section_number(milestone_number, sibling_index):
 def generate_feature_number(section_number, sibling_index):
     """Generate a feature number beneath a section."""
     return f"{section_number}.{sibling_index}"
+
 
 def generate_issue_number(parent_number, parent_type, sibling_index):
     """Generate an issue number while preserving hierarchy slots."""
@@ -28,6 +30,7 @@ def generate_issue_number(parent_number, parent_type, sibling_index):
         return f"{parent_number}.{sibling_index}"
 
     raise ValueError(f"Cannot create an issue beneath {parent_type}.")
+
 
 def generate_work_step_number(sibling_index):
     """Generate a letter-based work step number."""
@@ -64,6 +67,7 @@ def get_numbering_value(item, name, default=None):
 
     return getattr(item, name, default)
 
+
 def set_numbering_value(item, name, value):
     """Write a numbering value to either a dict or model object."""
 
@@ -71,6 +75,7 @@ def set_numbering_value(item, name, value):
         item[name] = value
     else:
         setattr(item, name, value)
+
 
 def renumber_siblings(items, parent_number, parent_type=None):
     """Renumber siblings while preserving GitMap hierarchy numbering.
@@ -81,7 +86,6 @@ def renumber_siblings(items, parent_number, parent_type=None):
     """
 
     for index, item in enumerate(items, start=1):
-
         if parent_type == "milestone_issue":
             new_number = generate_issue_number(
                 parent_number,
@@ -179,6 +183,7 @@ def renumber_siblings(items, parent_number, parent_type=None):
                 parent_type="work_step",
             )
 
+
 def collect_numbering_changes(items):
     """Collect all roadmap items whose numbers changed."""
 
@@ -193,6 +198,10 @@ def collect_numbering_changes(items):
             item,
             "number",
         )
+        item_type = get_numbering_value(item, "type")
+
+        if item_type == "work_step":
+            old_number = None
 
         if old_number and old_number != new_number:
             changes.append(
@@ -225,6 +234,7 @@ def collect_numbering_changes(items):
 
     return changes
 
+
 def remember_original_numbers(items):
     """Remember roadmap numbers before automatic renumbering."""
 
@@ -248,6 +258,7 @@ def remember_original_numbers(items):
                     [],
                 )
             )
+
 
 def restore_original_numbers(items):
     """Restore roadmap numbers remembered before temporary renumbering."""
@@ -278,4 +289,3 @@ def restore_original_numbers(items):
                     [],
                 )
             )
-

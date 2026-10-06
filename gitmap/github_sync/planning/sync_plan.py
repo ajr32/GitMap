@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from gitmap.github_sync.issues.github_representation import map_issue
 from gitmap.github_sync.issues.hierarchy_sync import collect_hierarchy_issue_mappings
+from gitmap.github_sync.issues.issue_comparison import (
+    hierarchy_issue_has_changes,
+    issue_has_changes,
+)
+from gitmap.github_sync.issues.issue_lookup import find_existing_issue
+from gitmap.roadmap.model.traversal import find_roadmap_item_by_id, iter_roadmap_issues
 from gitmap.roadmap.structure.comparison import compare_roadmaps
-from gitmap.roadmap.model.traversal import find_roadmap_item_by_id
 
 
 @dataclass
@@ -145,6 +151,76 @@ def get_hierarchy_mappings(roadmap, hierarchy_items):
     mappings = collect_hierarchy_issue_mappings(roadmap)
 
     return [mapping for mapping in mappings if mapping.gitmap_id in item_ids]
+
+
+def build_remote_sync_plan(roadmap, existing_issues):
+    """Build a synchronization plan from the roadmap and actual GitHub state."""
+
+    plan = SyncPlan()
+
+    roadmap_ids = set()
+
+    # Ordinary roadmap issues.
+    for issue, milestone, section, feature in iter_roadmap_issues(roadmap):
+        if issue.gitmap_id:
+            roadmap_ids.add(issue.gitmap_id)
+
+        mapping = map_issue(
+            issue,
+            milestone,
+            section,
+            feature,
+            roadmap=roadmap,
+        )
+
+        existing = find_existing_issue(
+            mapping,
+            existing_issues,
+        )
+
+        if existing is None:
+            plan.added_issues.append(issue)
+        elif issue_has_changes(mapping, existing):
+            plan.changed_issues.append(issue)
+
+    # Section / Feature hierarchy issues.
+    hierarchy_mappings = collect_hierarchy_issue_mappings(roadmap)
+
+    for mapping in hierarchy_mappings:
+        if mapping.gitmap_id:
+            roadmap_ids.add(mapping.gitmap_id)
+
+        existing = find_existing_issue(
+            mapping,
+            existing_issues,
+        )
+
+        if existing is None:
+            plan.added_hierarchy_mappings.append(mapping)
+        elif hierarchy_issue_has_changes(mapping, existing, roadmap):
+            plan.changed_hierarchy_mappings.append(mapping)
+
+    # Anything GitMap manages remotely that no longer exists in the roadmap
+    # is a removal candidate.
+    for github_issue in existing_issues:
+        body = github_issue.body or ""
+
+        gitmap_id = ""
+
+        for line in body.splitlines():
+            if line.startswith("GitMap-ID:"):
+                gitmap_id = line.removeprefix("GitMap-ID:").strip()
+                break
+
+        if not gitmap_id or gitmap_id in roadmap_ids:
+            continue
+
+        if "GitMap-Type: section" in body or "GitMap-Type: feature" in body:
+            plan.removed_hierarchy.append(gitmap_id)
+        else:
+            plan.removed_issues.append(gitmap_id)
+
+    return plan
 
 
 def build_initial_sync_plan(roadmap):

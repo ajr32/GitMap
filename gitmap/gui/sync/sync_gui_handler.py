@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QMessageBox
 
 from gitmap.gui.dialogs.removal_confirmation import confirm_sync_removals
@@ -12,6 +12,8 @@ from gitmap.gui.sync.sync_progress_dialog import (
 class SyncGuiHandler(QObject):
     """Handle synchronization worker signals on the GUI thread."""
 
+    preparation_approved = Signal(object)
+
     def __init__(
         self,
         parent,
@@ -22,7 +24,7 @@ class SyncGuiHandler(QObject):
         self.parent_widget = parent
         self.progress_dialog = progress_dialog
         self.sync_complete_callback = sync_complete_callback
-        self.completed_preparation = None
+        # self.completed_preparation = None
 
     @Slot(object, object)
     def update_progress(self, event, history):
@@ -61,8 +63,7 @@ class SyncGuiHandler(QObject):
     @Slot(object)
     def preparation_complete(self, preparation):
         removed_items = (
-            preparation.removed_github_issues
-            + preparation.removed_github_hierarchy
+            preparation.removed_github_issues + preparation.removed_github_hierarchy
         )
 
         if removed_items:
@@ -78,7 +79,7 @@ class SyncGuiHandler(QObject):
                 )
                 return
 
-        self.completed_preparation = preparation
+        self.preparation_approved.emit(preparation)
 
     @Slot(str, str)
     def display_results(self, rendered_results, log_path):
@@ -89,9 +90,7 @@ class SyncGuiHandler(QObject):
 
         if log_path:
             self.progress_dialog.activity_list.addItem("")
-            self.progress_dialog.activity_list.addItem(
-                f"Log saved: {log_path}"
-            )
+            self.progress_dialog.activity_list.addItem(f"Log saved: {log_path}")
 
         self.progress_dialog.activity_list.scrollToBottom()
 
