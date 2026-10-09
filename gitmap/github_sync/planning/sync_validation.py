@@ -3,6 +3,10 @@ from gitmap.github_sync.issues.issue_lookup import (
     find_existing_issue_by_gitmap_id,
     get_gitmap_id_from_github_issue,
 )
+from gitmap.github_sync.metadata.label_sync import (
+    GITHUB_LABEL_MAX_LENGTH,
+    validate_roadmap_labels,
+)
 from gitmap.roadmap.model.traversal import iter_roadmap_issues
 
 
@@ -84,9 +88,8 @@ def validate_synchronization_plan(plan, roadmap, existing_issues):
             )
 
     # Validate hierarchy mappings that will actually execute.
-    hierarchy_mappings = (
-        list(plan.added_hierarchy_mappings)
-        + list(plan.changed_hierarchy_mappings)
+    hierarchy_mappings = list(plan.added_hierarchy_mappings) + list(
+        plan.changed_hierarchy_mappings
     )
 
     mapping_by_id = {}
@@ -186,6 +189,25 @@ def validate_synchronization_plan(plan, roadmap, existing_issues):
                 f"milestone: {titles}"
             )
 
+    # Validate generated GitHub label lengths before any mutation begins.
+    for mapping in validate_roadmap_labels(roadmap):
+        source = _find_label_source(roadmap, mapping.name)
+
+        if source is not None:
+            number = getattr(source, "number", "unknown")
+            gitmap_id = getattr(source, "gitmap_id", "") or "none"
+
+            source_text = f"Roadmap item: {number} (GitMap-ID: {gitmap_id})"
+        else:
+            source_text = "Roadmap item: unknown"
+
+        conflicts.append(
+            f"GitHub label is too long: '{mapping.name}' "
+            f"({len(mapping.name)} characters; "
+            f"maximum is {GITHUB_LABEL_MAX_LENGTH}). "
+            f"{source_text}"
+        )
+
     return conflicts
 
 
@@ -260,5 +282,39 @@ def _relationship_value(relationship, *names):
         value = getattr(relationship, name, None)
         if value is not None:
             return value
+
+    return None
+
+
+def _find_label_source(roadmap, label_name):
+    """Return the roadmap item responsible for a generated GitHub label."""
+
+    if label_name == f"GitMap: {roadmap.name}":
+        return roadmap
+
+    for milestone in roadmap.milestones:
+        for issue in milestone.issues:
+            if label_name in getattr(issue, "labels", []):
+                return issue
+
+        for section in milestone.sections:
+            section_label = section.title.removesuffix(" (DONE)")
+
+            if label_name == section_label:
+                return section
+
+            for issue in section.issues:
+                if label_name in getattr(issue, "labels", []):
+                    return issue
+
+            for feature in section.features:
+                feature_label = feature.title.removesuffix(" (DONE)")
+
+                if label_name == feature_label:
+                    return feature
+
+                for issue in feature.issues:
+                    if label_name in getattr(issue, "labels", []):
+                        return issue
 
     return None

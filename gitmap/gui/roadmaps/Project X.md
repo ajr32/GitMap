@@ -18,5 +18,5 @@ Hierarchy-Issue-Title-Style: type_prefix
 ## 1.1.2 Section B
 <!-- GitMap-ID: horedsow -->
 
-#### 1.1.2.0.1 And We're Back
+#### 1.1.2.0.1 This Is An Extremely Ridiculous Test Label That GitHub Will Hate
 <!-- GitMap-ID: ioredsov -->

@@ -11,6 +11,20 @@ from gitmap.github_sync.issues.github_representation import (
 
 DEFAULT_LABEL_COLOR = "0366d6"
 
+GITHUB_LABEL_MAX_LENGTH = 50
+
+
+def validate_label_mappings(mappings):
+    """Return label mappings whose names exceed GitHub's length limit."""
+    return [
+        mapping for mapping in mappings if len(mapping.name) > GITHUB_LABEL_MAX_LENGTH
+    ]
+
+
+def validate_roadmap_labels(roadmap):
+    """Return invalid labels required by a roadmap."""
+    return validate_label_mappings(collect_label_mappings(roadmap))
+
 
 def create_missing_labels(
     repository,
