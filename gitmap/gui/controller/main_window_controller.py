@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 )
 
 from gitmap.gui.controller.editor_controller import open_editor
+from gitmap.gui.gpt.gpt_planning_controller import GPTPlanningController
 from gitmap.gui.controller.new_roadmap_controller import (
     build_roadmap_from_answers,
     load_structure_dialog,
@@ -98,6 +99,7 @@ def setup_main_window(window):
     cancel_button = window.findChild(QPushButton, "cancel_button")
     settings_button = window.findChild(QPushButton, "settings_button")
     sync_to_github_button = window.findChild(QPushButton, "sync_to_github_button")
+    gpt_planner_button = window.findChild(QPushButton, "gpt_planner_button")
 
     edit_button.hide()
     review_button.hide()
@@ -269,3 +271,13 @@ def setup_main_window(window):
     # -------------------------------------------------------------------------
 
     sync_to_github_button.clicked.connect(lambda: run_github_sync(window, state))
+
+    # -------------------------------------------------------------------------
+    # GPT Planning Wizard
+    # -------------------------------------------------------------------------
+
+    def open_gpt_planner():
+        controller = GPTPlanningController()
+        controller.run()
+
+    gpt_planner_button.clicked.connect(open_gpt_planner)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1121</width>
-    <height>809</height>
+    <height>807</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -283,7 +283,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>110</y>
+          <y>180</y>
           <width>150</width>
           <height>30</height>
          </rect>
@@ -323,7 +323,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>70</y>
+          <y>140</y>
           <width>150</width>
           <height>30</height>
          </rect>
@@ -363,7 +363,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>210</y>
+          <y>250</y>
           <width>150</width>
           <height>30</height>
          </rect>
@@ -403,7 +403,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>260</y>
+          <y>300</y>
           <width>150</width>
           <height>30</height>
          </rect>
@@ -558,6 +558,47 @@ background-color: rgb(255, 174, 174);</string>
         </property>
         <property name="text">
          <string>GitHub Settings</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="gpt_planner_button">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>50</y>
+          <width>150</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>91</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1600</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgba(89, 255, 131, 128);</string>
+        </property>
+        <property name="text">
+         <string>Develop Roadmap
+with AI</string>
         </property>
        </widget>
       </widget>
